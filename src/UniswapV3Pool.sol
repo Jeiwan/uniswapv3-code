@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
-import "./lib/Tick.sol";
 import "./lib/Position.sol";
+import "./lib/SqrtPriceMath.sol";
+import "./lib/Tick.sol";
 
 contract UniswapV3Pool {
     using Tick for mapping(int24 => Tick.Info);
     using Position for mapping(bytes32 => Position.Info);
     using Position for Position.Info;
+
+    error InvalidTickRange();
+    error ZeroLiquidity();
+
+    int24 internal constant MIN_TICK = -887272;
+    int24 internal constant MAX_TICK = -MIN_TICK;
 
     // Pool tokens, immutable
     address public immutable token0;
@@ -40,5 +47,46 @@ contract UniswapV3Pool {
         token1 = token1_;
 
         slot0 = Slot0({sqrtPriceX96: sqrtPriceX96, tick: tick});
+    }
+
+    function mint(
+        address owner,
+        int24 lowerTick,
+        int24 upperTick,
+        int128 amount
+    ) external returns (uint256 amount0, uint256 amount1) {
+        if (
+            lowerTick >= upperTick ||
+            lowerTick < MIN_TICK ||
+            upperTick > MAX_TICK
+        ) revert InvalidTickRange();
+
+        if (amount == 0) revert ZeroLiquidity();
+
+        ticks.update(lowerTick, amount);
+        ticks.update(upperTick, amount);
+
+        Position.Info storage position = positions.get(
+            owner,
+            lowerTick,
+            upperTick
+        );
+        position.update(amount);
+
+        Slot0 memory _slot0 = slot0; // Load into memory to save gas
+
+        amount0 = SqrtPriceMath.getAmount0Delta(
+            _slot0.sqrtPriceX96,
+            14284260, // upperTick, sqrt(p(i+100))
+            amount
+        );
+
+        amount1 = SqrtPriceMath.getAmount1Delta(
+            14001427, // lowerTick, sqrt(p(i-100))
+            _slot0.sqrtPriceX96,
+            amount
+        );
+
+        liquidity += uint128(amount);
     }
 }
