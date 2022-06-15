@@ -17,9 +17,9 @@ library Position {
         ];
     }
 
-    function update(Info storage self, int128 liquidityDelta) internal {
+    function update(Info storage self, uint128 liquidityDelta) internal {
         uint128 liquidityBefore = self.liquidity;
-        uint128 liquidityAfter = liquidityBefore + uint128(liquidityDelta);
+        uint128 liquidityAfter = liquidityBefore + liquidityDelta;
 
         self.liquidity = liquidityAfter;
     }
