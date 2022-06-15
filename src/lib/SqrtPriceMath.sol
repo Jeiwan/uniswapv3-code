@@ -20,8 +20,8 @@ library SqrtPriceMath {
 
         return
             Math.divRoundingUp(
-                Math.mulDivRoundingUp(numerator1, numerator2, sqrtPriceBX96),
-                sqrtPriceAX96
+                numerator1 * numerator2,
+                (sqrtPriceAX96 * sqrtPriceBX96)
             );
     }
 
