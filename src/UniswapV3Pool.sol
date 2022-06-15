@@ -78,13 +78,13 @@ contract UniswapV3Pool {
         amount0 = SqrtPriceMath.getAmount0Delta(
             _slot0.sqrtPriceX96,
             14214576466144435, // upperTick, sqrt(p(i_c+100)), wei
-            amount
+            uint128(amount)
         );
 
         amount1 = SqrtPriceMath.getAmount1Delta(
             14073146103223374, // lowerTick, sqrt(p(i_c-100)), wei
             _slot0.sqrtPriceX96,
-            amount
+            uint128(amount)
         );
 
         liquidity += uint128(amount);
