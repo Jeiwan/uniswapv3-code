@@ -17,8 +17,8 @@ contract UniswapV3PoolTest is Test {
         pool = new UniswapV3Pool(
             address(token0),
             address(token1),
-            14143684505937315, // 0.0002 ETH/USDC, 1.0001^(85174/2)
-            85174
+            uint160(5602277097478614198912276234240), // currentTick, sqrt(5000) << 96
+            85176
         );
     }
 
