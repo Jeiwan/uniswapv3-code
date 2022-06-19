@@ -33,8 +33,8 @@ contract UniswapV3PoolTest is Test {
             1377504647646213046272
         );
 
-        assertEq(amount0, 0.906588669621387936 ether, "incorrect amount0");
-        assertEq(amount1, 4998.466802897469051530 ether, "incorrect amount1");
+        assertEq(amount0, 1 ether, "incorrect amount0");
+        assertEq(amount1, 5000 ether, "incorrect amount1");
     }
 
     function uniswapV3MintCallback(uint256 amount0, uint256 amount1) public {
