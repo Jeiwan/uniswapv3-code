@@ -13,6 +13,11 @@ contract UniswapV3PoolTest is Test {
     function setUp() public {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+    }
+
+    function testMint() public {
+        token0.mint(address(this), 1 ether);
+        token1.mint(address(this), 5_000 ether);
 
         pool = new UniswapV3Pool(
             address(token0),
@@ -20,9 +25,20 @@ contract UniswapV3PoolTest is Test {
             uint160(5602277097478614198912276234240), // currentTick, sqrt(5000) << 96
             85176
         );
+
+        (uint256 amount0, uint256 amount1) = pool.mint(
+            address(this),
+            84122,
+            86129,
+            1377504647646213046272
+        );
+
+        assertEq(amount0, 0.906588669621387936 ether, "incorrect amount0");
+        assertEq(amount1, 4998.466802897469051530 ether, "incorrect amount1");
     }
 
-    function testExample() public {
-        assertTrue(true);
+    function uniswapV3MintCallback(uint256 amount0, uint256 amount1) public {
+        token0.transfer(msg.sender, amount0);
+        token1.transfer(msg.sender, amount1);
     }
 }
