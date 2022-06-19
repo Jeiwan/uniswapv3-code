@@ -5,7 +5,6 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
 
 import "./lib/Position.sol";
-import "./lib/SqrtPriceMath.sol";
 import "./lib/Tick.sol";
 
 contract UniswapV3Pool {
@@ -87,19 +86,8 @@ contract UniswapV3Pool {
         );
         position.update(amount);
 
-        Slot0 memory _slot0 = slot0; // Load into memory to save gas
-
-        amount0 = SqrtPriceMath.getAmount0Delta(
-            _slot0.sqrtPriceX96,
-            uint160(5875717789736564987741329162240), // upperTick, sqrt(5500) << 96
-            amount
-        );
-
-        amount1 = SqrtPriceMath.getAmount1Delta(
-            uint160(5314786713428871004159001755648), // lowerTick, sqrt(4500) << 96
-            _slot0.sqrtPriceX96,
-            amount
-        );
+        amount0 = 0.906588669621387936 ether; // TODO: replace with calculation
+        amount1 = 4998.466802897469051530 ether; // TODO: replace with calculation
 
         liquidity += uint128(amount);
 
@@ -116,7 +104,15 @@ contract UniswapV3Pool {
         if (amount1 > 0 && balance1Before + amount1 > balance1())
             revert InsufficientInputAmount();
 
-        emit Mint(msg.sender, owner, lowerTick, upperTick, amount, amount0, amount1);
+        emit Mint(
+            msg.sender,
+            owner,
+            lowerTick,
+            upperTick,
+            amount,
+            amount0,
+            amount1
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////
