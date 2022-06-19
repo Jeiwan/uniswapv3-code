@@ -91,12 +91,12 @@ contract UniswapV3Pool {
 
         amount0 = SqrtPriceMath.getAmount0Delta(
             _slot0.sqrtPriceX96,
-            14214576466144435, // upperTick, sqrt(p(i_c+100)), wei
+            uint160(5875717789736564987741329162240), // upperTick, sqrt(5500) << 96
             amount
         );
 
         amount1 = SqrtPriceMath.getAmount1Delta(
-            14073146103223374, // lowerTick, sqrt(p(i_c-100)), wei
+            uint160(5314786713428871004159001755648), // lowerTick, sqrt(4500) << 96
             _slot0.sqrtPriceX96,
             amount
         );
