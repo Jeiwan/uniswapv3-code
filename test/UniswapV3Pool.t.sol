@@ -28,12 +28,12 @@ contract UniswapV3PoolTest is Test {
 
         (uint256 amount0, uint256 amount1) = pool.mint(
             address(this),
-            84122,
+            84222,
             86129,
-            1377504647646213046272
+            1517882343751509868544
         );
 
-        assertEq(amount0, 1 ether, "incorrect amount0");
+        assertEq(amount0, 0.998976618347425280 ether, "incorrect amount0");
         assertEq(amount1, 5000 ether, "incorrect amount1");
     }
 

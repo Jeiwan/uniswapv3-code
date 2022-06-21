@@ -86,7 +86,7 @@ contract UniswapV3Pool {
         );
         position.update(amount);
 
-        amount0 = 1 ether; // TODO: replace with calculation
+        amount0 = 0.998976618347425280 ether; // TODO: replace with calculation
         amount1 = 5000 ether; // TODO: replace with calculation
 
         liquidity += uint128(amount);
