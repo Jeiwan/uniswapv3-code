@@ -22,7 +22,7 @@ contract UniswapV3PoolTest is Test {
         pool = new UniswapV3Pool(
             address(token0),
             address(token1),
-            uint160(5602277097478614198912276234240), // currentTick, sqrt(5000) << 96
+            uint160(5602277097478614198912276234240), // current price, sqrt(5000) * 2**96
             85176
         );
 
