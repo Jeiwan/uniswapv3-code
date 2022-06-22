@@ -11,6 +11,8 @@ contract UniswapV3PoolTest is Test {
     ERC20Mintable token1;
     UniswapV3Pool pool;
 
+    bool shouldTransferInCallback = true;
+
     function setUp() public {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
@@ -61,8 +63,78 @@ contract UniswapV3PoolTest is Test {
         assertEq(tickLiquidity, liquidity);
     }
 
+    function testMintInvalidTickRangeLower() public {
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            uint160(1),
+            0
+        );
+
+        vm.expectRevert(encodeError("InvalidTickRange()"));
+        pool.mint(address(this), -887273, 0, 0);
+    }
+
+    function testMintInvalidTickRangeUpper() public {
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            uint160(1),
+            0
+        );
+
+        vm.expectRevert(encodeError("InvalidTickRange()"));
+        pool.mint(address(this), 0, 887273, 0);
+    }
+
+    function testMintZeroLiquidity() public {
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            uint160(1),
+            0
+        );
+
+        vm.expectRevert(encodeError("ZeroLiquidity()"));
+        pool.mint(address(this), 0, 1, 0);
+    }
+
+    function testMintInsufficientTokenBalance() public {
+        shouldTransferInCallback = false;
+
+        int24 currentTick = 85176;
+        int24 lowerTick = 84222;
+        int24 upperTick = 86129;
+        uint128 liquidity = 1517882343751509868544;
+
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            uint160(5602277097478614198912276234240), // current price, sqrt(5000) * 2**96
+            currentTick
+        );
+
+        vm.expectRevert(encodeError("InsufficientInputAmount()"));
+        pool.mint(
+            address(this),
+            lowerTick,
+            upperTick,
+            liquidity
+        );
+    }
+
     function uniswapV3MintCallback(uint256 amount0, uint256 amount1) public {
-        token0.transfer(msg.sender, amount0);
-        token1.transfer(msg.sender, amount1);
+        if (shouldTransferInCallback) {
+            token0.transfer(msg.sender, amount0);
+            token1.transfer(msg.sender, amount1);
+        }
+    }
+
+    function encodeError(string memory error)
+        internal
+        pure
+        returns (bytes memory encoded)
+    {
+        encoded = abi.encodeWithSignature(error);
     }
 }
