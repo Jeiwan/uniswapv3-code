@@ -92,6 +92,19 @@ contract UniswapV3PoolTest is Test {
         (tickInitialized, tickLiquidity) = pool.ticks(params.upperTick);
         assertTrue(tickInitialized);
         assertEq(tickLiquidity, params.liquidity);
+
+        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        assertEq(
+            sqrtPriceX96,
+            5602277097478614198912276234240,
+            "invalid current sqrtP"
+        );
+        assertEq(tick, 85176, "invalid current tick");
+        assertEq(
+            pool.liquidity(),
+            1517882343751509868544,
+            "invalid current liquidity"
+        );
     }
 
     function testMintInvalidTickRangeLower() public {
