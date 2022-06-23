@@ -3,6 +3,7 @@ pragma solidity ^0.8.14;
 
 import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
+import "./interfaces/IUniswapV3SwapCallback.sol";
 
 import "./lib/Position.sol";
 import "./lib/Tick.sol";
@@ -13,6 +14,7 @@ contract UniswapV3Pool {
     using Position for Position.Info;
 
     error InsufficientInputAmount();
+    error InvalidSwapAmount();
     error InvalidTickRange();
     error ZeroLiquidity();
 
@@ -24,6 +26,16 @@ contract UniswapV3Pool {
         uint128 amount,
         uint256 amount0,
         uint256 amount1
+    );
+
+    event Swap(
+        address indexed sender,
+        address indexed recipient,
+        int256 amount0,
+        int256 amount1,
+        uint160 sqrtPriceX96,
+        uint128 liquidity,
+        int24 tick
     );
 
     int24 internal constant MIN_TICK = -887272;
@@ -113,6 +125,33 @@ contract UniswapV3Pool {
             amount0,
             amount1
         );
+    }
+
+    function swap(
+        address recipient,
+        int256 amountSpecified
+    ) public returns (int256 amount0, int256 amount1) {
+        if (amountSpecified == 0) revert InvalidSwapAmount();
+
+        amount0 = -0.008396714242162444 ether;
+        amount1 = amountSpecified;
+
+        int24 nextTick = 85184;
+        uint160 nextPrice = 5604469350942327889444743441197;
+
+        (slot0.tick, slot0.sqrtPriceX96) = (nextTick, nextPrice);
+
+        IERC20(token0).transfer(recipient, uint256(-amount0));
+
+        uint256 balance1Before = balance1();
+        IUniswapV3SwapCallback(msg.sender).uniswapV3SwapCallback(
+            amount0,
+            amount1
+        );
+        if (balance1Before + uint256(amount1) < balance1())
+            revert InsufficientInputAmount();
+
+        emit Swap(msg.sender, recipient, amount0, amount1, slot0.sqrtPriceX96, liquidity, slot0.tick);
     }
 
     ////////////////////////////////////////////////////////////////////////////
