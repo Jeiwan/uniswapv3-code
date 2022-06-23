@@ -30,32 +30,6 @@ contract UniswapV3PoolTest is Test {
         token1 = new ERC20Mintable("USDC", "USDC", 18);
     }
 
-    function setupTestCase(TestCaseParams memory params)
-        public
-        returns (uint256 poolBalance0, uint256 poolBalance1)
-    {
-        token0.mint(address(this), params.wethBalance);
-        token1.mint(address(this), params.usdcBalance);
-
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            params.currentSqrtP,
-            params.currentTick
-        );
-
-        if (params.mintLiqudity) {
-            (poolBalance0, poolBalance1) = pool.mint(
-                address(this),
-                params.lowerTick,
-                params.upperTick,
-                params.liquidity
-            );
-        }
-
-        shouldTransferInCallback = params.shouldTransferInCallback;
-    }
-
     function testMint() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
@@ -236,6 +210,11 @@ contract UniswapV3PoolTest is Test {
         );
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // CALLBACKS
+    //
+    ////////////////////////////////////////////////////////////////////////////
     function uniswapV3SwapCallback(int256 amount0, int256 amount1) public {
         if (amount0 > 0) {
             token0.transfer(msg.sender, uint256(amount0));
@@ -253,11 +232,42 @@ contract UniswapV3PoolTest is Test {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // INTERNAL
+    //
+    ////////////////////////////////////////////////////////////////////////////
     function encodeError(string memory error)
         internal
         pure
         returns (bytes memory encoded)
     {
         encoded = abi.encodeWithSignature(error);
+    }
+
+    function setupTestCase(TestCaseParams memory params)
+        internal
+        returns (uint256 poolBalance0, uint256 poolBalance1)
+    {
+        token0.mint(address(this), params.wethBalance);
+        token1.mint(address(this), params.usdcBalance);
+
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            params.currentSqrtP,
+            params.currentTick
+        );
+
+        if (params.mintLiqudity) {
+            (poolBalance0, poolBalance1) = pool.mint(
+                address(this),
+                params.lowerTick,
+                params.upperTick,
+                params.liquidity
+            );
+        }
+
+        shouldTransferInCallback = params.shouldTransferInCallback;
     }
 }
