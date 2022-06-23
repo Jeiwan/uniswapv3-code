@@ -4,8 +4,8 @@ const tokens = ["WETH", "USDC"];
 
 function TokensList(props) {
   return (
-    <select>
-      {tokens.map((t) => <option selected={props.selected === t} key={t}>{t}</option>)}
+    <select defaultValue={props.selected}>
+      {tokens.map((t) => <option key={t}>{t}</option>)}
     </select>
   )
 }

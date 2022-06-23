@@ -34,7 +34,6 @@ function renderChain(chainId) {
 }
 
 function statusConnected(account, chain) {
-  console.log(account);
   return (
     <span>Connected to {renderChain(chain)} as {shortAddress(account)}</span>
   );
