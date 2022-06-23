@@ -21,6 +21,8 @@ contract UniswapV3PoolTest is Test {
         int24 upperTick;
         uint128 liquidity;
         uint160 currentSqrtP;
+        bool shouldTransferInCallback;
+        bool mintLiqudity;
     }
 
     function setUp() public {
@@ -42,12 +44,16 @@ contract UniswapV3PoolTest is Test {
             params.currentTick
         );
 
-        (poolBalance0, poolBalance1) = pool.mint(
-            address(this),
-            params.lowerTick,
-            params.upperTick,
-            params.liquidity
-        );
+        if (params.mintLiqudity) {
+            (poolBalance0, poolBalance1) = pool.mint(
+                address(this),
+                params.lowerTick,
+                params.upperTick,
+                params.liquidity
+            );
+        }
+
+        shouldTransferInCallback = params.shouldTransferInCallback;
     }
 
     function testMint() public {
@@ -58,7 +64,9 @@ contract UniswapV3PoolTest is Test {
             lowerTick: 84222,
             upperTick: 86129,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240
+            currentSqrtP: 5602277097478614198912276234240,
+            shouldTransferInCallback: true,
+            mintLiqudity: true
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
@@ -144,22 +152,26 @@ contract UniswapV3PoolTest is Test {
     }
 
     function testMintInsufficientTokenBalance() public {
-        shouldTransferInCallback = false;
-
-        int24 currentTick = 85176;
-        int24 lowerTick = 84222;
-        int24 upperTick = 86129;
-        uint128 liquidity = 1517882343751509868544;
-
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(5602277097478614198912276234240), // current price, sqrt(5000) * 2**96
-            currentTick
-        );
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 0,
+            usdcBalance: 0,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            shouldTransferInCallback: false,
+            mintLiqudity: false
+        });
+        setupTestCase(params);
 
         vm.expectRevert(encodeError("InsufficientInputAmount()"));
-        pool.mint(address(this), lowerTick, upperTick, liquidity);
+        pool.mint(
+            address(this),
+            params.lowerTick,
+            params.upperTick,
+            params.liquidity
+        );
     }
 
     function testSwapBuyEth() public {
