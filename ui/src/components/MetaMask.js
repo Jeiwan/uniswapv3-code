@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import './MetaMask.css';
 
+const chainIdToChain = (chainId) => {
+  switch(chainId) {
+    case '0x1':
+      return 'Mainnet';
+
+    default:
+      return 'unknown chain';
+  };
+}
+
 const shortAddress = address => (address.slice(0, 6) + "..." + address.slice(-4))
 
 const connect = (setStatus, setAccount, setChain) => {
@@ -21,19 +31,9 @@ const connect = (setStatus, setAccount, setChain) => {
     });
 }
 
-const renderChain = (chainId) => {
-  if (!chainId) {
-    return <span>unknown</span>
-  }
-
-  return (
-    <span>chain {chainId}</span>
-  )
-}
-
 const statusConnected = (account, chain) => {
   return (
-    <span>Connected to {renderChain(chain)} as {shortAddress(account)}</span>
+    <span>Connected to {chainIdToChain(chain)} as {shortAddress(account)}</span>
   );
 }
 
