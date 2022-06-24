@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import './MetaMask.css';
 
-function shortAddress(address) {
-  return address.slice(0, 6) + "..." + address.slice(-4);
-}
+const shortAddress = address => (address.slice(0, 6) + "..." + address.slice(-4))
 
-function connect(setStatus, setAccount, setChain) {
+const connect = (setStatus, setAccount, setChain) => {
   if (typeof (window.ethereum) === 'undefined') {
     return setStatus('not_installed');
   }
@@ -23,7 +21,7 @@ function connect(setStatus, setAccount, setChain) {
     });
 }
 
-function renderChain(chainId) {
+const renderChain = (chainId) => {
   if (!chainId) {
     return <span>unknown</span>
   }
@@ -33,13 +31,13 @@ function renderChain(chainId) {
   )
 }
 
-function statusConnected(account, chain) {
+const statusConnected = (account, chain) => {
   return (
     <span>Connected to {renderChain(chain)} as {shortAddress(account)}</span>
   );
 }
 
-function statusNotConnected(setStatus, setAccount, setChain) {
+const statusNotConnected = (setStatus, setAccount, setChain) => {
   return (
     <span>
       MetaMask is not connected. <button onClick={connect(setStatus, setAccount, setChain)}>Connect</button>
@@ -47,7 +45,7 @@ function statusNotConnected(setStatus, setAccount, setChain) {
   )
 }
 
-function renderStatus(status, account, chain, setStatus, setAccount, setChain) {
+const renderStatus = (status, account, chain, setStatus, setAccount, setChain) => {
   switch (status) {
     case 'connected':
       return statusConnected(account, chain)
@@ -57,10 +55,13 @@ function renderStatus(status, account, chain, setStatus, setAccount, setChain) {
 
     case 'not_installed':
       return <span>MetaMask is not installed.</span>
+
+    default:
+      return;
   }
 }
 
-function MetaMask() {
+const MetaMask = () => {
   const [status, setStatus] = useState('not_connected');
   const [account, setAccount] = useState(null);
   const [chain, setChain] = useState(null);
