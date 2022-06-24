@@ -76,7 +76,7 @@ print("New sqrtP:", price_next)
 print("New tick:", price_to_tick((price_next / q96) ** 2))
 
 amount_in = calc_amount1(liq, price_next, sqrtp_cur)
-amountOut = calc_amount0(liq, price_next, sqrtp_cur)
+amount_out = calc_amount0(liq, price_next, sqrtp_cur)
 
 print("USDC in:", amount_in / eth)
-print("ETH out:", amountOut / eth)
+print("ETH out:", amount_out / eth)
