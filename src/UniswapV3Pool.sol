@@ -127,10 +127,10 @@ contract UniswapV3Pool {
         );
     }
 
-    function swap(
-        address recipient,
-        int256 amountSpecified
-    ) public returns (int256 amount0, int256 amount1) {
+    function swap(address recipient, int256 amountSpecified)
+        public
+        returns (int256 amount0, int256 amount1)
+    {
         if (amountSpecified == 0) revert InvalidSwapAmount();
 
         amount0 = -0.008396714242162444 ether;
@@ -151,7 +151,15 @@ contract UniswapV3Pool {
         if (balance1Before + uint256(amount1) < balance1())
             revert InsufficientInputAmount();
 
-        emit Swap(msg.sender, recipient, amount0, amount1, slot0.sqrtPriceX96, liquidity, slot0.tick);
+        emit Swap(
+            msg.sender,
+            recipient,
+            amount0,
+            amount1,
+            slot0.sqrtPriceX96,
+            liquidity,
+            slot0.tick
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////
