@@ -166,10 +166,7 @@ contract UniswapV3PoolTest is Test {
 
         int256 userBalance0Before = int256(token0.balanceOf(address(this)));
 
-        (int256 amount0Delta, int256 amount1Delta) = pool.swap(
-            address(this),
-            42 ether
-        );
+        (int256 amount0Delta, int256 amount1Delta) = pool.swap(address(this));
 
         assertEq(amount0Delta, -0.008396714242162444 ether, "invalid ETH out");
         assertEq(amount1Delta, 42 ether, "invalid USDC in");

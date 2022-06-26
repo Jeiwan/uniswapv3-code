@@ -14,7 +14,6 @@ contract UniswapV3Pool {
     using Position for Position.Info;
 
     error InsufficientInputAmount();
-    error InvalidSwapAmount();
     error InvalidTickRange();
     error ZeroLiquidity();
 
@@ -127,14 +126,12 @@ contract UniswapV3Pool {
         );
     }
 
-    function swap(address recipient, int256 amountSpecified)
+    function swap(address recipient)
         public
         returns (int256 amount0, int256 amount1)
     {
-        if (amountSpecified == 0) revert InvalidSwapAmount();
-
         amount0 = -0.008396714242162444 ether;
-        amount1 = amountSpecified;
+        amount1 = 42 ether;
 
         int24 nextTick = 85184;
         uint160 nextPrice = 5604469350942327889444743441197;
