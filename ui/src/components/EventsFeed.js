@@ -4,12 +4,8 @@ import { MetaMaskContext } from "../contexts/MetaMask";
 
 const PoolABI = require('../abi/Pool.json');
 
-const getEvents = (poolContract) => {
-  return poolContract.queryFilter("Mint", "earliest", "latest");
-}
-
-const subscribeToEvents = (poolContract, callback) => {
-  poolContract.on("Mint", (a, b, c, d, e, f, g, event) => callback(event));
+const subscribeToEvents = (pool, callback) => {
+  pool.once("Mint", (a, b, c, d, e, f, g, event) => callback(event));
 }
 
 const renderAmount = (amount) => {
@@ -36,29 +32,27 @@ const isMint = (event) => {
 }
 
 const EventsFeed = (props) => {
+  const config = props.config;
   const metamaskContext = useContext(MetaMaskContext);
   const [events, setEvents] = useState([]);
-  let poolContract;
+  const [pool, setPool] = useState();
 
   useEffect(() => {
     if (metamaskContext.status !== 'connected') {
       return;
     }
 
-    if (!poolContract) {
-      poolContract = new ethers.Contract(
-        props.config.poolAddress,
+    if (!pool) {
+      const newPool = new ethers.Contract(
+        config.poolAddress,
         PoolABI,
         new ethers.providers.Web3Provider(window.ethereum)
       );
+
+      subscribeToEvents(newPool, (event) => setEvents(events.concat(event)));
+      setPool(newPool);
     }
-
-    getEvents(poolContract).then((events) => {
-      console.log("MINTS", events);
-    });
-
-    subscribeToEvents(poolContract, (event) => setEvents(events.concat(event)));
-  }, [metamaskContext.status]);
+  }, [metamaskContext.status, events, pool, config]);
 
   return (
     <ul className="py-6">
