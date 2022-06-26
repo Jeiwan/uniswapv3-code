@@ -57,7 +57,7 @@ const EventsFeed = (props) => {
     if (events.length === 0) {
       getEvents(poolContract, setEvents);
     }
-  });
+  }, []);
 
   return (
     <ul className="py-6">
