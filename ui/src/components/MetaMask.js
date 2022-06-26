@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import detectEthereumProvider from '@metamask/detect-provider';
 import './MetaMask.css';
 
 const chainIdToChain = (chainId) => {
-  switch(chainId) {
+  switch (chainId) {
     case '0x1':
       return 'Mainnet';
 
@@ -17,20 +18,23 @@ const chainIdToChain = (chainId) => {
 const shortAddress = address => (address.slice(0, 6) + "..." + address.slice(-4))
 
 const connect = (setStatus, setAccount, setChain) => {
-  if (typeof (window.ethereum) === 'undefined') {
-    return setStatus('not_installed');
-  }
+  detectEthereumProvider()
+    .then((provider) => {
+      if (!provider) {
+        return setStatus('not_installed');
+      }
 
-  Promise.all([
-    window.ethereum.request({ method: 'eth_requestAccounts' }),
-    window.ethereum.request({ method: 'eth_chainId' }),
-  ]).then(function ([accounts, chainId]) {
-    setAccount(accounts[0]);
-    setChain(chainId);
-    setStatus('connected');
-  })
-    .catch(function (error) {
-      console.error(error)
+      Promise.all([
+        window.ethereum.request({ method: 'eth_requestAccounts' }),
+        window.ethereum.request({ method: 'eth_chainId' }),
+      ]).then(function ([accounts, chainId]) {
+        setAccount(accounts[0]);
+        setChain(chainId);
+        setStatus('connected');
+      })
+        .catch(function (error) {
+          console.error(error)
+        });
     });
 }
 
