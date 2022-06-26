@@ -6,6 +6,9 @@ const chainIdToChain = (chainId) => {
     case '0x1':
       return 'Mainnet';
 
+    case '0x7a69':
+      return 'Anvil'
+
     default:
       return 'unknown chain';
   };
