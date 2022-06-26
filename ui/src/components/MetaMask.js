@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import detectEthereumProvider from '@metamask/detect-provider';
+import { useContext } from 'react';
+import { MetaMaskContext } from '../contexts/MetaMask';
 import './MetaMask.css';
 
 const chainIdToChain = (chainId) => {
@@ -17,48 +17,27 @@ const chainIdToChain = (chainId) => {
 
 const shortAddress = address => (address.slice(0, 6) + "..." + address.slice(-4))
 
-const connect = (setStatus, setAccount, setChain) => {
-  detectEthereumProvider()
-    .then((provider) => {
-      if (!provider) {
-        return setStatus('not_installed');
-      }
-
-      Promise.all([
-        window.ethereum.request({ method: 'eth_requestAccounts' }),
-        window.ethereum.request({ method: 'eth_chainId' }),
-      ]).then(function ([accounts, chainId]) {
-        setAccount(accounts[0]);
-        setChain(chainId);
-        setStatus('connected');
-      })
-        .catch(function (error) {
-          console.error(error)
-        });
-    });
-}
-
 const statusConnected = (account, chain) => {
   return (
     <span>Connected to {chainIdToChain(chain)} as {shortAddress(account)}</span>
   );
 }
 
-const statusNotConnected = (setStatus, setAccount, setChain) => {
+const statusNotConnected = (connect) => {
   return (
     <span>
-      MetaMask is not connected. <button onClick={connect(setStatus, setAccount, setChain)}>Connect</button>
+      MetaMask is not connected. <button onClick={connect()}>Connect</button>
     </span>
   )
 }
 
-const renderStatus = (status, account, chain, setStatus, setAccount, setChain) => {
+const renderStatus = (status, account, chain, connect) => {
   switch (status) {
     case 'connected':
       return statusConnected(account, chain)
 
     case 'not_connected':
-      return statusNotConnected(setStatus, setAccount, setChain)
+      return statusNotConnected(connect)
 
     case 'not_installed':
       return <span>MetaMask is not installed.</span>
@@ -69,13 +48,11 @@ const renderStatus = (status, account, chain, setStatus, setAccount, setChain) =
 }
 
 const MetaMask = () => {
-  const [status, setStatus] = useState('not_connected');
-  const [account, setAccount] = useState(null);
-  const [chain, setChain] = useState(null);
+  const context = useContext(MetaMaskContext);
 
   return (
     <section className="MetaMaskContainer">
-      {renderStatus(status, account, chain, setStatus, setAccount, setChain)}
+      {renderStatus(context.status, context.account, context.chain, context.connect)}
     </section>
   );
 }
