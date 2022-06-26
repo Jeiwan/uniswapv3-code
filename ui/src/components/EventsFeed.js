@@ -4,13 +4,10 @@ import { MetaMaskContext } from "../contexts/MetaMask";
 
 const PoolABI = require('../abi/Pool.json');
 
-const getEvents = (poolContract, setEvents) => {
+const getEvents = (poolContract) => {
   const mintFilter = poolContract.filters.Mint();
 
-  poolContract.queryFilter(mintFilter, "earliest", "latest")
-    .then((events) => {
-      setEvents(events);
-    });
+  return poolContract.queryFilter(mintFilter, "earliest", "latest");
 }
 
 const renderAmount = (amount) => {
@@ -55,7 +52,7 @@ const EventsFeed = (props) => {
     }
 
     if (events.length === 0) {
-      getEvents(poolContract, setEvents);
+      getEvents(poolContract).then(setEvents);
     }
   }, []);
 
