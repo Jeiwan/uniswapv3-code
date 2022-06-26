@@ -15,14 +15,11 @@ contract DeployDevelopment is Script {
         uint256 wethBalance = 1 ether;
         uint256 usdcBalance = 5000 ether;
         int24 currentTick = 85176;
-        int24 lowerTick = 84222;
-        int24 upperTick = 86129;
-        uint128 liquidity = 1517882343751509868544;
         uint160 currentSqrtP = 5602277097478614198912276234240;
 
         vm.startBroadcast();
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
-        token1 = new ERC20Mintable("USDC", "USDC", 18);
+        token0 = new ERC20Mintable("Wrapped Ether", "WETH", 18);
+        token1 = new ERC20Mintable("USD Coin", "USDC", 18);
 
         UniswapV3Pool pool = new UniswapV3Pool(
             address(token0),
@@ -33,15 +30,14 @@ contract DeployDevelopment is Script {
 
         UniswapV3Manager manager = new UniswapV3Manager();
 
-        token0.mint(address(manager), wethBalance);
-        token1.mint(address(manager), usdcBalance);
-        manager.mint(address(pool), lowerTick, upperTick, liquidity);
+        token0.mint(msg.sender, wethBalance);
+        token1.mint(msg.sender, usdcBalance);
 
         vm.stopBroadcast();
 
         console.log("WETH address", address(token0));
         console.log("USDC address", address(token1));
         console.log("Pool address", address(pool));
-        console.log("manager address", address(manager));
+        console.log("Manager address", address(manager));
     }
 }
