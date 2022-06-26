@@ -6,6 +6,7 @@ const PoolABI = require('../abi/Pool.json');
 
 const subscribeToEvents = (pool, callback) => {
   pool.once("Mint", (a, b, c, d, e, f, g, event) => callback(event));
+  pool.once("Swap", (a, b, c, d, e, f, g, event) => callback(event));
 }
 
 const renderAmount = (amount) => {
@@ -21,14 +22,35 @@ const renderMint = (args) => {
   );
 }
 
-const renderEvent = (event, i) => {
+const renderSwap = (args) => {
   return (
-    <li key={i}>{renderMint(event.args)}</li>
+    <span>
+      <strong>Swap</strong>
+      [amount0: {renderAmount(args.amount0)}, amount1: {renderAmount(args.amount1)}]
+    </span>
+  );
+}
+
+const renderEvent = (event, i) => {
+  let content;
+
+  switch (event.event) {
+    case 'Mint':
+      content = renderMint(event.args);
+      break;
+
+    case 'Swap':
+      content = renderSwap(event.args);
+      break;
+  }
+
+  return (
+    <li key={i}>{content}</li>
   )
 }
 
-const isMint = (event) => {
-  return event.event === "Mint";
+const isMintOrSwap = (event) => {
+  return event.event === "Mint" || event.event === 'Swap';
 }
 
 const EventsFeed = (props) => {
@@ -56,7 +78,7 @@ const EventsFeed = (props) => {
 
   return (
     <ul className="py-6">
-      {events.reverse().filter(isMint).map(renderEvent)}
+      {events.reverse().filter(isMintOrSwap).map(renderEvent)}
     </ul>
   );
 }
