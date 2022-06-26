@@ -60,7 +60,9 @@ const EventsFeed = (props) => {
   });
 
   return (
-    <ul>{events.reverse().filter(onlyMints).map(renderEvent)}</ul>
+    <ul className="py-6">
+      {events.reverse().filter(onlyMints).map(renderEvent)}
+    </ul>
   );
 }
 
