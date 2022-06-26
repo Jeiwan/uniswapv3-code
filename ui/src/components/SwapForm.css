@@ -4,7 +4,15 @@
 }
 
 .SwapContainer header {
+  @apply flex flex-row justify-between;
+}
+
+.SwapContainer header h1 {
   @apply font-bold mb-4 text-gray-800;
+}
+
+.SwapContainer header button {
+  @apply inline h-fit;
 }
 
 .SwapForm {
