@@ -13,36 +13,36 @@ const TokensList = (props) => {
   )
 }
 
-const addLiquidity = (account, { token0, token1, manager }, config) => {
+const addLiquidity = (account, { token0, token1, manager }, { managerAddress, poolAddress }) => {
   if (!token0 || !token1) {
     return;
   }
 
-  const amount0 = ethers.BigNumber.from("1000000000000000000"); // 1 WETH
-  const amount1 = ethers.BigNumber.from("5000000000000000000000"); // 5000 USDC
+  const amount0 = ethers.utils.parseEther("0.998976618347425280");
+  const amount1 = ethers.utils.parseEther("5000"); // 5000 USDC
   const lowerTick = 84222;
   const upperTick = 86129;
   const liquidity = ethers.BigNumber.from("1517882343751509868544");
 
   Promise.all(
     [
-      token0.allowance(account, config.managerAddress),
-      token1.allowance(account, config.managerAddress)
+      token0.allowance(account, managerAddress),
+      token1.allowance(account, managerAddress)
     ]
   ).then(([allowance0, allowance1]) => {
     return Promise.resolve()
       .then(() => {
         if (allowance0.lt(amount0)) {
-          return token0.approve(config.managerAddress, amount0).then(tx => tx.wait())
+          return token0.approve(managerAddress, amount0).then(tx => tx.wait())
         }
       })
       .then(() => {
         if (allowance1.lt(amount1)) {
-          return token1.approve(config.managerAddress, amount1).then(tx => tx.wait())
+          return token1.approve(managerAddress, amount1).then(tx => tx.wait())
         }
       })
       .then(() => {
-        return manager.mint(config.poolAddress, lowerTick, upperTick, liquidity)
+        return manager.mint(poolAddress, lowerTick, upperTick, liquidity)
           .then(tx => tx.wait())
       })
       .then(() => {
@@ -54,12 +54,32 @@ const addLiquidity = (account, { token0, token1, manager }, config) => {
   });
 }
 
+const swap = (amountIn, account, { tokenIn, manager }, { managerAddress, poolAddress }) => {
+  const amountInWei = ethers.utils.parseEther(amountIn);
+
+  tokenIn.allowance(account, managerAddress)
+    .then((allowance) => {
+      if (allowance.lt(amountInWei)) {
+        return tokenIn.approve(managerAddress, amountInWei).then(tx => tx.wait())
+      }
+    })
+    .then(() => {
+      return manager.swap(poolAddress).then(tx => tx.wait())
+    })
+    .then(() => {
+      alert('Swap succeeded!');
+    }).catch((err) => {
+      console.error(err);
+      alert('Failed!');
+    });
+}
+
 const SwapForm = (props) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
 
-  const amount0 = 42;
-  const amount1 = 0.008396714242162444;
+  const amount0 = 0.008396714242162444;
+  const amount1 = 42;
 
   const [token0, setToken0] = useState();
   const [token1, setToken1] = useState();
@@ -87,6 +107,11 @@ const SwapForm = (props) => {
     addLiquidity(metamaskContext.account, { token0, token1, manager }, props.config);
   }
 
+  const swap_ = (e) => {
+    e.preventDefault();
+    swap(amount1.toString(), metamaskContext.account, { tokenIn: token1, manager }, props.config);
+  }
+
   return (
     <section className="SwapContainer">
       <header>
@@ -95,14 +120,14 @@ const SwapForm = (props) => {
       </header>
       <form className="SwapForm">
         <fieldset>
-          <input type="text" placeholder="0.0" value={amount0} readOnly />
+          <input type="text" placeholder="0.0" value={amount1} readOnly />
           <TokensList selected="USDC" />
         </fieldset>
         <fieldset>
-          <input type="text" placeholder="0.0" value={amount1} readOnly />
+          <input type="text" placeholder="0.0" value={amount0} readOnly />
           <TokensList selected="WETH" />
         </fieldset>
-        <button disabled={!enabled}>Swap</button>
+        <button disabled={!enabled} onClick={swap_}>Swap</button>
       </form>
     </section>
   )
