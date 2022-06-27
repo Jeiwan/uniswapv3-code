@@ -34,7 +34,7 @@ def liquidity1(amount, pa, pb):
 def calc_amount0(liq, pa, pb):
     if pa > pb:
         pa, pb = pb, pa
-    return int(liq * q96 * (pb - pa) / pa / pb)
+    return int(liq * q96 * (pb - pa) / pb / pa)
 
 
 def calc_amount1(liq, pa, pb):
