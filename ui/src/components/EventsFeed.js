@@ -1,8 +1,17 @@
 import { ethers } from "ethers";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { MetaMaskContext } from "../contexts/MetaMask";
 
 const PoolABI = require('../abi/Pool.json');
+
+const getEvents = (pool) => {
+  return Promise.all([
+    pool.queryFilter("Mint", "earliest", "latest"),
+    pool.queryFilter("Swap", "earliest", "latest"),
+  ]).then(([mints, swaps]) => {
+    return Promise.resolve((mints || []).concat(swaps || []))
+  })
+}
 
 const subscribeToEvents = (pool, callback) => {
   pool.once("Mint", (a, b, c, d, e, f, g, event) => callback(event));
@@ -53,10 +62,28 @@ const isMintOrSwap = (event) => {
   return event.event === "Mint" || event.event === 'Swap';
 }
 
+const cleanEvents = (events) => {
+  return events
+    .sort((a, b) => b.blockNumber - a.blockNumber)
+    .filter((el, i, arr) => {
+      return i === 0 || el.blockNumber != arr[i - 1].blockNumber || el.logIndex != arr[i - 1].logIndex
+    })
+}
+
+const eventsReducer = (state, action) => {
+  switch (action.type) {
+    case 'add':
+      return cleanEvents([action.value, ...state]);
+
+    case 'set':
+      return cleanEvents(action.value);
+  }
+}
+
 const EventsFeed = (props) => {
   const config = props.config;
   const metamaskContext = useContext(MetaMaskContext);
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useReducer(eventsReducer, []);
   const [pool, setPool] = useState();
 
   useEffect(() => {
@@ -71,14 +98,19 @@ const EventsFeed = (props) => {
         new ethers.providers.Web3Provider(window.ethereum)
       );
 
-      subscribeToEvents(newPool, (event) => setEvents(events.concat(event)));
+      subscribeToEvents(newPool, event => setEvents({ type: 'add', value: event }));
+
+      getEvents(newPool).then(events => {
+        setEvents({ type: 'set', value: events });
+      });
+
       setPool(newPool);
     }
   }, [metamaskContext.status, events, pool, config]);
 
   return (
     <ul className="py-6">
-      {events.reverse().filter(isMintOrSwap).map(renderEvent)}
+      {events.filter(isMintOrSwap).map(renderEvent)}
     </ul>
   );
 }
