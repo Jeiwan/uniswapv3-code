@@ -11,7 +11,8 @@ contract UniswapV3PoolTest is Test {
     ERC20Mintable token1;
     UniswapV3Pool pool;
 
-    bool shouldTransferInCallback = true;
+    bool transferInMintCallback = true;
+    bool transferInSwapCallback = true;
 
     struct TestCaseParams {
         uint256 wethBalance;
@@ -21,7 +22,8 @@ contract UniswapV3PoolTest is Test {
         int24 upperTick;
         uint128 liquidity;
         uint160 currentSqrtP;
-        bool shouldTransferInCallback;
+        bool transferInMintCallback;
+        bool transferInSwapCallback;
         bool mintLiqudity;
     }
 
@@ -39,7 +41,8 @@ contract UniswapV3PoolTest is Test {
             upperTick: 86129,
             liquidity: 1517882343751509868544,
             currentSqrtP: 5602277097478614198912276234240,
-            shouldTransferInCallback: true,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
             mintLiqudity: true
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
@@ -134,7 +137,8 @@ contract UniswapV3PoolTest is Test {
             upperTick: 86129,
             liquidity: 1517882343751509868544,
             currentSqrtP: 5602277097478614198912276234240,
-            shouldTransferInCallback: false,
+            transferInMintCallback: false,
+            transferInSwapCallback: true,
             mintLiqudity: false
         });
         setupTestCase(params);
@@ -157,7 +161,8 @@ contract UniswapV3PoolTest is Test {
             upperTick: 86129,
             liquidity: 1517882343751509868544,
             currentSqrtP: 5602277097478614198912276234240,
-            shouldTransferInCallback: true,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
             mintLiqudity: true
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
@@ -207,23 +212,42 @@ contract UniswapV3PoolTest is Test {
         );
     }
 
+    function testSwapInsufficientInputAmount() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: false,
+            mintLiqudity: true
+        });
+        setupTestCase(params);
+
+        vm.expectRevert(encodeError("InsufficientInputAmount()"));
+        pool.swap(address(this));
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // CALLBACKS
     //
     ////////////////////////////////////////////////////////////////////////////
     function uniswapV3SwapCallback(int256 amount0, int256 amount1) public {
-        if (amount0 > 0) {
+        if (amount0 > 0 && transferInSwapCallback) {
             token0.transfer(msg.sender, uint256(amount0));
         }
 
-        if (amount1 > 0) {
+        if (amount1 > 0 && transferInSwapCallback) {
             token1.transfer(msg.sender, uint256(amount1));
         }
     }
 
     function uniswapV3MintCallback(uint256 amount0, uint256 amount1) public {
-        if (shouldTransferInCallback) {
+        if (transferInMintCallback) {
             token0.transfer(msg.sender, amount0);
             token1.transfer(msg.sender, amount1);
         }
@@ -265,6 +289,7 @@ contract UniswapV3PoolTest is Test {
             );
         }
 
-        shouldTransferInCallback = params.shouldTransferInCallback;
+        transferInMintCallback = params.transferInMintCallback;
+        transferInSwapCallback = params.transferInSwapCallback;
     }
 }

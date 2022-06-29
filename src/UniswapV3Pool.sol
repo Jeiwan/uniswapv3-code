@@ -145,7 +145,7 @@ contract UniswapV3Pool {
             amount0,
             amount1
         );
-        if (balance1Before + uint256(amount1) < balance1())
+        if (balance1Before + uint256(amount1) > balance1())
             revert InsufficientInputAmount();
 
         emit Swap(
