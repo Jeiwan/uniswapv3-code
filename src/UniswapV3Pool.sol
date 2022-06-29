@@ -130,11 +130,11 @@ contract UniswapV3Pool {
         public
         returns (int256 amount0, int256 amount1)
     {
-        amount0 = -0.008396714242162444 ether;
-        amount1 = 42 ether;
-
         int24 nextTick = 85184;
         uint160 nextPrice = 5604469350942327889444743441197;
+
+        amount0 = -0.008396714242162444 ether;
+        amount1 = 42 ether;
 
         (slot0.tick, slot0.sqrtPriceX96) = (nextTick, nextPrice);
 
@@ -145,7 +145,7 @@ contract UniswapV3Pool {
             amount0,
             amount1
         );
-        if (balance1Before + uint256(amount1) < balance1())
+        if (balance1Before + uint256(amount1) > balance1())
             revert InsufficientInputAmount();
 
         emit Swap(

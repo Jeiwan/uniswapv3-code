@@ -8,9 +8,6 @@ import "../src/UniswapV3Manager.sol";
 import "../test/ERC20Mintable.sol";
 
 contract DeployDevelopment is Script {
-    ERC20Mintable token0;
-    ERC20Mintable token1;
-
     function run() public {
         uint256 wethBalance = 1 ether;
         uint256 usdcBalance = 5042 ether;
@@ -18,8 +15,8 @@ contract DeployDevelopment is Script {
         uint160 currentSqrtP = 5602277097478614198912276234240;
 
         vm.startBroadcast();
-        token0 = new ERC20Mintable("Wrapped Ether", "WETH", 18);
-        token1 = new ERC20Mintable("USD Coin", "USDC", 18);
+        ERC20Mintable token0 = new ERC20Mintable("Wrapped Ether", "WETH", 18);
+        ERC20Mintable token1 = new ERC20Mintable("USD Coin", "USDC", 18);
 
         UniswapV3Pool pool = new UniswapV3Pool(
             address(token0),
