@@ -24,41 +24,64 @@ contract UniswapV3Manager {
         address poolAddress_,
         int24 lowerTick,
         int24 upperTick,
-        uint128 liquidity
+        uint128 liquidity,
+        bytes calldata data
     ) public withPool(poolAddress_) withSender {
         UniswapV3Pool(poolAddress_).mint(
             msg.sender,
             lowerTick,
             upperTick,
-            liquidity
+            liquidity,
+            data
         );
     }
 
-    function swap(address poolAddress_)
+    function swap(address poolAddress_, bytes calldata data)
         public
         withPool(poolAddress_)
         withSender
     {
-        UniswapV3Pool(poolAddress_).swap(msg.sender);
+        UniswapV3Pool(poolAddress_).swap(msg.sender, data);
     }
 
-    function uniswapV3MintCallback(uint256 amount0, uint256 amount1) public {
-        IERC20 token0 = IERC20(UniswapV3Pool(poolAddress).token0());
-        IERC20 token1 = IERC20(UniswapV3Pool(poolAddress).token1());
+    function uniswapV3MintCallback(
+        uint256 amount0,
+        uint256 amount1,
+        bytes calldata data
+    ) public {
+        UniswapV3Pool.CallbackData memory extra = abi.decode(
+            data,
+            (UniswapV3Pool.CallbackData)
+        );
 
-        token0.transferFrom(sender, msg.sender, amount0);
-        token1.transferFrom(sender, msg.sender, amount1);
+        IERC20(extra.token0).transferFrom(extra.payer, msg.sender, amount0);
+        IERC20(extra.token1).transferFrom(extra.payer, msg.sender, amount1);
     }
 
-    function uniswapV3SwapCallback(int256 amount0, int256 amount1) public {
+    function uniswapV3SwapCallback(
+        int256 amount0,
+        int256 amount1,
+        bytes calldata data
+    ) public {
+        UniswapV3Pool.CallbackData memory extra = abi.decode(
+            data,
+            (UniswapV3Pool.CallbackData)
+        );
+
         if (amount0 > 0) {
-            IERC20 token0 = IERC20(UniswapV3Pool(poolAddress).token0());
-            token0.transferFrom(sender, msg.sender, uint256(amount0));
+            IERC20(extra.token0).transferFrom(
+                extra.payer,
+                msg.sender,
+                uint256(amount0)
+            );
         }
 
         if (amount1 > 0) {
-            IERC20 token1 = IERC20(UniswapV3Pool(poolAddress).token1());
-            token1.transferFrom(sender, msg.sender, uint256(amount1));
+            IERC20(extra.token1).transferFrom(
+                extra.payer,
+                msg.sender,
+                uint256(amount1)
+            );
         }
     }
 }
