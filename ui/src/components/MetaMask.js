@@ -26,7 +26,7 @@ const statusConnected = (account, chain) => {
 const statusNotConnected = (connect) => {
   return (
     <span>
-      MetaMask is not connected. <button onClick={connect()}>Connect</button>
+      MetaMask is not connected. <button onClick={connect}>Connect</button>
     </span>
   )
 }
