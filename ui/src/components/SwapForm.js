@@ -23,6 +23,10 @@ const addLiquidity = (account, { token0, token1, manager }, { managerAddress, po
   const lowerTick = 84222;
   const upperTick = 86129;
   const liquidity = ethers.BigNumber.from("1517882343751509868544");
+  const extra = ethers.utils.defaultAbiCoder.encode(
+    ["address", "address", "address"],
+    [token0.address, token1.address, account]
+  );
 
   Promise.all(
     [
@@ -42,7 +46,7 @@ const addLiquidity = (account, { token0, token1, manager }, { managerAddress, po
         }
       })
       .then(() => {
-        return manager.mint(poolAddress, lowerTick, upperTick, liquidity)
+        return manager.mint(poolAddress, lowerTick, upperTick, liquidity, extra)
           .then(tx => tx.wait())
       })
       .then(() => {
@@ -54,8 +58,12 @@ const addLiquidity = (account, { token0, token1, manager }, { managerAddress, po
   });
 }
 
-const swap = (amountIn, account, { tokenIn, manager }, { managerAddress, poolAddress }) => {
+const swap = (amountIn, account, { tokenIn, manager, token0, token1 }, { managerAddress, poolAddress }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
+  const extra = ethers.utils.defaultAbiCoder.encode(
+    ["address", "address", "address"],
+    [token0.address, token1.address, account]
+  );
 
   tokenIn.allowance(account, managerAddress)
     .then((allowance) => {
@@ -64,7 +72,7 @@ const swap = (amountIn, account, { tokenIn, manager }, { managerAddress, poolAdd
       }
     })
     .then(() => {
-      return manager.swap(poolAddress).then(tx => tx.wait())
+      return manager.swap(poolAddress, extra).then(tx => tx.wait())
     })
     .then(() => {
       alert('Swap succeeded!');
@@ -109,14 +117,14 @@ const SwapForm = (props) => {
 
   const swap_ = (e) => {
     e.preventDefault();
-    swap(amount1.toString(), metamaskContext.account, { tokenIn: token1, manager }, props.config);
+    swap(amount1.toString(), metamaskContext.account, { tokenIn: token1, manager, token0, token1 }, props.config);
   }
 
   return (
     <section className="SwapContainer">
       <header>
         <h1>Swap tokens</h1>
-        <button onClick={addLiquidity_}>Add liquidity</button>
+        <button disabled={!enabled} onClick={addLiquidity_}>Add liquidity</button>
       </header>
       <form className="SwapForm">
         <fieldset>

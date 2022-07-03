@@ -32,11 +32,6 @@
   },
   {
     "inputs": [],
-    "name": "InvalidSwapAmount",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "InvalidTickRange",
     "type": "error"
   },
@@ -177,6 +172,11 @@
         "internalType": "uint128",
         "name": "amount",
         "type": "uint128"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "mint",
@@ -240,9 +240,9 @@
         "type": "address"
       },
       {
-        "internalType": "int256",
-        "name": "amountSpecified",
-        "type": "int256"
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "swap",
