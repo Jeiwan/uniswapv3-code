@@ -20,6 +20,11 @@
         "internalType": "uint128",
         "name": "liquidity",
         "type": "uint128"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "mint",
@@ -33,6 +38,11 @@
         "internalType": "address",
         "name": "poolAddress_",
         "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "swap",
@@ -51,6 +61,11 @@
         "internalType": "uint256",
         "name": "amount1",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "uniswapV3MintCallback",
@@ -69,6 +84,11 @@
         "internalType": "int256",
         "name": "amount1",
         "type": "int256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
     "name": "uniswapV3SwapCallback",
