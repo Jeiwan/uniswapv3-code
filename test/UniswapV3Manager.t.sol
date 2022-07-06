@@ -147,11 +147,11 @@ contract UniswapV3ManagerTest is Test {
         });
         setupTestCase(params);
 
-        UniswapV3Pool.CallbackData memory extra = UniswapV3Pool.CallbackData({
-            token0: address(token0),
-            token1: address(token1),
-            payer: address(this)
-        });
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
 
         vm.expectRevert(stdError.arithmeticError);
         manager.mint(
@@ -159,7 +159,7 @@ contract UniswapV3ManagerTest is Test {
             params.lowerTick,
             params.upperTick,
             params.liquidity,
-            abi.encode(extra)
+            extra
         );
     }
 
@@ -182,17 +182,17 @@ contract UniswapV3ManagerTest is Test {
         token1.mint(address(this), swapAmount);
         token1.approve(address(manager), swapAmount);
 
-        UniswapV3Pool.CallbackData memory extra = UniswapV3Pool.CallbackData({
-            token0: address(token0),
-            token1: address(token1),
-            payer: address(this)
-        });
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
 
         int256 userBalance0Before = int256(token0.balanceOf(address(this)));
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
             address(pool),
-            abi.encode(extra)
+            extra
         );
 
         assertEq(amount0Delta, -0.008396714242162444 ether, "invalid ETH out");
@@ -249,14 +249,14 @@ contract UniswapV3ManagerTest is Test {
         });
         setupTestCase(params);
 
-        UniswapV3Pool.CallbackData memory extra = UniswapV3Pool.CallbackData({
-            token0: address(token0),
-            token1: address(token1),
-            payer: address(this)
-        });
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
 
         vm.expectRevert(stdError.arithmeticError);
-        manager.swap(address(pool), abi.encode(extra));
+        manager.swap(address(pool), extra);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -270,6 +270,21 @@ contract UniswapV3ManagerTest is Test {
         returns (bytes memory encoded)
     {
         encoded = abi.encodeWithSignature(error);
+    }
+
+    function encodeExtra(
+        address token0_,
+        address token1_,
+        address payer
+    ) internal pure returns (bytes memory) {
+        return
+            abi.encode(
+                UniswapV3Pool.CallbackData({
+                    token0: token0_,
+                    token1: token1_,
+                    payer: payer
+                })
+            );
     }
 
     function setupTestCase(TestCaseParams memory params)
@@ -292,19 +307,18 @@ contract UniswapV3ManagerTest is Test {
             token0.approve(address(manager), params.wethBalance);
             token1.approve(address(manager), params.usdcBalance);
 
-            UniswapV3Pool.CallbackData memory extra = UniswapV3Pool
-                .CallbackData({
-                    token0: address(token0),
-                    token1: address(token1),
-                    payer: address(this)
-                });
+            bytes memory extra = encodeExtra(
+                address(token0),
+                address(token1),
+                address(this)
+            );
 
             (poolBalance0, poolBalance1) = manager.mint(
                 address(pool),
                 params.lowerTick,
                 params.upperTick,
                 params.liquidity,
-                abi.encode(extra)
+                extra
             );
         }
 
