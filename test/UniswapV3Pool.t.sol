@@ -4,7 +4,6 @@ pragma solidity ^0.8.14;
 import "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
 import "../src/UniswapV3Pool.sol";
-import "../src/lib/Position.sol";
 import "./TestUtils.sol";
 
 contract UniswapV3PoolTest is Test, TestUtils {
