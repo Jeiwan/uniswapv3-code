@@ -5,8 +5,9 @@ import "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
 import "../src/UniswapV3Pool.sol";
 import "../src/lib/Position.sol";
+import "./TestUtils.sol";
 
-contract UniswapV3PoolTest is Test {
+contract UniswapV3PoolTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
     UniswapV3Pool pool;
@@ -298,14 +299,6 @@ contract UniswapV3PoolTest is Test {
     // INTERNAL
     //
     ////////////////////////////////////////////////////////////////////////////
-    function encodeError(string memory error)
-        internal
-        pure
-        returns (bytes memory encoded)
-    {
-        encoded = abi.encodeWithSignature(error);
-    }
-
     function setupTestCase(TestCaseParams memory params)
         internal
         returns (uint256 poolBalance0, uint256 poolBalance1)

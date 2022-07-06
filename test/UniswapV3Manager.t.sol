@@ -5,8 +5,9 @@ import {Test, stdError} from "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
 import "../src/UniswapV3Manager.sol";
 import "../src/lib/Position.sol";
+import "./TestUtils.sol";
 
-contract UniswapV3ManagerTest is Test {
+contract UniswapV3ManagerTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
     UniswapV3Pool pool;
@@ -264,29 +265,6 @@ contract UniswapV3ManagerTest is Test {
     // INTERNAL
     //
     ////////////////////////////////////////////////////////////////////////////
-    function encodeError(string memory error)
-        internal
-        pure
-        returns (bytes memory encoded)
-    {
-        encoded = abi.encodeWithSignature(error);
-    }
-
-    function encodeExtra(
-        address token0_,
-        address token1_,
-        address payer
-    ) internal pure returns (bytes memory) {
-        return
-            abi.encode(
-                UniswapV3Pool.CallbackData({
-                    token0: token0_,
-                    token1: token1_,
-                    payer: payer
-                })
-            );
-    }
-
     function setupTestCase(TestCaseParams memory params)
         internal
         returns (uint256 poolBalance0, uint256 poolBalance1)
