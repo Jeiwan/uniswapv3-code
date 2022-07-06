@@ -11,18 +11,22 @@ contract UniswapV3Manager {
         int24 upperTick,
         uint128 liquidity,
         bytes calldata data
-    ) public {
-        UniswapV3Pool(poolAddress_).mint(
-            msg.sender,
-            lowerTick,
-            upperTick,
-            liquidity,
-            data
-        );
+    ) public returns (uint256, uint256) {
+        return
+            UniswapV3Pool(poolAddress_).mint(
+                msg.sender,
+                lowerTick,
+                upperTick,
+                liquidity,
+                data
+            );
     }
 
-    function swap(address poolAddress_, bytes calldata data) public {
-        UniswapV3Pool(poolAddress_).swap(msg.sender, data);
+    function swap(address poolAddress_, bytes calldata data)
+        public
+        returns (int256, int256)
+    {
+        return UniswapV3Pool(poolAddress_).swap(msg.sender, data);
     }
 
     function uniswapV3MintCallback(
