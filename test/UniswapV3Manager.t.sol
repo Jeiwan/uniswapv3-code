@@ -237,6 +237,84 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
+    function testSwapBuyUSDC() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        uint256 swapAmount = 0.01337 ether;
+        token0.mint(address(this), swapAmount);
+        token0.approve(address(manager), swapAmount);
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        int256 userBalance0Before = int256(token0.balanceOf(address(this)));
+        int256 userBalance1Before = int256(token1.balanceOf(address(this)));
+
+        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
+            address(pool),
+            true,
+            swapAmount,
+            extra
+        );
+
+        assertEq(amount0Delta, 0.01337 ether, "invalid ETH in");
+        assertEq(
+            amount1Delta,
+            -66.808388890199406685 ether,
+            "invalid USDC out"
+        );
+
+        assertEq(
+            token0.balanceOf(address(this)),
+            uint256(userBalance0Before - amount0Delta),
+            "invalid user ETH balance"
+        );
+        assertEq(
+            token1.balanceOf(address(this)),
+            uint256(userBalance1Before - amount1Delta),
+            "invalid user USDC balance"
+        );
+
+        assertEq(
+            token0.balanceOf(address(pool)),
+            uint256(int256(poolBalance0) + amount0Delta),
+            "invalid pool ETH balance"
+        );
+        assertEq(
+            token1.balanceOf(address(pool)),
+            uint256(int256(poolBalance1) + amount1Delta),
+            "invalid pool USDC balance"
+        );
+
+        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        assertEq(
+            sqrtPriceX96,
+            5598789932670288701514545755210,
+            "invalid current sqrtP"
+        );
+        assertEq(tick, 85163, "invalid current tick");
+        assertEq(
+            pool.liquidity(),
+            1517882343751509868544,
+            "invalid current liquidity"
+        );
+    }
+
     function testSwapInsufficientInputAmount() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
