@@ -175,11 +175,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
 
-        UniswapV3Pool.CallbackData memory extra = UniswapV3Pool.CallbackData({
-            token0: address(token0),
-            token1: address(token1),
-            payer: address(this)
-        });
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
 
         int256 userBalance0Before = int256(token0.balanceOf(address(this)));
         int256 userBalance1Before = int256(token1.balanceOf(address(this)));
@@ -188,7 +188,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
             address(this),
             false,
             swapAmount,
-            abi.encode(extra)
+            extra
         );
 
         assertEq(amount0Delta, -0.008396714242162445 ether, "invalid ETH out");
@@ -249,11 +249,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
 
-        UniswapV3Pool.CallbackData memory extra = UniswapV3Pool.CallbackData({
-            token0: address(token0),
-            token1: address(token1),
-            payer: address(this)
-        });
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
 
         int256 userBalance0Before = int256(token0.balanceOf(address(this)));
         int256 userBalance1Before = int256(token1.balanceOf(address(this)));
@@ -262,7 +262,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
             address(this),
             true,
             swapAmount,
-            abi.encode(extra)
+            extra
         );
 
         assertEq(amount0Delta, 0.01337 ether, "invalid ETH in");
@@ -400,19 +400,18 @@ contract UniswapV3PoolTest is Test, TestUtils {
             token0.approve(address(this), params.wethBalance);
             token1.approve(address(this), params.usdcBalance);
 
-            UniswapV3Pool.CallbackData memory extra = UniswapV3Pool
-                .CallbackData({
-                    token0: address(token0),
-                    token1: address(token1),
-                    payer: address(this)
-                });
+            bytes memory extra = encodeExtra(
+                address(token0),
+                address(token1),
+                address(this)
+            );
 
             (poolBalance0, poolBalance1) = pool.mint(
                 address(this),
                 params.lowerTick,
                 params.upperTick,
                 params.liquidity,
-                abi.encode(extra)
+                extra
             );
         }
 
