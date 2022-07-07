@@ -78,6 +78,9 @@ contract UniswapV3PoolTest is Test, TestUtils {
         assertTrue(tickInitialized);
         assertEq(tickLiquidity, params.liquidity);
 
+        assertTrue(tickInBitMap(pool, params.lowerTick));
+        assertTrue(tickInBitMap(pool, params.upperTick));
+
         (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
         assertEq(
             sqrtPriceX96,

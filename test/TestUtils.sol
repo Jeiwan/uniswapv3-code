@@ -26,4 +26,17 @@ abstract contract TestUtils {
                 })
             );
     }
+
+    function tickInBitMap(UniswapV3Pool pool, int24 tick)
+        internal
+        view
+        returns (bool initialized)
+    {
+        int16 wordPos = int16(tick >> 8);
+        uint8 bitPos = uint8(uint24(tick % 256));
+
+        uint256 word = pool.tickBitmap(wordPos);
+
+        initialized = (word & (1 << bitPos)) != 0;
+    }
 }
