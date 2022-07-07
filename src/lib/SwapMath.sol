@@ -3,6 +3,8 @@ pragma solidity ^0.8.14;
 
 import "./Math.sol";
 
+import "forge-std/console.sol";
+
 library SwapMath {
     function computeSwapStep(
         uint160 sqrtPriceCurrentX96,
@@ -11,32 +13,65 @@ library SwapMath {
         uint256 amountRemaining
     )
         internal
-        pure
+        view
         returns (
             uint160 sqrtPriceNextX96,
             uint256 amountIn,
             uint256 amountOut
         )
     {
-        amountIn = Math.calcAmount1Delta(
-            sqrtPriceCurrentX96,
-            sqrtPriceTargetX96,
-            liquidity
-        );
-        sqrtPriceNextX96 =
-            sqrtPriceCurrentX96 +
-            uint160((amountRemaining << FixedPoint96.RESOLUTION) / liquidity);
+        bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
 
-        amountOut = Math.calcAmount0Delta(
-            sqrtPriceCurrentX96,
-            sqrtPriceNextX96,
-            liquidity
-        );
+        amountIn = zeroForOne
+            ? Math.calcAmount0Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceTargetX96,
+                liquidity
+            )
+            : Math.calcAmount1Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceTargetX96,
+                liquidity
+            );
 
-        amountIn = Math.calcAmount1Delta(
-            sqrtPriceCurrentX96,
-            sqrtPriceNextX96,
-            liquidity
-        );
+        console.log("amountInNext", amountIn);
+
+        if (amountRemaining >= amountIn) sqrtPriceNextX96 = sqrtPriceTargetX96;
+        else
+            sqrtPriceNextX96 = Math.getNextSqrtPriceFromInput(
+                sqrtPriceCurrentX96,
+                liquidity,
+                amountRemaining,
+                zeroForOne
+            );
+
+        console.log("amountRemaining", amountRemaining);
+        console.log("sqrtPriceCurrentX96", sqrtPriceCurrentX96);
+        console.log("sqrtPriceTargetX96", sqrtPriceTargetX96);
+        console.log("sqrtPriceNextX96", sqrtPriceNextX96);
+
+        if (zeroForOne) {
+            amountIn = Math.calcAmount0Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceNextX96,
+                liquidity
+            );
+            amountOut = Math.calcAmount1Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceNextX96,
+                liquidity
+            );
+        } else {
+            amountIn = Math.calcAmount1Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceNextX96,
+                liquidity
+            );
+            amountOut = Math.calcAmount0Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceNextX96,
+                liquidity
+            );
+        }
     }
 }
