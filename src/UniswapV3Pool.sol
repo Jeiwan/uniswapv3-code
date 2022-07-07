@@ -5,8 +5,10 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
 import "./interfaces/IUniswapV3SwapCallback.sol";
 
+import "./lib/Math.sol";
 import "./lib/Position.sol";
 import "./lib/Tick.sol";
+import "./lib/TickMath.sol";
 
 contract UniswapV3Pool {
     using Tick for mapping(int24 => Tick.Info);
@@ -105,8 +107,19 @@ contract UniswapV3Pool {
         );
         position.update(amount);
 
-        amount0 = 0.998976618347425280 ether; // TODO: replace with calculation
-        amount1 = 5000 ether; // TODO: replace with calculation
+        Slot0 memory slot0_ = slot0;
+
+        amount0 = Math.calcAmount0Delta(
+            TickMath.getSqrtRatioAtTick(slot0_.tick),
+            TickMath.getSqrtRatioAtTick(upperTick),
+            amount
+        );
+
+        amount1 = Math.calcAmount1Delta(
+            TickMath.getSqrtRatioAtTick(slot0_.tick),
+            TickMath.getSqrtRatioAtTick(lowerTick),
+            amount
+        );
 
         liquidity += uint128(amount);
 
@@ -140,9 +153,17 @@ contract UniswapV3Pool {
         returns (int256 amount0, int256 amount1)
     {
         int24 nextTick = 85184;
-        uint160 nextPrice = 5604469350942327889444743441197;
+        uint160 nextPrice = TickMath.getSqrtRatioAtTick(nextTick);
 
-        amount0 = -0.008396714242162444 ether;
+        Slot0 memory slot0_ = slot0;
+
+        uint256 amount0Delta = Math.calcAmount0Delta(
+            TickMath.getSqrtRatioAtTick(slot0_.tick),
+            nextPrice,
+            liquidity
+        );
+
+        amount0 = -int256(amount0Delta);
         amount1 = 42 ether;
 
         (slot0.tick, slot0.sqrtPriceX96) = (nextTick, nextPrice);
