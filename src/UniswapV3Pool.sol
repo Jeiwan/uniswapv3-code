@@ -175,6 +175,7 @@ contract UniswapV3Pool {
 
     function swap(
         address recipient,
+        bool zeroForOne,
         uint256 amountSpecified,
         bytes calldata data
     ) public returns (int256 amount0, int256 amount1) {
@@ -195,7 +196,7 @@ contract UniswapV3Pool {
             (step.nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
                 slot0_.tick,
                 1,
-                false
+                zeroForOne
             );
 
             step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.nextTick);
@@ -217,8 +218,15 @@ contract UniswapV3Pool {
             (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);
         }
 
-        amount0 = -int256(state.amountCalculated);
-        amount1 = int256(amountSpecified - state.amountSpecifiedRemaining);
+        (amount0, amount1) = zeroForOne
+            ? (
+                int256(amountSpecified - state.amountSpecifiedRemaining),
+                -int256(state.amountCalculated)
+            )
+            : (
+                -int256(state.amountCalculated),
+                int256(amountSpecified - state.amountSpecifiedRemaining)
+            );
 
         IERC20(token0).transfer(recipient, uint256(-amount0));
 

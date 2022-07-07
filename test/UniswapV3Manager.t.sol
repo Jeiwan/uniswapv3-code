@@ -193,6 +193,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
             address(pool),
+            false,
             swapAmount,
             extra
         );
@@ -258,7 +259,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         vm.expectRevert(stdError.arithmeticError);
-        manager.swap(address(pool), 42 ether, extra);
+        manager.swap(address(pool), false, 42 ether, extra);
     }
 
     ////////////////////////////////////////////////////////////////////////////
