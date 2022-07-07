@@ -3,15 +3,26 @@ pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
 import "../../src/lib/Math.sol";
+import "../../src/lib/TickMath.sol";
 
 contract MathTest is Test {
     function testCalcAmount0Delta() public {
         uint256 amount0 = Math.calcAmount0Delta(
-            5602277097478614198912276234240,
-            5875717789736564987741329162240,
+            TickMath.getSqrtRatioAtTick(85176),
+            TickMath.getSqrtRatioAtTick(86129),
             1517882343751509868544
         );
 
-        assertEq(0, amount0);
+        assertEq(amount0, 0.998833192822975408 ether);
+    }
+
+    function testCalcAmount1Delta() public {
+        uint256 amount1 = Math.calcAmount1Delta(
+            TickMath.getSqrtRatioAtTick(84222),
+            TickMath.getSqrtRatioAtTick(85176),
+            1517882343751509868544
+        );
+
+        assertEq(amount1, 4999.187247111820044640 ether);
     }
 }

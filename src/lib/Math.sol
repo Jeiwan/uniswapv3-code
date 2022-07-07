@@ -2,6 +2,7 @@
 pragma solidity ^0.8.14;
 
 import "./FixedPoint96.sol";
+import "prb-math/PRBMath.sol";
 
 library Math {
     /// @notice Calculates amount0 delta between two prices
@@ -16,9 +17,11 @@ library Math {
         require(sqrtPriceAX96 > 0);
 
         amount0 =
-            ((uint256(liquidity) << FixedPoint96.RESOLUTION) *
-                (sqrtPriceBX96 - sqrtPriceAX96)) /
-            sqrtPriceBX96 /
+            PRBMath.mulDiv(
+                (uint256(liquidity) << FixedPoint96.RESOLUTION),
+                (sqrtPriceBX96 - sqrtPriceAX96),
+                sqrtPriceBX96
+            ) /
             sqrtPriceAX96;
     }
 
@@ -31,8 +34,10 @@ library Math {
         if (sqrtPriceAX96 > sqrtPriceBX96)
             (sqrtPriceAX96, sqrtPriceBX96) = (sqrtPriceBX96, sqrtPriceAX96);
 
-        amount1 =
-            (liquidity * (sqrtPriceBX96 - sqrtPriceAX96)) /
-            FixedPoint96.Q96;
+        amount1 = PRBMath.mulDiv(
+            liquidity,
+            (sqrtPriceBX96 - sqrtPriceAX96),
+            FixedPoint96.Q96
+        );
     }
 }
