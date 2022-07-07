@@ -157,10 +157,11 @@ contract UniswapV3Pool {
         );
     }
 
-    function swap(address recipient, bytes calldata data)
-        public
-        returns (int256 amount0, int256 amount1)
-    {
+    function swap(
+        address recipient,
+        uint256 amountSpecified,
+        bytes calldata data
+    ) public returns (int256 amount0, int256 amount1) {
         Slot0 memory slot0_ = slot0;
 
         (int24 nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
@@ -177,10 +178,12 @@ contract UniswapV3Pool {
             liquidity
         );
 
-        if (amount1Delta > 42 ether) {
+        if (amount1Delta > amountSpecified) {
             nextPrice =
                 slot0_.sqrtPriceX96 +
-                uint160((42 ether << FixedPoint96.RESOLUTION) / liquidity);
+                uint160(
+                    (amountSpecified << FixedPoint96.RESOLUTION) / liquidity
+                );
             nextTick = TickMath.getTickAtSqrtRatio(nextPrice);
             amount1Delta = Math.calcAmount1Delta(
                 slot0_.sqrtPriceX96,

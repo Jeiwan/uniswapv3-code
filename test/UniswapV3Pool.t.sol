@@ -186,6 +186,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
             address(this),
+            swapAmount,
             abi.encode(extra)
         );
 
@@ -244,7 +245,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
         setupTestCase(params);
 
         vm.expectRevert(encodeError("InsufficientInputAmount()"));
-        pool.swap(address(this), "");
+        pool.swap(address(this), 42 ether, "");
     }
 
     ////////////////////////////////////////////////////////////////////////////
