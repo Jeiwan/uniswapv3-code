@@ -189,7 +189,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
             abi.encode(extra)
         );
 
-        assertEq(amount0Delta, -0.008584374741778552 ether, "invalid ETH out");
+        assertEq(amount0Delta, -0.008396714242162445 ether, "invalid ETH out");
         assertEq(amount1Delta, 42 ether, "invalid USDC in");
 
         assertEq(
@@ -217,7 +217,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
         (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
         assertEq(
             sqrtPriceX96,
-            5604464981235387621667342876360,
+            5604469350942327889444743441197,
             "invalid current sqrtP"
         );
         assertEq(tick, 85184, "invalid current tick");

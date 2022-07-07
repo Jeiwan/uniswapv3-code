@@ -161,19 +161,42 @@ contract UniswapV3Pool {
         public
         returns (int256 amount0, int256 amount1)
     {
-        int24 nextTick = 85184;
-        uint160 nextPrice = TickMath.getSqrtRatioAtTick(nextTick);
-
         Slot0 memory slot0_ = slot0;
 
+        (int24 nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
+            slot0_.tick,
+            1,
+            false
+        );
+
+        uint160 nextPrice = TickMath.getSqrtRatioAtTick(nextTick);
+
+        uint256 amount1Delta = Math.calcAmount1Delta(
+            slot0_.sqrtPriceX96,
+            nextPrice,
+            liquidity
+        );
+
+        if (amount1Delta > 42 ether) {
+            nextPrice =
+                slot0_.sqrtPriceX96 +
+                uint160((42 ether << FixedPoint96.RESOLUTION) / liquidity);
+            nextTick = TickMath.getTickAtSqrtRatio(nextPrice);
+            amount1Delta = Math.calcAmount1Delta(
+                slot0_.sqrtPriceX96,
+                nextPrice,
+                liquidity
+            );
+        }
+
         uint256 amount0Delta = Math.calcAmount0Delta(
-            TickMath.getSqrtRatioAtTick(slot0_.tick),
+            slot0_.sqrtPriceX96,
             nextPrice,
             liquidity
         );
 
         amount0 = -int256(amount0Delta);
-        amount1 = 42 ether;
+        amount1 = int256(amount1Delta);
 
         (slot0.tick, slot0.sqrtPriceX96) = (nextTick, nextPrice);
 
