@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { MetaMaskContext } from '../contexts/MetaMask';
 import debounce from '../lib/debounce';
 
+const uint256Max = ethers.constants.MaxUint256;
 const pairs = [["WETH", "USDC"]];
 
 const addLiquidity = (account, { token0, token1, manager }, { managerAddress, poolAddress }) => {
@@ -30,12 +31,12 @@ const addLiquidity = (account, { token0, token1, manager }, { managerAddress, po
     return Promise.resolve()
       .then(() => {
         if (allowance0.lt(amount0)) {
-          return token0.approve(managerAddress, amount0).then(tx => tx.wait())
+          return token0.approve(managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
         if (allowance1.lt(amount1)) {
-          return token1.approve(managerAddress, amount1).then(tx => tx.wait())
+          return token1.approve(managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
@@ -61,7 +62,7 @@ const swap = (zeroForOne, amountIn, account, { tokenIn, manager, token0, token1 
   tokenIn.allowance(account, managerAddress)
     .then((allowance) => {
       if (allowance.lt(amountInWei)) {
-        return tokenIn.approve(managerAddress, amountInWei).then(tx => tx.wait())
+        return tokenIn.approve(managerAddress, uint256Max).then(tx => tx.wait())
       }
     })
     .then(() => {
