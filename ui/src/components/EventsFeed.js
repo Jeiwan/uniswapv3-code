@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { MetaMaskContext } from "../contexts/MetaMask";
+import config from "../config.js";
 
 const PoolABI = require('../abi/Pool.json');
 
@@ -51,6 +52,9 @@ const renderEvent = (event, i) => {
     case 'Swap':
       content = renderSwap(event.args);
       break;
+
+    default:
+      return;
   }
 
   return (
@@ -66,7 +70,7 @@ const cleanEvents = (events) => {
   return events
     .sort((a, b) => b.blockNumber - a.blockNumber)
     .filter((el, i, arr) => {
-      return i === 0 || el.blockNumber != arr[i - 1].blockNumber || el.logIndex != arr[i - 1].logIndex
+      return i === 0 || el.blockNumber !== arr[i - 1].blockNumber || el.logIndex !== arr[i - 1].logIndex
     })
 }
 
@@ -77,11 +81,13 @@ const eventsReducer = (state, action) => {
 
     case 'set':
       return cleanEvents(action.value);
+
+    default:
+      return;
   }
 }
 
 const EventsFeed = (props) => {
-  const config = props.config;
   const metamaskContext = useContext(MetaMaskContext);
   const [events, setEvents] = useReducer(eventsReducer, []);
   const [pool, setPool] = useState();
@@ -106,7 +112,7 @@ const EventsFeed = (props) => {
 
       setPool(newPool);
     }
-  }, [metamaskContext.status, events, pool, config]);
+  }, [metamaskContext.status, events, pool]);
 
   return (
     <ul className="py-6">

@@ -2,6 +2,7 @@ import './SwapForm.css';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { MetaMaskContext } from '../contexts/MetaMask';
+import config from "../config.js";
 import debounce from '../lib/debounce';
 
 const uint256Max = ethers.constants.MaxUint256;
@@ -94,8 +95,8 @@ const ChangeDirectionButton = ({ zeroForOne, setZeroForOne, disabled }) => {
 const SwapForm = (props) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
+  const pair = pairs[0];
 
-  const [pair, _] = useState(pairs[0]);
   const [zeroForOne, setZeroForOne] = useState(true);
   const [amount0, setAmount0] = useState(0);
   const [amount1, setAmount1] = useState(0);
@@ -107,23 +108,23 @@ const SwapForm = (props) => {
 
   useEffect(() => {
     setToken0(new ethers.Contract(
-      props.config.token0Address,
-      props.config.ABIs.ERC20,
+      config.token0Address,
+      config.ABIs.ERC20,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
     setToken1(new ethers.Contract(
-      props.config.token1Address,
-      props.config.ABIs.ERC20,
+      config.token1Address,
+      config.ABIs.ERC20,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
     setManager(new ethers.Contract(
-      props.config.managerAddress,
-      props.config.ABIs.Manager,
+      config.managerAddress,
+      config.ABIs.Manager,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
     setQuoter(new ethers.Contract(
-      props.config.quoterAddress,
-      props.config.ABIs.Quoter,
+      config.quoterAddress,
+      config.ABIs.Quoter,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
   }, []);
