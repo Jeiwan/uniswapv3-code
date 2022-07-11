@@ -31,10 +31,10 @@
   @apply flex flex-col justify-center pr-2 h-full bg-slate-50 border border-purple-400 rounded rounded-tl-none rounded-bl-none border-l-0;
 }
 
-.SwapForm button {
+.SwapForm button.swap {
   @apply w-full rounded-xl py-4 bg-slate-100 text-xl mt-3;
 }
 
-.SwapForm button:hover {
+.SwapForm button.swap:hover {
   @apply bg-pink-100;
 }

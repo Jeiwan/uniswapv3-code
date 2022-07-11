@@ -84,6 +84,12 @@ const SwapInput = ({ token, amount, setAmount }) => {
   );
 }
 
+const ChangeDirectionButton = ({ zeroForOne, setZeroForOne }) => {
+  return (
+    <button onClick={(ev) => { ev.preventDefault(); setZeroForOne(!zeroForOne) }}>🔄</button>
+  )
+}
+
 const SwapForm = (props) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
@@ -131,8 +137,9 @@ const SwapForm = (props) => {
       </header>
       <form className="SwapForm">
         <SwapInput token={zeroForOne ? pair[0] : pair[1]} amount={zeroForOne ? amount0 : amount1} setAmount={zeroForOne ? setAmount0 : setAmount1} />
+        <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} />
         <SwapInput token={zeroForOne ? pair[1] : pair[0]} amount={zeroForOne ? amount1 : amount0} setAmount={zeroForOne ? setAmount1 : setAmount0} />
-        <button disabled={!enabled} onClick={swap_}>Swap</button>
+        <button className='swap' disabled={!enabled} onClick={swap_}>Swap</button>
       </form>
     </section>
   )
