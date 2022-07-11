@@ -18,14 +18,12 @@ contract UniswapV3Quoter {
             int24 tickAfter
         )
     {
-        IUniswapV3Pool pool = IUniswapV3Pool(params.pool);
-
         try
-            pool.swap(
+            IUniswapV3Pool(params.pool).swap(
                 address(this),
                 params.zeroForOne,
                 params.amountIn,
-                abi.encode(params.pool, params.zeroForOne)
+                abi.encode(params.pool)
             )
         {} catch (bytes memory reason) {
             return parseRevertReason(reason);
@@ -56,35 +54,21 @@ contract UniswapV3Quoter {
         int256 amount1Delta,
         bytes memory data
     ) external view {
-        (address pool, bool zeroForOne) = abi.decode(data, (address, bool));
+        address pool = abi.decode(data, (address));
 
-        (
-            bool isExactInput,
-            uint256 amountToPay,
-            uint256 amountReceived
-        ) = amount0Delta > 0
-                ? (zeroForOne, uint256(amount0Delta), uint256(-amount1Delta))
-                : (!zeroForOne, uint256(amount1Delta), uint256(-amount0Delta));
+        uint256 amountOut = amount0Delta > 0
+            ? uint256(-amount1Delta)
+            : uint256(-amount0Delta);
 
         (uint160 sqrtPriceX96After, int24 tickAfter) = IUniswapV3Pool(pool)
             .slot0();
 
-        if (isExactInput) {
-            assembly {
-                let ptr := mload(0x40)
-                mstore(ptr, amountReceived)
-                mstore(add(ptr, 0x20), sqrtPriceX96After)
-                mstore(add(ptr, 0x40), tickAfter)
-                revert(ptr, 96)
-            }
-        } else {
-            assembly {
-                let ptr := mload(0x40)
-                mstore(ptr, amountToPay)
-                mstore(add(ptr, 0x20), sqrtPriceX96After)
-                mstore(add(ptr, 0x40), tickAfter)
-                revert(ptr, 96)
-            }
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, amountOut)
+            mstore(add(ptr, 0x20), sqrtPriceX96After)
+            mstore(add(ptr, 0x40), tickAfter)
+            revert(ptr, 96)
         }
     }
 }
