@@ -38,3 +38,7 @@
 .SwapForm button.swap:hover {
   @apply bg-pink-100;
 }
+
+.ChangeDirectionBtn {
+  @apply mb-2 text-xl;
+}

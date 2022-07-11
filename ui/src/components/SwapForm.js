@@ -86,7 +86,7 @@ const SwapInput = ({ token, amount, setAmount }) => {
 
 const ChangeDirectionButton = ({ zeroForOne, setZeroForOne }) => {
   return (
-    <button onClick={(ev) => { ev.preventDefault(); setZeroForOne(!zeroForOne) }}>🔄</button>
+    <button className='ChangeDirectionBtn' onClick={(ev) => { ev.preventDefault(); setZeroForOne(!zeroForOne) }}>🔄</button>
   )
 }
 
