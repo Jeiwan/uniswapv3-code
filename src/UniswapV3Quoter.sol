@@ -26,27 +26,8 @@ contract UniswapV3Quoter {
                 abi.encode(params.pool)
             )
         {} catch (bytes memory reason) {
-            return parseRevertReason(reason);
+            return abi.decode(reason, (uint256, uint160, int24));
         }
-    }
-
-    function parseRevertReason(bytes memory reason)
-        private
-        pure
-        returns (
-            uint256 amount,
-            uint160 sqrtPriceX96After,
-            int24 tickAfter
-        )
-    {
-        if (reason.length != 96) {
-            if (reason.length < 68) revert("Unexpected error");
-            assembly {
-                reason := add(reason, 0x04)
-            }
-            revert(abi.decode(reason, (string)));
-        }
-        return abi.decode(reason, (uint256, uint160, int24));
     }
 
     function uniswapV3SwapCallback(
