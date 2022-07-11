@@ -3,8 +3,6 @@ pragma solidity ^0.8.14;
 
 import "./Math.sol";
 
-import "forge-std/console.sol";
-
 library SwapMath {
     function computeSwapStep(
         uint160 sqrtPriceCurrentX96,
@@ -13,7 +11,7 @@ library SwapMath {
         uint256 amountRemaining
     )
         internal
-        view
+        pure
         returns (
             uint160 sqrtPriceNextX96,
             uint256 amountIn,
@@ -34,8 +32,6 @@ library SwapMath {
                 liquidity
             );
 
-        console.log("amountInNext", amountIn);
-
         if (amountRemaining >= amountIn) sqrtPriceNextX96 = sqrtPriceTargetX96;
         else
             sqrtPriceNextX96 = Math.getNextSqrtPriceFromInput(
@@ -44,11 +40,6 @@ library SwapMath {
                 amountRemaining,
                 zeroForOne
             );
-
-        console.log("amountRemaining", amountRemaining);
-        console.log("sqrtPriceCurrentX96", sqrtPriceCurrentX96);
-        console.log("sqrtPriceTargetX96", sqrtPriceTargetX96);
-        console.log("sqrtPriceNextX96", sqrtPriceNextX96);
 
         if (zeroForOne) {
             amountIn = Math.calcAmount0Delta(
