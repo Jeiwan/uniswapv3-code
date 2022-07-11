@@ -5,7 +5,6 @@ import { MetaMaskContext } from '../contexts/MetaMask';
 import debounce from '../lib/debounce';
 
 const pairs = [["WETH", "USDC"]];
-const tokens = pairs.reduce((acc, el) => acc.concat(el), []);
 
 const addLiquidity = (account, { token0, token1, manager }, { managerAddress, poolAddress }) => {
   if (!token0 || !token1) {
