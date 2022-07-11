@@ -13,7 +13,8 @@ const config = {
   ABIs: {
     'ERC20': require('./abi/ERC20.json'),
     'Pool': require('./abi/Pool.json'),
-    'Manager': require('./abi/Manager.json')
+    'Manager': require('./abi/Manager.json'),
+    'Quoter': require('./abi/Quoter.json')
   }
 };
 

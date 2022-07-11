@@ -10,8 +10,8 @@ import "../test/ERC20Mintable.sol";
 
 contract DeployDevelopment is Script {
     function run() public {
-        uint256 wethBalance = 1 ether;
-        uint256 usdcBalance = 5042 ether;
+        uint256 wethBalance = 10 ether;
+        uint256 usdcBalance = 100000 ether;
         int24 currentTick = 85176;
         uint160 currentSqrtP = 5602277097478614198912276234240;
 

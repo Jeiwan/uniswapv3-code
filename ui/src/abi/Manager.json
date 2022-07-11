@@ -28,7 +28,18 @@
       }
     ],
     "name": "mint",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -40,13 +51,34 @@
         "type": "address"
       },
       {
+        "internalType": "bool",
+        "name": "zeroForOne",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountSpecified",
+        "type": "uint256"
+      },
+      {
         "internalType": "bytes",
         "name": "data",
         "type": "bytes"
       }
     ],
     "name": "swap",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      },
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
