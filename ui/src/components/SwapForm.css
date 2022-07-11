@@ -20,15 +20,15 @@
 }
 
 .SwapForm fieldset {
-  @apply flex flex-row;
+  @apply flex flex-row mb-2;
 }
 
-.SwapForm fieldset select {
-  @apply bg-slate-50 border border-purple-400 rounded mb-2 rounded-tl-none rounded-bl-none border-l-0;
+.SwapForm fieldset input {
+  @apply border border-purple-400 rounded px-4 py-2 bg-slate-50 text-xl rounded-tr-none rounded-br-none border-r-0 w-full;
 }
 
-.SwapForm input {
-  @apply border border-purple-400 rounded mb-2 px-4 py-2 bg-slate-50 text-xl rounded-tr-none rounded-br-none border-r-0;
+.SwapForm fieldset label {
+  @apply flex flex-col justify-center pr-2 h-full bg-slate-50 border border-purple-400 rounded rounded-tl-none rounded-bl-none border-l-0;
 }
 
 .SwapForm button {
