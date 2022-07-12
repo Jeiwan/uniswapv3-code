@@ -15,8 +15,8 @@ const getEvents = (pool) => {
 }
 
 const subscribeToEvents = (pool, callback) => {
-  pool.once("Mint", (a, b, c, d, e, f, g, event) => callback(event));
-  pool.once("Swap", (a, b, c, d, e, f, g, event) => callback(event));
+  pool.on("Mint", (a, b, c, d, e, f, g, event) => callback(event));
+  pool.on("Swap", (a, b, c, d, e, f, g, event) => callback(event));
 }
 
 const renderAmount = (amount) => {
@@ -87,7 +87,7 @@ const eventsReducer = (state, action) => {
   }
 }
 
-const EventsFeed = (props) => {
+const EventsFeed = () => {
   const metamaskContext = useContext(MetaMaskContext);
   const [events, setEvents] = useReducer(eventsReducer, []);
   const [pool, setPool] = useState();
