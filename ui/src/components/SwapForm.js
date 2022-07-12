@@ -8,7 +8,7 @@ import debounce from '../lib/debounce';
 const uint256Max = ethers.constants.MaxUint256;
 const pairs = [["WETH", "USDC"]];
 
-const addLiquidity = (account, { token0, token1, manager }, { managerAddress, poolAddress }) => {
+const addLiquidity = (account, { token0, token1, manager }) => {
   if (!token0 || !token1) {
     return;
   }
@@ -25,23 +25,23 @@ const addLiquidity = (account, { token0, token1, manager }, { managerAddress, po
 
   Promise.all(
     [
-      token0.allowance(account, managerAddress),
-      token1.allowance(account, managerAddress)
+      token0.allowance(account, config.managerAddress),
+      token1.allowance(account, config.managerAddress)
     ]
   ).then(([allowance0, allowance1]) => {
     return Promise.resolve()
       .then(() => {
         if (allowance0.lt(amount0)) {
-          return token0.approve(managerAddress, uint256Max).then(tx => tx.wait())
+          return token0.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
         if (allowance1.lt(amount1)) {
-          return token1.approve(managerAddress, uint256Max).then(tx => tx.wait())
+          return token1.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
-        return manager.mint(poolAddress, lowerTick, upperTick, liquidity, extra)
+        return manager.mint(config.poolAddress, lowerTick, upperTick, liquidity, extra)
           .then(tx => tx.wait())
       })
       .then(() => {
@@ -53,21 +53,21 @@ const addLiquidity = (account, { token0, token1, manager }, { managerAddress, po
   });
 }
 
-const swap = (zeroForOne, amountIn, account, { tokenIn, manager, token0, token1 }, { managerAddress, poolAddress }) => {
+const swap = (zeroForOne, amountIn, account, { tokenIn, manager, token0, token1 }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
   const extra = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "address"],
     [token0.address, token1.address, account]
   );
 
-  tokenIn.allowance(account, managerAddress)
+  tokenIn.allowance(account, config.managerAddress)
     .then((allowance) => {
       if (allowance.lt(amountInWei)) {
-        return tokenIn.approve(managerAddress, uint256Max).then(tx => tx.wait())
+        return tokenIn.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
       }
     })
     .then(() => {
-      return manager.swap(poolAddress, zeroForOne, amountInWei, extra).then(tx => tx.wait())
+      return manager.swap(config.poolAddress, zeroForOne, amountInWei, extra).then(tx => tx.wait())
     })
     .then(() => {
       alert('Swap succeeded!');
@@ -130,12 +130,12 @@ const SwapForm = (props) => {
   }, []);
 
   const addLiquidity_ = () => {
-    addLiquidity(metamaskContext.account, { token0, token1, manager }, props.config);
+    addLiquidity(metamaskContext.account, { token0, token1, manager });
   }
 
   const swap_ = (e) => {
     e.preventDefault();
-    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, { tokenIn: token1, manager, token0, token1 }, props.config);
+    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, { tokenIn: token1, manager, token0, token1 });
   }
 
   const updateAmountOut = debounce((amount) => {
@@ -146,7 +146,7 @@ const SwapForm = (props) => {
     setLoading(true);
 
     quoter.callStatic
-      .quote({ pool: props.config.poolAddress, amountIn: ethers.utils.parseEther(amount), zeroForOne: zeroForOne })
+      .quote({ pool: config.poolAddress, amountIn: ethers.utils.parseEther(amount), zeroForOne: zeroForOne })
       .then(({ amountOut }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
         setLoading(false);
