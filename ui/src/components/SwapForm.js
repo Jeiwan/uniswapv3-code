@@ -77,10 +77,10 @@ const swap = (zeroForOne, amountIn, account, { tokenIn, manager, token0, token1 
     });
 }
 
-const SwapInput = ({ token, amount, setAmount, disabled }) => {
+const SwapInput = ({ token, amount, setAmount, disabled, readOnly }) => {
   return (
     <fieldset disabled={disabled}>
-      <input type="text" id={token + "_amount"} placeholder="0.0" value={amount} onChange={(ev) => setAmount(ev.target.value)} />
+      <input type="text" id={token + "_amount"} placeholder="0.0" value={amount} onChange={(ev) => setAmount(ev.target.value)} readOnly={readOnly} />
       <label htmlFor={token + "_amount"}>{token}</label>
     </fieldset>
   );
@@ -173,9 +173,19 @@ const SwapForm = (props) => {
         <button disabled={!enabled || loading} onClick={addLiquidity_}>Add liquidity</button>
       </header>
       <form className="SwapForm">
-        <SwapInput token={zeroForOne ? pair[0] : pair[1]} amount={zeroForOne ? amount0 : amount1} setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1, zeroForOne)} disabled={!enabled || loading} />
+        <SwapInput
+          amount={zeroForOne ? amount0 : amount1}
+          disabled={!enabled || loading}
+          readOnly={false}
+          setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1, zeroForOne)}
+          token={zeroForOne ? pair[0] : pair[1]} />
         <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} disabled={!enabled || loading} />
-        <SwapInput token={zeroForOne ? pair[1] : pair[0]} amount={zeroForOne ? amount1 : amount0} setAmount={setAmount_(zeroForOne ? setAmount1 : setAmount0, zeroForOne)} disabled={!enabled || loading} />
+        <SwapInput
+          amount={zeroForOne ? amount1 : amount0}
+          disabled={!enabled || loading}
+          readOnly={true}
+          setAmount={setAmount_(zeroForOne ? setAmount1 : setAmount0, zeroForOne)}
+          token={zeroForOne ? pair[1] : pair[0]} />
         <button className='swap' disabled={!enabled || loading} onClick={swap_}>Swap</button>
       </form>
     </section>
