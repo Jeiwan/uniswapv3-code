@@ -19,8 +19,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
 
-        uint256 wethBalance = 1 ether;
-        uint256 usdcBalance = 5000 ether;
+        uint256 wethBalance = 100 ether;
+        uint256 usdcBalance = 1000000 ether;
 
         token0.mint(address(this), wethBalance);
         token1.mint(address(this), usdcBalance);
@@ -87,5 +87,59 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85184, "invalid tickAFter");
+    }
+
+    function testQuoteAndSwapUSDCforETH() public {
+        uint256 amountIn = 0.01337 ether;
+        (uint256 amountOut, , ) = quoter.quote(
+            UniswapV3Quoter.QuoteParams({
+                pool: address(pool),
+                amountIn: amountIn,
+                zeroForOne: true
+            })
+        );
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
+            address(pool),
+            true,
+            amountIn,
+            extra
+        );
+
+        assertEq(uint256(amount0Delta), amountIn, "invalid amount0Delta");
+        assertEq(uint256(-amount1Delta), amountOut, "invalid amount1Delta");
+    }
+
+    function testQuoteAndSwapETHforUSDC() public {
+        uint256 amountIn = 55 ether;
+        (uint256 amountOut, , ) = quoter.quote(
+            UniswapV3Quoter.QuoteParams({
+                pool: address(pool),
+                amountIn: amountIn,
+                zeroForOne: false
+            })
+        );
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
+            address(pool),
+            false,
+            amountIn,
+            extra
+        );
+
+        assertEq(uint256(-amount0Delta), amountOut, "invalid amount1Delta");
+        assertEq(uint256(amount1Delta), amountIn, "invalid amount0Delta");
     }
 }
