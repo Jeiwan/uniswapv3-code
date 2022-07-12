@@ -139,7 +139,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             extra
         );
 
-        assertEq(uint256(-amount0Delta), amountOut, "invalid amount1Delta");
-        assertEq(uint256(amount1Delta), amountIn, "invalid amount0Delta");
+        assertEq(uint256(-amount0Delta), amountOut, "invalid amount0Delta");
+        assertEq(uint256(amount1Delta), amountIn, "invalid amount1Delta");
     }
 }
