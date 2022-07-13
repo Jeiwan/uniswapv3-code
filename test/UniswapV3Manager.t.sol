@@ -315,6 +315,64 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
+    function testSwapBuyEthNotEnoughLiquidity() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        setupTestCase(params);
+
+        uint256 swapAmount = 5300 ether;
+        token1.mint(address(this), swapAmount);
+        token1.approve(address(this), swapAmount);
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        vm.expectRevert(stdError.arithmeticError);
+        manager.swap(address(pool), false, swapAmount, extra);
+    }
+
+    function testSwapBuyUSDCNotEnoughLiquidity() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        setupTestCase(params);
+
+        uint256 swapAmount = 1.1 ether;
+        token0.mint(address(this), swapAmount);
+        token0.approve(address(this), swapAmount);
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        vm.expectRevert(stdError.arithmeticError);
+        manager.swap(address(pool), true, swapAmount, extra);
+    }
+
     function testSwapInsufficientInputAmount() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
