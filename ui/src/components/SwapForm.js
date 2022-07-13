@@ -184,7 +184,6 @@ const SwapForm = (props) => {
           amount={zeroForOne ? amount1 : amount0}
           disabled={!enabled || loading}
           readOnly={true}
-          setAmount={setAmount_(zeroForOne ? setAmount1 : setAmount0, zeroForOne)}
           token={zeroForOne ? pair[1] : pair[0]} />
         <button className='swap' disabled={!enabled || loading} onClick={swap_}>Swap</button>
       </form>
