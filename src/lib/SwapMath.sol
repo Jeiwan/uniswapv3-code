@@ -41,28 +41,19 @@ library SwapMath {
                 zeroForOne
             );
 
-        if (zeroForOne) {
-            amountIn = Math.calcAmount0Delta(
-                sqrtPriceCurrentX96,
-                sqrtPriceNextX96,
-                liquidity
-            );
-            amountOut = Math.calcAmount1Delta(
-                sqrtPriceCurrentX96,
-                sqrtPriceNextX96,
-                liquidity
-            );
-        } else {
-            amountIn = Math.calcAmount1Delta(
-                sqrtPriceCurrentX96,
-                sqrtPriceNextX96,
-                liquidity
-            );
-            amountOut = Math.calcAmount0Delta(
-                sqrtPriceCurrentX96,
-                sqrtPriceNextX96,
-                liquidity
-            );
+        amountIn = Math.calcAmount0Delta(
+            sqrtPriceCurrentX96,
+            sqrtPriceNextX96,
+            liquidity
+        );
+        amountOut = Math.calcAmount1Delta(
+            sqrtPriceCurrentX96,
+            sqrtPriceNextX96,
+            liquidity
+        );
+
+        if (!zeroForOne) {
+            (amountIn, amountOut) = (amountOut, amountIn);
         }
     }
 }
