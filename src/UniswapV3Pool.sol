@@ -203,7 +203,7 @@ contract UniswapV3Pool {
 
             (state.sqrtPriceX96, step.amountIn, step.amountOut) = SwapMath
                 .computeSwapStep(
-                    state.sqrtPriceX96,
+                    step.sqrtPriceStartX96,
                     step.sqrtPriceNextX96,
                     liquidity,
                     state.amountSpecifiedRemaining
