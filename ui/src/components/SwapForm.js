@@ -177,7 +177,7 @@ const SwapForm = (props) => {
           amount={zeroForOne ? amount0 : amount1}
           disabled={!enabled || loading}
           readOnly={false}
-          setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1, zeroForOne)}
+          setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1)}
           token={zeroForOne ? pair[0] : pair[1]} />
         <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} disabled={!enabled || loading} />
         <SwapInput
