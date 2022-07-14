@@ -68,15 +68,21 @@ contract UniswapV3PoolTest is Test, TestUtils {
         uint128 posLiquidity = pool.positions(positionKey);
         assertEq(posLiquidity, params.liquidity);
 
-        (bool tickInitialized, uint128 tickLiquidity) = pool.ticks(
-            params.lowerTick
+        (
+            bool tickInitialized,
+            uint128 tickLiquidityGross,
+            int128 tickLiquidityNet
+        ) = pool.ticks(params.lowerTick);
+        assertTrue(tickInitialized);
+        assertEq(tickLiquidityGross, params.liquidity);
+        assertEq(tickLiquidityNet, int128(params.liquidity));
+
+        (tickInitialized, tickLiquidityGross, tickLiquidityNet) = pool.ticks(
+            params.upperTick
         );
         assertTrue(tickInitialized);
-        assertEq(tickLiquidity, params.liquidity);
-
-        (tickInitialized, tickLiquidity) = pool.ticks(params.upperTick);
-        assertTrue(tickInitialized);
-        assertEq(tickLiquidity, params.liquidity);
+        assertEq(tickLiquidityGross, params.liquidity);
+        assertEq(tickLiquidityNet, -int128(params.liquidity));
 
         assertTrue(tickInBitMap(pool, params.lowerTick));
         assertTrue(tickInBitMap(pool, params.upperTick));
@@ -415,7 +421,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
             address(this)
         );
 
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         pool.swap(address(this), false, swapAmount, extra);
     }
 
@@ -444,7 +450,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
             address(this)
         );
 
-        vm.expectRevert(stdError.arithmeticError);
+        vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         pool.swap(address(this), true, swapAmount, extra);
     }
 

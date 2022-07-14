@@ -20,6 +20,7 @@ contract UniswapV3Pool {
 
     error InsufficientInputAmount();
     error InvalidTickRange();
+    error NotEnoughLiquidity();
     error ZeroLiquidity();
 
     event Mint(
@@ -68,11 +69,13 @@ contract UniswapV3Pool {
         uint256 amountCalculated;
         uint160 sqrtPriceX96;
         int24 tick;
+        uint128 liquidity;
     }
 
     struct StepState {
         uint160 sqrtPriceStartX96;
         int24 nextTick;
+        bool initialized;
         uint160 sqrtPriceNextX96;
         uint256 amountIn;
         uint256 amountOut;
@@ -114,8 +117,8 @@ contract UniswapV3Pool {
 
         if (amount == 0) revert ZeroLiquidity();
 
-        bool flippedLower = ticks.update(lowerTick, amount);
-        bool flippedUpper = ticks.update(upperTick, amount);
+        bool flippedLower = ticks.update(lowerTick, int128(amount), false);
+        bool flippedUpper = ticks.update(upperTick, int128(amount), true);
 
         if (flippedLower) {
             tickBitmap.flipTick(lowerTick, 1);
@@ -185,7 +188,8 @@ contract UniswapV3Pool {
             amountSpecifiedRemaining: amountSpecified,
             amountCalculated: 0,
             sqrtPriceX96: slot0_.sqrtPriceX96,
-            tick: slot0_.tick
+            tick: slot0_.tick,
+            liquidity: liquidity
         });
 
         while (state.amountSpecifiedRemaining > 0) {
@@ -193,19 +197,16 @@ contract UniswapV3Pool {
 
             step.sqrtPriceStartX96 = state.sqrtPriceX96;
 
-            (step.nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
-                state.tick,
-                1,
-                zeroForOne
-            );
+            (step.nextTick, step.initialized) = tickBitmap
+                .nextInitializedTickWithinOneWord(state.tick, 1, zeroForOne);
 
             step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.nextTick);
 
             (state.sqrtPriceX96, step.amountIn, step.amountOut) = SwapMath
                 .computeSwapStep(
-                    step.sqrtPriceStartX96,
+                    state.sqrtPriceX96,
                     step.sqrtPriceNextX96,
-                    liquidity,
+                    state.liquidity,
                     state.amountSpecifiedRemaining
                 );
 
@@ -213,8 +214,21 @@ contract UniswapV3Pool {
             state.amountCalculated += step.amountOut;
 
             if (state.sqrtPriceX96 == step.sqrtPriceNextX96) {
+                if (step.initialized) {
+                    int128 liquidityDelta = ticks.cross(step.nextTick);
+
+                    if (zeroForOne) liquidityDelta = -liquidityDelta;
+
+                    state.liquidity = Math.addLiquidity(
+                        state.liquidity,
+                        liquidityDelta
+                    );
+
+                    if (state.liquidity == 0) revert NotEnoughLiquidity();
+                }
+
                 state.tick = zeroForOne ? step.nextTick - 1 : step.nextTick;
-            } else {
+            } else if (state.sqrtPriceX96 != step.sqrtPriceStartX96) {
                 state.tick = TickMath.getTickAtSqrtRatio(state.sqrtPriceX96);
             }
         }
