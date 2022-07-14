@@ -16,7 +16,8 @@ abstract contract TestUtils is Test {
         uint256 poolBalance1;
         int24 lowerTick;
         int24 upperTick;
-        uint128 liquidity;
+        uint128 positionLiquidity;
+        uint128 currentLiquidity;
         uint160 sqrtPriceX96;
     }
 
@@ -53,7 +54,7 @@ abstract contract TestUtils is Test {
         uint128 posLiquidity = expected.pool.positions(positionKey);
         assertEq(
             posLiquidity,
-            expected.liquidity,
+            expected.positionLiquidity,
             "incorrect position liquidity"
         );
 
@@ -65,12 +66,12 @@ abstract contract TestUtils is Test {
         assertTrue(tickInitialized);
         assertEq(
             tickLiquidityGross,
-            expected.liquidity,
+            expected.positionLiquidity,
             "incorrect lower tick gross liquidity"
         );
         assertEq(
             tickLiquidityNet,
-            int128(expected.liquidity),
+            int128(expected.positionLiquidity),
             "incorrect lower tick net liquidity"
         );
 
@@ -80,12 +81,12 @@ abstract contract TestUtils is Test {
         assertTrue(tickInitialized);
         assertEq(
             tickLiquidityGross,
-            expected.liquidity,
+            expected.positionLiquidity,
             "incorrect upper tick gross liquidity"
         );
         assertEq(
             tickLiquidityNet,
-            -int128(expected.liquidity),
+            -int128(expected.positionLiquidity),
             "incorrect upper tick net liquidity"
         );
 
@@ -97,7 +98,7 @@ abstract contract TestUtils is Test {
         assertEq(tick, 85176, "invalid current tick");
         assertEq(
             expected.pool.liquidity(),
-            expected.liquidity,
+            expected.currentLiquidity,
             "invalid current liquidity"
         );
     }
