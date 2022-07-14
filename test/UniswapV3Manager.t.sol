@@ -324,6 +324,76 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
+    function testSwapMixed() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentTick: 85176,
+            lowerTick: 84222,
+            upperTick: 86129,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        uint256 ethAmount = 0.01337 ether;
+        token0.mint(address(this), ethAmount);
+        token0.approve(address(manager), ethAmount);
+
+        uint256 usdcAmount = 55 ether;
+        token1.mint(address(this), usdcAmount);
+        token1.approve(address(manager), usdcAmount);
+
+        int256 userBalance0Before = int256(token0.balanceOf(address(this)));
+        int256 userBalance1Before = int256(token1.balanceOf(address(this)));
+
+        (int256 amount0Delta1, int256 amount1Delta1) = manager.swap(
+            address(pool),
+            true,
+            ethAmount,
+            extra
+        );
+
+        (int256 amount0Delta2, int256 amount1Delta2) = manager.swap(
+            address(pool),
+            false,
+            usdcAmount,
+            extra
+        );
+
+        assertSwapState(
+            ExpectedStateAfterSwap({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                userBalance0: uint256(
+                    userBalance0Before - amount0Delta1 - amount0Delta2
+                ),
+                userBalance1: uint256(
+                    userBalance1Before - amount1Delta1 - amount1Delta2
+                ),
+                poolBalance0: uint256(
+                    int256(poolBalance0) + amount0Delta1 + amount0Delta2
+                ),
+                poolBalance1: uint256(
+                    int256(poolBalance1) + amount1Delta1 + amount1Delta2
+                ),
+                sqrtPriceX96: 5601660740777532820068967097654,
+                tick: 85173,
+                currentLiquidity: 1517882343751509868544
+            })
+        );
+    }
+
     function testSwapBuyEthNotEnoughLiquidity() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
