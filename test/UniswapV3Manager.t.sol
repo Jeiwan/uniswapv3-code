@@ -33,7 +33,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1 = new ERC20Mintable("USDC", "USDC", 18);
     }
 
-    function testMintSuccess() public {
+    function testMintInRange() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -97,6 +97,136 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             1517882343751509868544,
             "invalid current liquidity"
         );
+    }
+
+    function testMintRangeBelow() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 10 ether,
+            usdcBalance: 10000 ether,
+            currentTick: 85176,
+            lowerTick: 83268,
+            upperTick: 85175,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        uint256 expectedAmount0 = 0 ether;
+        uint256 expectedAmount1 = 9760.156498980712946278 ether;
+        assertEq(
+            poolBalance0,
+            expectedAmount0,
+            "incorrect token0 deposited amount"
+        );
+        assertEq(
+            poolBalance1,
+            expectedAmount1,
+            "incorrect token1 deposited amount"
+        );
+        assertEq(token0.balanceOf(address(pool)), expectedAmount0);
+        assertEq(token1.balanceOf(address(pool)), expectedAmount1);
+
+        bytes32 positionKey = keccak256(
+            abi.encodePacked(address(this), params.lowerTick, params.upperTick)
+        );
+        uint128 posLiquidity = pool.positions(positionKey);
+        assertEq(posLiquidity, params.liquidity);
+
+        (
+            bool tickInitialized,
+            uint128 tickLiquidityGross,
+            int128 tickLiquidityNet
+        ) = pool.ticks(params.lowerTick);
+        assertTrue(tickInitialized);
+        assertEq(tickLiquidityGross, params.liquidity);
+        assertEq(tickLiquidityNet, int128(params.liquidity));
+
+        (tickInitialized, tickLiquidityGross, tickLiquidityNet) = pool.ticks(
+            params.upperTick
+        );
+        assertTrue(tickInitialized);
+        assertEq(tickLiquidityGross, params.liquidity);
+        assertEq(tickLiquidityNet, -int128(params.liquidity));
+
+        assertTrue(tickInBitMap(pool, params.lowerTick));
+        assertTrue(tickInBitMap(pool, params.upperTick));
+
+        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        assertEq(
+            sqrtPriceX96,
+            5602277097478614198912276234240,
+            "invalid current sqrtP"
+        );
+        assertEq(tick, 85176, "invalid current tick");
+        assertEq(pool.liquidity(), 0, "invalid current liquidity");
+    }
+
+    function testMintRangeAbove() public {
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 10 ether,
+            usdcBalance: 10000 ether,
+            currentTick: 85176,
+            lowerTick: 85177,
+            upperTick: 87084,
+            liquidity: 1517882343751509868544,
+            currentSqrtP: 5602277097478614198912276234240,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        uint256 expectedAmount0 = 1.952068472733594637 ether;
+        uint256 expectedAmount1 = 0 ether;
+        assertEq(
+            poolBalance0,
+            expectedAmount0,
+            "incorrect token0 deposited amount"
+        );
+        assertEq(
+            poolBalance1,
+            expectedAmount1,
+            "incorrect token1 deposited amount"
+        );
+        assertEq(token0.balanceOf(address(pool)), expectedAmount0);
+        assertEq(token1.balanceOf(address(pool)), expectedAmount1);
+
+        bytes32 positionKey = keccak256(
+            abi.encodePacked(address(this), params.lowerTick, params.upperTick)
+        );
+        uint128 posLiquidity = pool.positions(positionKey);
+        assertEq(posLiquidity, params.liquidity);
+
+        (
+            bool tickInitialized,
+            uint128 tickLiquidityGross,
+            int128 tickLiquidityNet
+        ) = pool.ticks(params.lowerTick);
+        assertTrue(tickInitialized);
+        assertEq(tickLiquidityGross, params.liquidity);
+        assertEq(tickLiquidityNet, int128(params.liquidity));
+
+        (tickInitialized, tickLiquidityGross, tickLiquidityNet) = pool.ticks(
+            params.upperTick
+        );
+        assertTrue(tickInitialized);
+        assertEq(tickLiquidityGross, params.liquidity);
+        assertEq(tickLiquidityNet, -int128(params.liquidity));
+
+        assertTrue(tickInBitMap(pool, params.lowerTick));
+        assertTrue(tickInBitMap(pool, params.upperTick));
+
+        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        assertEq(
+            sqrtPriceX96,
+            5602277097478614198912276234240,
+            "invalid current sqrtP"
+        );
+        assertEq(tick, 85176, "invalid current tick");
+        assertEq(pool.liquidity(), 0, "invalid current liquidity");
     }
 
     function testMintInvalidTickRangeLower() public {
