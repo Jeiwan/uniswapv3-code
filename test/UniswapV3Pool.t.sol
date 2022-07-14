@@ -47,57 +47,20 @@ contract UniswapV3PoolTest is Test, TestUtils {
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
-        uint256 expectedAmount0 = 0.998833192822975409 ether;
-        uint256 expectedAmount1 = 4999.187247111820044641 ether;
-        assertEq(
-            poolBalance0,
-            expectedAmount0,
-            "incorrect token0 deposited amount"
-        );
-        assertEq(
-            poolBalance1,
-            expectedAmount1,
-            "incorrect token1 deposited amount"
-        );
-        assertEq(token0.balanceOf(address(pool)), expectedAmount0);
-        assertEq(token1.balanceOf(address(pool)), expectedAmount1);
-
-        bytes32 positionKey = keccak256(
-            abi.encodePacked(address(this), params.lowerTick, params.upperTick)
-        );
-        uint128 posLiquidity = pool.positions(positionKey);
-        assertEq(posLiquidity, params.liquidity);
-
-        (
-            bool tickInitialized,
-            uint128 tickLiquidityGross,
-            int128 tickLiquidityNet
-        ) = pool.ticks(params.lowerTick);
-        assertTrue(tickInitialized);
-        assertEq(tickLiquidityGross, params.liquidity);
-        assertEq(tickLiquidityNet, int128(params.liquidity));
-
-        (tickInitialized, tickLiquidityGross, tickLiquidityNet) = pool.ticks(
-            params.upperTick
-        );
-        assertTrue(tickInitialized);
-        assertEq(tickLiquidityGross, params.liquidity);
-        assertEq(tickLiquidityNet, -int128(params.liquidity));
-
-        assertTrue(tickInBitMap(pool, params.lowerTick));
-        assertTrue(tickInBitMap(pool, params.upperTick));
-
-        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
-        assertEq(
-            sqrtPriceX96,
-            5602277097478614198912276234240,
-            "invalid current sqrtP"
-        );
-        assertEq(tick, 85176, "invalid current tick");
-        assertEq(
-            pool.liquidity(),
-            1517882343751509868544,
-            "invalid current liquidity"
+        assertPoolState(
+            ExpectedPoolState({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                amount0: 0.998833192822975409 ether,
+                amount1: 4999.187247111820044641 ether,
+                poolBalance0: poolBalance0,
+                poolBalance1: poolBalance1,
+                lowerTick: params.lowerTick,
+                upperTick: params.upperTick,
+                liquidity: params.liquidity,
+                sqrtPriceX96: 5602277097478614198912276234240
+            })
         );
     }
 
