@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
+import "./LiquidityMath.sol";
 import "./Math.sol";
 
 library Tick {
@@ -21,7 +22,7 @@ library Tick {
         Tick.Info storage tickInfo = self[tick];
 
         uint128 liquidityBefore = tickInfo.liquidityGross;
-        uint128 liquidityAfter = Math.addLiquidity(
+        uint128 liquidityAfter = LiquidityMath.addLiquidity(
             liquidityBefore,
             liquidityDelta
         );

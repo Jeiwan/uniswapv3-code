@@ -5,6 +5,7 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
 import "./interfaces/IUniswapV3SwapCallback.sol";
 
+import "./lib/LiquidityMath.sol";
 import "./lib/Math.sol";
 import "./lib/Position.sol";
 import "./lib/SwapMath.sol";
@@ -156,7 +157,7 @@ contract UniswapV3Pool {
                 amount
             );
 
-            liquidity = Math.addLiquidity(liquidity, int128(amount)); // TODO: amount is negative when removing liquidity
+            liquidity = LiquidityMath.addLiquidity(liquidity, int128(amount)); // TODO: amount is negative when removing liquidity
         } else {
             amount1 = Math.calcAmount1Delta(
                 TickMath.getSqrtRatioAtTick(lowerTick),
@@ -233,7 +234,7 @@ contract UniswapV3Pool {
 
                     if (zeroForOne) liquidityDelta = -liquidityDelta;
 
-                    state.liquidity = Math.addLiquidity(
+                    state.liquidity = LiquidityMath.addLiquidity(
                         state.liquidity,
                         liquidityDelta
                     );

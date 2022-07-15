@@ -4,7 +4,7 @@ pragma solidity ^0.8.14;
 import "prb-math/PRBMath.sol";
 import "./FixedPoint96.sol";
 
-contract LiquidityMath {
+library LiquidityMath {
     /// $L = \frac{\Delta x \sqrt{P_u} \sqrt{P_l}}{\Delta \sqrt{P}}$
     function getLiquidityForAmount0(
         uint160 sqrtPriceAX96,
@@ -77,6 +77,18 @@ contract LiquidityMath {
                 sqrtPriceBX96,
                 amount1
             );
+        }
+    }
+
+    function addLiquidity(uint128 x, int128 y)
+        internal
+        pure
+        returns (uint128 z)
+    {
+        if (y < 0) {
+            z = x - uint128(-y);
+        } else {
+            z = x + uint128(y);
         }
     }
 }
