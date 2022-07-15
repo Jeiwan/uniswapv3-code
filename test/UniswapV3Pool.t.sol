@@ -173,6 +173,65 @@ contract UniswapV3PoolTest is Test, TestUtils {
         );
     }
 
+    //
+    //          5000
+    //   4545 ----|---- 5500
+    // 4300 ------|------ 5815
+    //
+    function testMintOverlappingRanges() public {
+        (uint256 wethAmount, uint256 usdcAmount) = (3 ether, 20000 ether);
+
+        token0.mint(address(this), wethAmount);
+        token1.mint(address(this), usdcAmount);
+        token0.approve(address(this), wethAmount);
+        token1.approve(address(this), usdcAmount);
+
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            5602277097478614198912276234240,
+            85176
+        );
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        pool.mint(address(this), 84222, 86129, 1517882343751509868544, extra);
+        pool.mint(address(this), 83667, 86686, 1138411757813632335872, extra);
+
+        assertMintState(
+            ExpectedStateAfterMint({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                amount0: 2.169553308560845384 ether,
+                amount1: 10848.944269301923061470 ether,
+                lowerTick: 84222,
+                upperTick: 86129,
+                positionLiquidity: 1517882343751509868544,
+                currentLiquidity: 2656294101565142204416,
+                sqrtPriceX96: 5602277097478614198912276234240
+            })
+        );
+        assertMintState(
+            ExpectedStateAfterMint({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                amount0: 2.169553308560845384 ether,
+                amount1: 10848.944269301923061470 ether,
+                lowerTick: 83667,
+                upperTick: 86686,
+                positionLiquidity: 1138411757813632335872,
+                currentLiquidity: 2656294101565142204416,
+                sqrtPriceX96: 5602277097478614198912276234240
+            })
+        );
+    }
+
     function testMintInvalidTickRangeLower() public {
         pool = new UniswapV3Pool(
             address(token0),
