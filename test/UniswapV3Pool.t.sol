@@ -3,11 +3,11 @@ pragma solidity ^0.8.14;
 
 import {Test, stdError} from "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
-import "../src/UniswapV3Pool.sol";
-import "../src/lib/TickMath.sol";
 import "./TestUtils.sol";
 
-import "forge-std/console.sol";
+import "../src/UniswapV3Pool.sol";
+import "../src/lib/LiquidityMath.sol";
+import "../src/lib/TickMath.sol";
 
 contract UniswapV3PoolTest is Test, TestUtils {
     ERC20Mintable token0;
@@ -20,12 +20,16 @@ contract UniswapV3PoolTest is Test, TestUtils {
     int24 tick4000 = 82994;
     int24 tick4545 = 84222;
     int24 tick5000 = 85176;
+    int24 tick5000Minus1 = 85175;
+    int24 tick5000Plus1 = 85177;
     int24 tick5500 = 86129;
     int24 tick6250 = 87407;
 
     uint160 sqrtP4000 = TickMath.getSqrtRatioAtTick(tick4000);
     uint160 sqrtP4545 = TickMath.getSqrtRatioAtTick(tick4545);
     uint160 sqrtP5000 = TickMath.getSqrtRatioAtTick(tick5000);
+    uint160 sqrtP5000Minus1 = TickMath.getSqrtRatioAtTick(tick5000Minus1);
+    uint160 sqrtP5000Plus1 = TickMath.getSqrtRatioAtTick(tick5000Plus1);
     uint160 sqrtP5500 = TickMath.getSqrtRatioAtTick(tick5500);
     uint160 sqrtP6250 = TickMath.getSqrtRatioAtTick(tick6250);
 
@@ -54,7 +58,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -63,8 +73,8 @@ contract UniswapV3PoolTest is Test, TestUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.998833192822975409 ether,
-            4999.187247111820044641 ether
+            0.998995580131581600 ether,
+            4999.999999999999999999 ether
         );
 
         assertEq(
@@ -96,12 +106,18 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
     function testMintRangeBelow() public {
         TestCaseParams memory params = TestCaseParams({
-            wethBalance: 10 ether,
-            usdcBalance: 12000 ether,
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
             currentTick: tick5000,
             lowerTick: tick4000,
             upperTick: tick5000 - 1,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4000,
+                sqrtP5000Minus1,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -111,7 +127,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0 ether,
-            11087.602412870319001622 ether
+            4999.999999999999999995 ether
         );
 
         assertEq(
@@ -144,11 +160,17 @@ contract UniswapV3PoolTest is Test, TestUtils {
     function testMintRangeAbove() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 10 ether,
-            usdcBalance: 10000 ether,
+            usdcBalance: 5000 ether,
             currentTick: tick5000,
             lowerTick: tick5000 + 1,
             upperTick: tick6250,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP5000Plus1,
+                sqrtP6250,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -156,10 +178,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
-        (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            2.264659422160007294 ether,
-            0
-        );
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (1 ether, 0);
 
         assertEq(
             poolBalance0,
@@ -215,10 +234,16 @@ contract UniswapV3PoolTest is Test, TestUtils {
         );
 
         (uint256 amount0, uint256 amount1) = (
-            2.698132685412420286 ether,
-            13318.913609971353766812 ether
+            2.698571339742487358 ether,
+            13321.078959050882134353 ether
         );
-        uint128 liquidity = 1517882343751509868544;
+        uint128 liquidity = LiquidityMath.getLiquidityForAmounts(
+            sqrtP5000,
+            sqrtP4545,
+            sqrtP5500,
+            1 ether,
+            5000 ether
+        );
         uint128 liquidity2 = (liquidity * 75) / 100;
         pool.mint(address(this), tick4545, tick5500, liquidity, extra);
         pool.mint(address(this), tick4000, tick6250, liquidity2, extra);
@@ -296,7 +321,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: false,
             transferInSwapCallback: true,
@@ -321,7 +352,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -352,7 +389,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008396874111261748 ether,
+            -0.008396874645169943 ether,
             42 ether
         );
 
@@ -368,9 +405,9 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5604416009041035593554602202646,
+                sqrtPriceX96: 5604415652688968742392013927525,
                 tick: 85183,
-                currentLiquidity: 1517882343751509868544
+                currentLiquidity: 1518129116516325614066
             })
         );
     }
@@ -382,7 +419,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -414,7 +457,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             0.01337 ether,
-            -66.807117064346457626 ether
+            -66.807123823853842027 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -429,9 +472,9 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5598736657153868581057570267655,
+                sqrtPriceX96: 5598737223630966236662554421688,
                 tick: 85163,
-                currentLiquidity: 1517882343751509868544
+                currentLiquidity: 1518129116516325614066
             })
         );
     }
@@ -443,7 +486,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -499,9 +548,9 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 poolBalance1: uint256(
                     int256(poolBalance1) + amount1Delta1 + amount1Delta2
                 ),
-                sqrtPriceX96: 5601607465261112699611991610099,
+                sqrtPriceX96: 5601607565086694240599300641950,
                 tick: 85173,
-                currentLiquidity: 1517882343751509868544
+                currentLiquidity: 1518129116516325614066
             })
         );
     }
@@ -513,7 +562,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -542,7 +597,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -571,7 +632,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
             currentTick: tick5000,
             lowerTick: tick4545,
             upperTick: tick5500,
-            liquidity: 1517882343751509868544,
+            liquidity: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            ),
             currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: false,
