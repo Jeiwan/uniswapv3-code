@@ -12,8 +12,6 @@ abstract contract TestUtils is Test {
         ERC20Mintable token1;
         uint256 amount0;
         uint256 amount1;
-        uint256 poolBalance0;
-        uint256 poolBalance1;
         int24 lowerTick;
         int24 upperTick;
         uint128 positionLiquidity;
@@ -22,17 +20,6 @@ abstract contract TestUtils is Test {
     }
 
     function assertMintState(ExpectedStateAfterMint memory expected) internal {
-        assertEq(
-            expected.poolBalance0,
-            expected.amount0,
-            "incorrect token0 deposited amount"
-        );
-        assertEq(
-            expected.poolBalance1,
-            expected.amount1,
-            "incorrect token1 deposited amount"
-        );
-
         assertEq(
             expected.token0.balanceOf(address(expected.pool)),
             expected.amount0,

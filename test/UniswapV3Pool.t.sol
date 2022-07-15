@@ -47,15 +47,29 @@ contract UniswapV3PoolTest is Test, TestUtils {
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            0.998833192822975409 ether,
+            4999.187247111820044641 ether
+        );
+
+        assertEq(
+            poolBalance0,
+            expectedAmount0,
+            "incorrect token0 deposited amount"
+        );
+        assertEq(
+            poolBalance1,
+            expectedAmount1,
+            "incorrect token1 deposited amount"
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                amount0: 0.998833192822975409 ether,
-                amount1: 4999.187247111820044641 ether,
-                poolBalance0: poolBalance0,
-                poolBalance1: poolBalance1,
+                amount0: expectedAmount0,
+                amount1: expectedAmount1,
                 lowerTick: params.lowerTick,
                 upperTick: params.upperTick,
                 positionLiquidity: params.liquidity,
@@ -80,15 +94,29 @@ contract UniswapV3PoolTest is Test, TestUtils {
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            0 ether,
+            9760.156498980712946278 ether
+        );
+
+        assertEq(
+            poolBalance0,
+            expectedAmount0,
+            "incorrect token0 deposited amount"
+        );
+        assertEq(
+            poolBalance1,
+            expectedAmount1,
+            "incorrect token1 deposited amount"
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                amount0: 0 ether,
-                amount1: 9760.156498980712946278 ether,
-                poolBalance0: poolBalance0,
-                poolBalance1: poolBalance1,
+                amount0: expectedAmount0,
+                amount1: expectedAmount1,
                 lowerTick: params.lowerTick,
                 upperTick: params.upperTick,
                 positionLiquidity: params.liquidity,
@@ -113,15 +141,29 @@ contract UniswapV3PoolTest is Test, TestUtils {
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            1.952068472733594637 ether,
+            0
+        );
+
+        assertEq(
+            poolBalance0,
+            expectedAmount0,
+            "incorrect token0 deposited amount"
+        );
+        assertEq(
+            poolBalance1,
+            expectedAmount1,
+            "incorrect token1 deposited amount"
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                amount0: 1.952068472733594637 ether,
-                amount1: 0,
-                poolBalance0: poolBalance0,
-                poolBalance1: poolBalance1,
+                amount0: expectedAmount0,
+                amount1: expectedAmount1,
                 lowerTick: params.lowerTick,
                 upperTick: params.upperTick,
                 positionLiquidity: params.liquidity,
