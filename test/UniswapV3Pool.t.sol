@@ -4,7 +4,10 @@ pragma solidity ^0.8.14;
 import {Test, stdError} from "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
 import "../src/UniswapV3Pool.sol";
+import "../src/lib/TickMath.sol";
 import "./TestUtils.sol";
+
+import "forge-std/console.sol";
 
 contract UniswapV3PoolTest is Test, TestUtils {
     ERC20Mintable token0;
@@ -13,6 +16,18 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
     bool transferInMintCallback = true;
     bool transferInSwapCallback = true;
+
+    int24 tick4000 = 82994;
+    int24 tick4545 = 84222;
+    int24 tick5000 = 85176;
+    int24 tick5500 = 86129;
+    int24 tick6250 = 87407;
+
+    uint160 sqrtP4000 = TickMath.getSqrtRatioAtTick(tick4000);
+    uint160 sqrtP4545 = TickMath.getSqrtRatioAtTick(tick4545);
+    uint160 sqrtP5000 = TickMath.getSqrtRatioAtTick(tick5000);
+    uint160 sqrtP5500 = TickMath.getSqrtRatioAtTick(tick5500);
+    uint160 sqrtP6250 = TickMath.getSqrtRatioAtTick(tick6250);
 
     struct TestCaseParams {
         uint256 wethBalance;
@@ -36,11 +51,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -74,7 +89,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 upperTick: params.upperTick,
                 positionLiquidity: params.liquidity,
                 currentLiquidity: params.liquidity,
-                sqrtPriceX96: 5602277097478614198912276234240
+                sqrtPriceX96: sqrtP5000
             })
         );
     }
@@ -82,12 +97,12 @@ contract UniswapV3PoolTest is Test, TestUtils {
     function testMintRangeBelow() public {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 10 ether,
-            usdcBalance: 10000 ether,
-            currentTick: 85176,
-            lowerTick: 83268,
-            upperTick: 85175,
+            usdcBalance: 12000 ether,
+            currentTick: tick5000,
+            lowerTick: tick4000,
+            upperTick: tick5000 - 1,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -96,7 +111,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0 ether,
-            9760.156498980712946278 ether
+            11087.602412870319001622 ether
         );
 
         assertEq(
@@ -121,7 +136,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 upperTick: params.upperTick,
                 positionLiquidity: params.liquidity,
                 currentLiquidity: 0,
-                sqrtPriceX96: 5602277097478614198912276234240
+                sqrtPriceX96: sqrtP5000
             })
         );
     }
@@ -130,11 +145,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 10 ether,
             usdcBalance: 10000 ether,
-            currentTick: 85176,
-            lowerTick: 85177,
-            upperTick: 87084,
+            currentTick: tick5000,
+            lowerTick: tick5000 + 1,
+            upperTick: tick6250,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -142,7 +157,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            1.952068472733594637 ether,
+            2.264659422160007294 ether,
             0
         );
 
@@ -168,7 +183,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 upperTick: params.upperTick,
                 positionLiquidity: params.liquidity,
                 currentLiquidity: 0,
-                sqrtPriceX96: 5602277097478614198912276234240
+                sqrtPriceX96: sqrtP5000
             })
         );
     }
@@ -176,7 +191,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
     //
     //          5000
     //   4545 ----|---- 5500
-    // 4300 ------|------ 5815
+    // 4000 ------|------ 6250
     //
     function testMintOverlappingRanges() public {
         (uint256 wethAmount, uint256 usdcAmount) = (3 ether, 20000 ether);
@@ -189,8 +204,8 @@ contract UniswapV3PoolTest is Test, TestUtils {
         pool = new UniswapV3Pool(
             address(token0),
             address(token1),
-            5602277097478614198912276234240,
-            85176
+            sqrtP5000,
+            tick5000
         );
 
         bytes memory extra = encodeExtra(
@@ -199,21 +214,27 @@ contract UniswapV3PoolTest is Test, TestUtils {
             address(this)
         );
 
-        pool.mint(address(this), 84222, 86129, 1517882343751509868544, extra);
-        pool.mint(address(this), 83667, 86686, 1138411757813632335872, extra);
+        (uint256 amount0, uint256 amount1) = (
+            2.698132685412420286 ether,
+            13318.913609971353766812 ether
+        );
+        uint128 liquidity = 1517882343751509868544;
+        uint128 liquidity2 = (liquidity * 75) / 100;
+        pool.mint(address(this), tick4545, tick5500, liquidity, extra);
+        pool.mint(address(this), tick4000, tick6250, liquidity2, extra);
 
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                amount0: 2.169553308560845384 ether,
-                amount1: 10848.944269301923061470 ether,
-                lowerTick: 84222,
-                upperTick: 86129,
-                positionLiquidity: 1517882343751509868544,
-                currentLiquidity: 2656294101565142204416,
-                sqrtPriceX96: 5602277097478614198912276234240
+                amount0: amount0,
+                amount1: amount1,
+                lowerTick: tick4545,
+                upperTick: tick5500,
+                positionLiquidity: liquidity,
+                currentLiquidity: liquidity + liquidity2,
+                sqrtPriceX96: sqrtP5000
             })
         );
         assertMintState(
@@ -221,13 +242,13 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                amount0: 2.169553308560845384 ether,
-                amount1: 10848.944269301923061470 ether,
-                lowerTick: 83667,
-                upperTick: 86686,
-                positionLiquidity: 1138411757813632335872,
-                currentLiquidity: 2656294101565142204416,
-                sqrtPriceX96: 5602277097478614198912276234240
+                amount0: amount0,
+                amount1: amount1,
+                lowerTick: tick4000,
+                upperTick: tick6250,
+                positionLiquidity: liquidity2,
+                currentLiquidity: liquidity + liquidity2,
+                sqrtPriceX96: sqrtP5000
             })
         );
     }
@@ -272,11 +293,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 0,
             usdcBalance: 0,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: false,
             transferInSwapCallback: true,
             mintLiqudity: false
@@ -297,11 +318,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -331,7 +352,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008396714242162445 ether,
+            -0.008396874111261748 ether,
             42 ether
         );
 
@@ -347,8 +368,8 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5604469350942327889444743441197,
-                tick: 85184,
+                sqrtPriceX96: 5604416009041035593554602202646,
+                tick: 85183,
                 currentLiquidity: 1517882343751509868544
             })
         );
@@ -358,11 +379,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -393,7 +414,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             0.01337 ether,
-            -66.808388890199406685 ether
+            -66.807117064346457626 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -408,7 +429,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5598789932670288701514545755210,
+                sqrtPriceX96: 5598736657153868581057570267655,
                 tick: 85163,
                 currentLiquidity: 1517882343751509868544
             })
@@ -419,11 +440,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -478,7 +499,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
                 poolBalance1: uint256(
                     int256(poolBalance1) + amount1Delta1 + amount1Delta2
                 ),
-                sqrtPriceX96: 5601660740777532820068967097654,
+                sqrtPriceX96: 5601607465261112699611991610099,
                 tick: 85173,
                 currentLiquidity: 1517882343751509868544
             })
@@ -489,11 +510,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -518,11 +539,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -547,11 +568,11 @@ contract UniswapV3PoolTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: 85176,
-            lowerTick: 84222,
-            upperTick: 86129,
+            currentTick: tick5000,
+            lowerTick: tick4545,
+            upperTick: tick5500,
             liquidity: 1517882343751509868544,
-            currentSqrtP: 5602277097478614198912276234240,
+            currentSqrtP: sqrtP5000,
             transferInMintCallback: true,
             transferInSwapCallback: false,
             mintLiqudity: true
