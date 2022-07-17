@@ -280,6 +280,101 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
+    //
+    //          5000
+    //   4545 ----|---- 5500
+    // 4000 ------ ------ 6250
+    //      5000-1 5000+1
+    function testMintPartiallyOverlappingRanges() public {
+        (uint256 wethAmount, uint256 usdcAmount) = (3 ether, 20000 ether);
+
+        token0.mint(address(this), wethAmount);
+        token1.mint(address(this), usdcAmount);
+
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            sqrtP5000,
+            tick5000
+        );
+
+        manager = new UniswapV3Manager();
+        token0.approve(address(manager), wethAmount);
+        token1.approve(address(manager), usdcAmount);
+
+        bytes memory extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
+
+        (uint256 amount0, uint256 amount1) = (
+            2.131509381984257132 ether,
+            13317.053751544282360878 ether
+        );
+        uint128 liquidity = LiquidityMath.getLiquidityForAmounts(
+            sqrtP5000,
+            sqrtP4545,
+            sqrtP5500,
+            1 ether,
+            5000 ether
+        );
+        uint128 liquidity2 = (liquidity * 75) / 100;
+        uint128 liquidity3 = (liquidity * 50) / 100;
+        manager.mint(address(pool), tick4545, tick5500, liquidity, extra);
+        manager.mint(
+            address(pool),
+            tick4000,
+            tick5000Minus1,
+            liquidity2,
+            extra
+        );
+        manager.mint(address(pool), tick5000Plus1, tick6250, liquidity3, extra);
+
+        assertMintState(
+            ExpectedStateAfterMint({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                amount0: amount0,
+                amount1: amount1,
+                lowerTick: tick4545,
+                upperTick: tick5500,
+                positionLiquidity: liquidity,
+                currentLiquidity: liquidity,
+                sqrtPriceX96: sqrtP5000
+            })
+        );
+        assertMintState(
+            ExpectedStateAfterMint({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                amount0: amount0,
+                amount1: amount1,
+                lowerTick: tick4000,
+                upperTick: tick5000Minus1,
+                positionLiquidity: liquidity2,
+                currentLiquidity: liquidity,
+                sqrtPriceX96: sqrtP5000
+            })
+        );
+        assertMintState(
+            ExpectedStateAfterMint({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                amount0: amount0,
+                amount1: amount1,
+                lowerTick: tick5000Plus1,
+                upperTick: tick6250,
+                positionLiquidity: liquidity3,
+                currentLiquidity: liquidity,
+                sqrtPriceX96: sqrtP5000
+            })
+        );
+    }
+
     function testMintInvalidTickRangeLower() public {
         pool = new UniswapV3Pool(
             address(token0),
