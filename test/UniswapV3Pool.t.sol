@@ -33,19 +33,6 @@ contract UniswapV3PoolTest is Test, TestUtils {
     uint160 sqrtP5500 = TickMath.getSqrtRatioAtTick(tick5500);
     uint160 sqrtP6250 = TickMath.getSqrtRatioAtTick(tick6250);
 
-    struct TestCaseParams {
-        uint256 wethBalance;
-        uint256 usdcBalance;
-        int24 currentTick;
-        int24 lowerTick;
-        int24 upperTick;
-        uint128 liquidity;
-        uint160 currentSqrtP;
-        bool transferInMintCallback;
-        bool transferInSwapCallback;
-        bool mintLiqudity;
-    }
-
     function setUp() public {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
