@@ -6,14 +6,18 @@ import "./ERC20Mintable.sol";
 import "../src/UniswapV3Pool.sol";
 
 abstract contract TestUtils is Test {
+    struct LiquidityRange {
+        int24 lowerTick;
+        int24 upperTick;
+        uint128 amount;
+    }
+
     struct TestCaseParams {
         uint256 wethBalance;
         uint256 usdcBalance;
         int24 currentTick;
-        int24 lowerTick;
-        int24 upperTick;
-        uint128 liquidity;
         uint160 currentSqrtP;
+        LiquidityRange[] liquidity;
         bool transferInMintCallback;
         bool transferInSwapCallback;
         bool mintLiqudity;
