@@ -811,14 +811,18 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 address(this)
             );
 
+            uint256 poolBalance0Tmp;
+            uint256 poolBalance1Tmp;
             for (uint256 i = 0; i < params.liquidity.length; i++) {
-                (poolBalance0, poolBalance1) = manager.mint(
+                (poolBalance0Tmp, poolBalance1Tmp) = manager.mint(
                     address(pool),
                     params.liquidity[i].lowerTick,
                     params.liquidity[i].upperTick,
                     params.liquidity[i].amount,
                     extra
                 );
+                poolBalance0 += poolBalance0Tmp;
+                poolBalance1 += poolBalance1Tmp;
             }
         }
 
