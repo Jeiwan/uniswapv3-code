@@ -118,29 +118,20 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //  4545 -----|----- 5500
     //
     function testBuyETHTwoEqualPriceRanges() public {
+        LiquidityRange memory range = LiquidityRange({
+            lowerTick: tick4545,
+            upperTick: tick5500,
+            amount: LiquidityMath.getLiquidityForAmounts(
+                sqrtP5000,
+                sqrtP4545,
+                sqrtP5500,
+                1 ether,
+                5000 ether
+            )
+        });
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick4545,
-            upperTick: tick5500,
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP5000,
-                sqrtP4545,
-                sqrtP5500,
-                1 ether,
-                5000 ether
-            )
-        });
-        liquidity[1] = LiquidityRange({
-            lowerTick: tick4545,
-            upperTick: tick5500,
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP5000,
-                sqrtP4545,
-                sqrtP5500,
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = range;
+        liquidity[1] = range;
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 2 ether,
             usdcBalance: 10000 ether,
