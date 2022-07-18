@@ -194,7 +194,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     //          5000
     //  4545 -----|----- 5500
-    //           5000+1 ----------- 6250
+    //             5500 ----------- 6250
     //
     function testBuyETHConsecutivePriceRanges() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
@@ -210,11 +210,11 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             )
         });
         liquidity[1] = LiquidityRange({
-            lowerTick: tick5000Plus1,
+            lowerTick: tick5500,
             upperTick: tick6250,
             amount: LiquidityMath.getLiquidityForAmounts(
                 sqrtP5000,
-                sqrtP5000Plus1,
+                sqrtP5500,
                 sqrtP6250,
                 1 ether,
                 5000 ether
@@ -255,7 +255,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -1.864265782557743597 ether,
+            -1.820694594787485635 ether,
             10000 ether
         );
 
@@ -271,8 +271,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 6165331690524324606604591284688,
-                tick: 87091,
+                sqrtPriceX96: 6190476002219365604851182401841,
+                tick: 87173,
                 currentLiquidity: liquidity[0].amount
             })
         );
