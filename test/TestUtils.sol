@@ -6,6 +6,11 @@ import "./ERC20Mintable.sol";
 import "../src/UniswapV3Pool.sol";
 
 abstract contract TestUtils is Test {
+    // Prices to ticks.
+    mapping(uint256 => int24) tick;
+    // Prices to sqrtPs.
+    mapping(uint256 => uint160) sqrtP;
+
     struct LiquidityRange {
         int24 lowerTick;
         int24 upperTick;
@@ -34,6 +39,24 @@ abstract contract TestUtils is Test {
         uint128 positionLiquidity;
         uint128 currentLiquidity;
         uint160 sqrtPriceX96;
+    }
+
+    constructor() {
+        tick[4000] = 82994;
+        tick[4545] = 84222;
+        tick[4999] = 85174;
+        tick[5000] = 85176;
+        tick[5001] = 85178;
+        tick[5500] = 86129;
+        tick[6250] = 87407;
+
+        sqrtP[4000] = TickMath.getSqrtRatioAtTick(tick[4000]);
+        sqrtP[4545] = TickMath.getSqrtRatioAtTick(tick[4545]);
+        sqrtP[4999] = TickMath.getSqrtRatioAtTick(tick[4999]);
+        sqrtP[5000] = TickMath.getSqrtRatioAtTick(tick[5000]);
+        sqrtP[5001] = TickMath.getSqrtRatioAtTick(tick[5001]);
+        sqrtP[5500] = TickMath.getSqrtRatioAtTick(tick[5500]);
+        sqrtP[6250] = TickMath.getSqrtRatioAtTick(tick[6250]);
     }
 
     function assertMintState(ExpectedStateAfterMint memory expected) internal {
@@ -97,9 +120,9 @@ abstract contract TestUtils is Test {
         assertTrue(tickInBitMap(expected.pool, expected.lowerTick));
         assertTrue(tickInBitMap(expected.pool, expected.upperTick));
 
-        (uint160 sqrtPriceX96, int24 tick) = expected.pool.slot0();
+        (uint160 sqrtPriceX96, int24 currentTick) = expected.pool.slot0();
         assertEq(sqrtPriceX96, expected.sqrtPriceX96, "invalid current sqrtP");
-        assertEq(tick, 85176, "invalid current tick");
+        assertEq(currentTick, 85176, "invalid current tick");
         assertEq(
             expected.pool.liquidity(),
             expected.currentLiquidity,
@@ -143,9 +166,9 @@ abstract contract TestUtils is Test {
             "invalid pool USDC balance"
         );
 
-        (uint160 sqrtPriceX96, int24 tick) = expected.pool.slot0();
+        (uint160 sqrtPriceX96, int24 currentTick) = expected.pool.slot0();
         assertEq(sqrtPriceX96, expected.sqrtPriceX96, "invalid current sqrtP");
-        assertEq(tick, expected.tick, "invalid current tick");
+        assertEq(currentTick, expected.tick, "invalid current tick");
         assertEq(
             expected.pool.liquidity(),
             expected.currentLiquidity,
@@ -176,13 +199,13 @@ abstract contract TestUtils is Test {
             );
     }
 
-    function tickInBitMap(UniswapV3Pool pool, int24 tick)
+    function tickInBitMap(UniswapV3Pool pool, int24 tick_)
         internal
         view
         returns (bool initialized)
     {
-        int16 wordPos = int16(tick >> 8);
-        uint8 bitPos = uint8(uint24(tick % 256));
+        int16 wordPos = int16(tick_ >> 8);
+        uint8 bitPos = uint8(uint24(tick_ % 256));
 
         uint256 word = pool.tickBitmap(wordPos);
 
