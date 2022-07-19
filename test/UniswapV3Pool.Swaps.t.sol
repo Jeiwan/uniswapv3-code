@@ -16,10 +16,13 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
     bool transferInMintCallback = true;
     bool transferInSwapCallback = true;
+    bytes extra;
 
     function setUp() public {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+
+        extra = encodeExtra(address(token0), address(token1), address(this));
     }
 
     //  One price range
@@ -55,12 +58,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         uint256 swapAmount = 42 ether; // 42 USDC
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
@@ -134,12 +131,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         uint256 swapAmount = 42 ether; // 42 USDC
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
@@ -223,12 +214,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
             int256(token1.balanceOf(address(this)))
@@ -311,12 +296,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
             int256(token1.balanceOf(address(this)))
@@ -386,12 +365,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         uint256 swapAmount = 0.01337 ether;
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
@@ -465,12 +438,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         uint256 swapAmount = 0.01337 ether;
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
@@ -554,12 +521,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
             int256(token1.balanceOf(address(this)))
@@ -642,12 +603,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
             int256(token1.balanceOf(address(this)))
@@ -713,12 +668,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         pool.swap(address(this), false, swapAmount, extra);
     }
@@ -752,12 +701,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         pool.swap(address(this), true, swapAmount, extra);
     }
@@ -786,12 +729,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             mintLiqudity: true
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         uint256 ethAmount = 0.01337 ether;
         token0.mint(address(this), ethAmount);
@@ -882,22 +819,22 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         bytes calldata data
     ) public {
         if (transferInSwapCallback) {
-            UniswapV3Pool.CallbackData memory extra = abi.decode(
+            UniswapV3Pool.CallbackData memory cbData = abi.decode(
                 data,
                 (UniswapV3Pool.CallbackData)
             );
 
             if (amount0 > 0) {
-                IERC20(extra.token0).transferFrom(
-                    extra.payer,
+                IERC20(cbData.token0).transferFrom(
+                    cbData.payer,
                     msg.sender,
                     uint256(amount0)
                 );
             }
 
             if (amount1 > 0) {
-                IERC20(extra.token1).transferFrom(
-                    extra.payer,
+                IERC20(cbData.token1).transferFrom(
+                    cbData.payer,
                     msg.sender,
                     uint256(amount1)
                 );
@@ -911,13 +848,13 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         bytes calldata data
     ) public {
         if (transferInMintCallback) {
-            UniswapV3Pool.CallbackData memory extra = abi.decode(
+            UniswapV3Pool.CallbackData memory cbData = abi.decode(
                 data,
                 (UniswapV3Pool.CallbackData)
             );
 
-            IERC20(extra.token0).transferFrom(extra.payer, msg.sender, amount0);
-            IERC20(extra.token1).transferFrom(extra.payer, msg.sender, amount1);
+            IERC20(cbData.token0).transferFrom(cbData.payer, msg.sender, amount0);
+            IERC20(cbData.token1).transferFrom(cbData.payer, msg.sender, amount1);
         }
     }
 
@@ -943,12 +880,6 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         if (params.mintLiqudity) {
             token0.approve(address(this), params.wethBalance);
             token1.approve(address(this), params.usdcBalance);
-
-            bytes memory extra = encodeExtra(
-                address(token0),
-                address(token1),
-                address(this)
-            );
 
             uint256 poolBalance0Tmp;
             uint256 poolBalance1Tmp;

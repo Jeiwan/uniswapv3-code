@@ -16,10 +16,17 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     bool transferInMintCallback = true;
     bool transferInSwapCallback = true;
+    bytes extra;
 
     function setUp() public {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+
+        extra = encodeExtra(
+            address(token0),
+            address(token1),
+            address(this)
+        );
     }
 
     function testMintInRange() public {
@@ -413,12 +420,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         });
         setupTestCase(params);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         vm.expectRevert(stdError.arithmeticError);
         manager.mint(
             address(pool),
@@ -457,12 +458,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         uint256 swapAmount = 42 ether; // 42 USDC
         token1.mint(address(this), swapAmount);
         token1.approve(address(manager), swapAmount);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
@@ -529,12 +524,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(manager), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         (int256 userBalance0Before, int256 userBalance1Before) = (
             int256(token0.balanceOf(address(this))),
             int256(token1.balanceOf(address(this)))
@@ -595,12 +584,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             mintLiqudity: true
         });
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
-
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
 
         uint256 ethAmount = 0.01337 ether;
         token0.mint(address(this), ethAmount);
@@ -680,12 +663,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.mint(address(this), swapAmount);
         token1.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         manager.swap(address(pool), false, swapAmount, extra);
     }
@@ -719,12 +696,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(this), swapAmount);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         manager.swap(address(pool), true, swapAmount, extra);
     }
@@ -754,12 +725,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         });
         setupTestCase(params);
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
         vm.expectRevert(stdError.arithmeticError);
         manager.swap(address(pool), false, 42 ether, extra);
     }
@@ -788,12 +753,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         if (params.mintLiqudity) {
             token0.approve(address(manager), params.wethBalance);
             token1.approve(address(manager), params.usdcBalance);
-
-            bytes memory extra = encodeExtra(
-                address(token0),
-                address(token1),
-                address(this)
-            );
 
             uint256 poolBalance0Tmp;
             uint256 poolBalance1Tmp;
