@@ -22,11 +22,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
 
-        extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
+        extra = encodeExtra(address(token0), address(token1), address(this));
     }
 
     function testMintInRange() public {
