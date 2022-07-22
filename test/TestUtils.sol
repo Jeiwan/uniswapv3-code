@@ -2,15 +2,14 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "./ERC20Mintable.sol";
+import "prb-math/PRBMathUD60x18.sol";
+
 import "../src/UniswapV3Pool.sol";
+import "../src/lib/FixedPoint96.sol";
+
+import "./ERC20Mintable.sol";
 
 abstract contract TestUtils is Test {
-    // Prices to ticks.
-    mapping(uint256 => int24) tick;
-    // Prices to sqrtPs.
-    mapping(uint256 => uint160) sqrtP;
-
     struct LiquidityRange {
         int24 lowerTick;
         int24 upperTick;
@@ -41,22 +40,19 @@ abstract contract TestUtils is Test {
         uint160 sqrtPriceX96;
     }
 
-    constructor() {
-        tick[4000] = 82994;
-        tick[4545] = 84222;
-        tick[4999] = 85174;
-        tick[5000] = 85176;
-        tick[5001] = 85178;
-        tick[5500] = 86129;
-        tick[6250] = 87407;
+    function tick(uint256 price) internal pure returns (int24) {
+        return
+            TickMath.getTickAtSqrtRatio(
+                uint160(
+                    PRBMathUD60x18.toUint(
+                        PRBMathUD60x18.sqrt(price * PRBMathUD60x18.SCALE)
+                    ) << FixedPoint96.RESOLUTION
+                )
+            );
+    }
 
-        sqrtP[4000] = TickMath.getSqrtRatioAtTick(tick[4000]);
-        sqrtP[4545] = TickMath.getSqrtRatioAtTick(tick[4545]);
-        sqrtP[4999] = TickMath.getSqrtRatioAtTick(tick[4999]);
-        sqrtP[5000] = TickMath.getSqrtRatioAtTick(tick[5000]);
-        sqrtP[5001] = TickMath.getSqrtRatioAtTick(tick[5001]);
-        sqrtP[5500] = TickMath.getSqrtRatioAtTick(tick[5500]);
-        sqrtP[6250] = TickMath.getSqrtRatioAtTick(tick[6250]);
+    function sqrtP(uint256 price) internal pure returns (uint160) {
+        return TickMath.getSqrtRatioAtTick(tick(price));
     }
 
     function assertMintState(ExpectedStateAfterMint memory expected) internal {
