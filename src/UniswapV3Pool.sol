@@ -44,9 +44,6 @@ contract UniswapV3Pool {
         int24 tick
     );
 
-    int24 internal constant MIN_TICK = -887272;
-    int24 internal constant MAX_TICK = -MIN_TICK;
-
     // Pool tokens, immutable
     address public immutable token0;
     address public immutable token1;
@@ -112,8 +109,8 @@ contract UniswapV3Pool {
     ) external returns (uint256 amount0, uint256 amount1) {
         if (
             lowerTick >= upperTick ||
-            lowerTick < MIN_TICK ||
-            upperTick > MAX_TICK
+            lowerTick < TickMath.MIN_TICK ||
+            upperTick > TickMath.MAX_TICK
         ) revert InvalidTickRange();
 
         if (amount == 0) revert ZeroLiquidity();
