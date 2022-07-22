@@ -535,7 +535,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             2 ether,
-            -9111.186983620669482757 ether
+            -9103.264925902176327184 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -550,8 +550,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5079751187171797154411855076314,
-                tick: 83217,
+                sqrtPriceX96: 5069962753257045266417033265661,
+                tick: 83179,
                 currentLiquidity: liquidity[0].amount
             })
         );
@@ -617,7 +617,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             2 ether,
-            -9329.454959099837067609 ether
+            -9321.077831210790476918 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -632,8 +632,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5100785407331767973038512197778,
-                tick: 83300,
+                sqrtPriceX96: 5090915820491052794734777344590,
+                tick: 83261,
                 currentLiquidity: liquidity[0].amount
             })
         );
