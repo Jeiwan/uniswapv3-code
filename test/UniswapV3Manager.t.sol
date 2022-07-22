@@ -472,6 +472,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             address(pool),
             false,
             swapAmount,
+            sqrtP(5004),
             extra
         );
 
@@ -537,6 +538,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             address(pool),
             true,
             swapAmount,
+            sqrtP(4993),
             extra
         );
 
@@ -604,6 +606,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             address(pool),
             true,
             ethAmount,
+            sqrtP(4990),
             extra
         );
 
@@ -611,6 +614,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             address(pool),
             false,
             usdcAmount,
+            sqrtP(5004),
             extra
         );
 
@@ -668,7 +672,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        manager.swap(address(pool), false, swapAmount, extra);
+        manager.swap(address(pool), false, swapAmount, 0, extra);
     }
 
     function testSwapBuyUSDCNotEnoughLiquidity() public {
@@ -701,7 +705,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        manager.swap(address(pool), true, swapAmount, extra);
+        manager.swap(address(pool), true, swapAmount, 0, extra);
     }
 
     function testSwapInsufficientInputAmount() public {
@@ -730,7 +734,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         vm.expectRevert(stdError.arithmeticError);
-        manager.swap(address(pool), false, 42 ether, extra);
+        manager.swap(address(pool), false, 42 ether, sqrtP(5010), extra);
     }
 
     ////////////////////////////////////////////////////////////////////////////

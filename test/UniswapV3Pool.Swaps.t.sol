@@ -68,6 +68,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             false,
             swapAmount,
+            sqrtP(5004),
             extra
         );
 
@@ -141,6 +142,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             false,
             swapAmount,
+            sqrtP(5002),
             extra
         );
 
@@ -223,6 +225,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             false,
             swapAmount,
+            sqrtP(6106),
             extra
         );
 
@@ -305,6 +308,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             false,
             swapAmount,
+            sqrtP(6056),
             extra
         );
 
@@ -375,6 +379,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             true,
             swapAmount,
+            sqrtP(4993),
             extra
         );
 
@@ -448,6 +453,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             true,
             swapAmount,
+            sqrtP(4996),
             extra
         );
 
@@ -530,6 +536,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             true,
             swapAmount,
+            sqrtP(4094),
             extra
         );
 
@@ -612,6 +619,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             true,
             swapAmount,
+            sqrtP(4128),
             extra
         );
 
@@ -669,7 +677,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token1.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        pool.swap(address(this), false, swapAmount, extra);
+        pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
     }
 
     function testSwapBuyUSDCNotEnoughLiquidity() public {
@@ -702,7 +710,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         token0.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        pool.swap(address(this), true, swapAmount, extra);
+        pool.swap(address(this), true, swapAmount, sqrtP(4000), extra);
     }
 
     function testSwapMixed() public {
@@ -745,6 +753,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             true,
             ethAmount,
+            sqrtP(4993),
             extra
         );
 
@@ -752,6 +761,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
             address(this),
             false,
             usdcAmount,
+            sqrtP(5004),
             extra
         );
 
@@ -805,7 +815,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
         setupTestCase(params);
 
         vm.expectRevert(encodeError("InsufficientInputAmount()"));
-        pool.swap(address(this), false, 42 ether, "");
+        pool.swap(address(this), false, 42 ether, sqrtP(5004), "");
     }
 
     ////////////////////////////////////////////////////////////////////////////

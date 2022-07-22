@@ -57,6 +57,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 UniswapV3Quoter.QuoteParams({
                     pool: address(pool),
                     amountIn: 0.01337 ether,
+                    sqrtPriceLimitX96: sqrtP(4993),
                     zeroForOne: true
                 })
             );
@@ -76,6 +77,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 UniswapV3Quoter.QuoteParams({
                     pool: address(pool),
                     amountIn: 42 ether,
+                    sqrtPriceLimitX96: sqrtP(5005),
                     zeroForOne: false
                 })
             );
@@ -95,6 +97,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             UniswapV3Quoter.QuoteParams({
                 pool: address(pool),
                 amountIn: amountIn,
+                sqrtPriceLimitX96: sqrtP(4993),
                 zeroForOne: true
             })
         );
@@ -109,6 +112,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             address(pool),
             true,
             amountIn,
+            sqrtP(4993),
             extra
         );
 
@@ -122,6 +126,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             UniswapV3Quoter.QuoteParams({
                 pool: address(pool),
                 amountIn: amountIn,
+                sqrtPriceLimitX96: sqrtP(5010),
                 zeroForOne: false
             })
         );
@@ -136,6 +141,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             address(pool),
             false,
             amountIn,
+            sqrtP(5010),
             extra
         );
 

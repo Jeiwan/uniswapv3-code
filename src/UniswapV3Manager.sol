@@ -26,6 +26,7 @@ contract UniswapV3Manager {
         address poolAddress_,
         bool zeroForOne,
         uint256 amountSpecified,
+        uint160 sqrtPriceLimitX96,
         bytes calldata data
     ) public returns (int256, int256) {
         return
@@ -33,6 +34,13 @@ contract UniswapV3Manager {
                 msg.sender,
                 zeroForOne,
                 amountSpecified,
+                sqrtPriceLimitX96 == 0
+                    ? (
+                        zeroForOne
+                            ? TickMath.MIN_SQRT_RATIO + 1
+                            : TickMath.MAX_SQRT_RATIO - 1
+                    )
+                    : sqrtPriceLimitX96,
                 data
             );
     }
