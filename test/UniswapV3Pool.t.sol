@@ -24,12 +24,12 @@ contract UniswapV3PoolTest is Test, TestUtils {
     function testMintInRange() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
         liquidity[0] = LiquidityRange({
-            lowerTick: tick(4500),
+            lowerTick: tick(4545),
             upperTick: tick(5500),
             amount: LiquidityMath.getLiquidityForAmounts(
                 sqrtP(5000),
-                sqrtP(4500),
-                sqrtP(5300),
+                sqrtP(4545),
+                sqrtP(5500),
                 1 ether,
                 5000 ether
             )
@@ -48,7 +48,7 @@ contract UniswapV3PoolTest is Test, TestUtils {
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             1 ether,
-            3886.061798534204397756 ether
+            5000 ether
         );
 
         assertEq(

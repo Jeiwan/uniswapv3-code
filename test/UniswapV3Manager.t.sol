@@ -28,11 +28,11 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function testMintInRange() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
         liquidity[0] = LiquidityRange({
-            lowerTick: tick(4500),
+            lowerTick: tick(4545),
             upperTick: tick(5500),
             amount: LiquidityMath.getLiquidityForAmounts(
                 sqrtP(5000),
-                sqrtP(4500),
+                sqrtP(4545),
                 sqrtP(5500),
                 1 ether,
                 5000 ether

@@ -9,6 +9,8 @@ import "../src/lib/FixedPoint96.sol";
 
 import "./ERC20Mintable.sol";
 
+import "forge-std/console.sol";
+
 abstract contract TestUtils is Test {
     struct LiquidityRange {
         int24 lowerTick;
@@ -41,18 +43,35 @@ abstract contract TestUtils is Test {
         int24 tick;
     }
 
-    function tick(uint256 price) internal pure returns (int24) {
-        return
-            TickMath.getTickAtSqrtRatio(
-                uint160(
-                    PRBMathUD60x18.toUint(
-                        PRBMathUD60x18.sqrt(price * PRBMathUD60x18.SCALE)
-                    ) << FixedPoint96.RESOLUTION
-                )
-            );
+    function tick(uint256 price) internal view returns (int24 tick_) {
+        tick_ = TickMath.getTickAtSqrtRatio(
+            uint160(
+                PRBMathUD60x18.toUint(
+                    PRBMathUD60x18.sqrt(price * PRBMathUD60x18.SCALE)
+                ) << FixedPoint96.RESOLUTION
+            )
+        );
+
+        uint256 nextTickPrice = TickMath.getSqrtRatioAtTick(tick_ + 1);
+
+        if (price > nextTickPrice) {
+            tick_++;
+        }
+
+        console.log(PRBMathUD60x18.sqrt(price * PRBMathUD60x18.SCALE));
+
+        console.log(
+            price,
+            uint24(tick_),
+            uint160(
+                PRBMathUD60x18.toUint(
+                    PRBMathUD60x18.sqrt(price * PRBMathUD60x18.SCALE)
+                ) << FixedPoint96.RESOLUTION
+            )
+        );
     }
 
-    function sqrtP(uint256 price) internal pure returns (uint160) {
+    function sqrtP(uint256 price) internal view returns (uint160) {
         return TickMath.getSqrtRatioAtTick(tick(price));
     }
 
