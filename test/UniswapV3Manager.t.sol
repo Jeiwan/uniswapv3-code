@@ -28,11 +28,11 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function testMintInRange() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
         liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
+            lowerTick: tick(4500),
             upperTick: tick(5500),
             amount: LiquidityMath.getLiquidityForAmounts(
                 sqrtP(5000),
-                sqrtP(4545),
+                sqrtP(4500),
                 sqrtP(5500),
                 1 ether,
                 5000 ether
@@ -51,8 +51,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.998995580131581600 ether,
-            4999.999999999999999999 ether
+            1 ether,
+            3886.061798534204397756 ether
         );
 
         assertEq(
@@ -77,7 +77,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: liquidity[0].upperTick,
                 positionLiquidity: liquidity[0].amount,
                 currentLiquidity: liquidity[0].amount,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
     }
@@ -134,7 +135,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: liquidity[0].upperTick,
                 positionLiquidity: liquidity[0].amount,
                 currentLiquidity: 0,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
     }
@@ -188,7 +190,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: liquidity[0].upperTick,
                 positionLiquidity: liquidity[0].amount,
                 currentLiquidity: 0,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
     }
@@ -244,7 +247,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: tick(5500),
                 positionLiquidity: liquidity[0].amount,
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
         assertMintState(
@@ -258,7 +262,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: tick(6250),
                 positionLiquidity: liquidity[1].amount,
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
     }
@@ -319,7 +324,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: tick(5500),
                 positionLiquidity: liquidity[0].amount,
                 currentLiquidity: liquidity[0].amount,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
         assertMintState(
@@ -333,7 +339,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: tick(4999),
                 positionLiquidity: liquidity[1].amount,
                 currentLiquidity: liquidity[0].amount,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
         assertMintState(
@@ -347,7 +354,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 upperTick: tick(6250),
                 positionLiquidity: liquidity[2].amount,
                 currentLiquidity: liquidity[0].amount,
-                sqrtPriceX96: sqrtP(5000)
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
             })
         );
     }

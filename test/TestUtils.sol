@@ -38,6 +38,7 @@ abstract contract TestUtils is Test {
         uint128 positionLiquidity;
         uint128 currentLiquidity;
         uint160 sqrtPriceX96;
+        int24 tick;
     }
 
     function tick(uint256 price) internal pure returns (int24) {
@@ -118,7 +119,7 @@ abstract contract TestUtils is Test {
 
         (uint160 sqrtPriceX96, int24 currentTick) = expected.pool.slot0();
         assertEq(sqrtPriceX96, expected.sqrtPriceX96, "invalid current sqrtP");
-        assertEq(currentTick, 85176, "invalid current tick");
+        assertEq(currentTick, expected.tick, "invalid current tick");
         assertEq(
             expected.pool.liquidity(),
             expected.currentLiquidity,
