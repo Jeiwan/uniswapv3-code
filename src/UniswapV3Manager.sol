@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.14;
 
-import "../src/UniswapV3Pool.sol";
-import "../src/interfaces/IERC20.sol";
+import "./interfaces/IERC20.sol";
+import "./interfaces/IUniswapV3Pool.sol";
+import "./lib/TickMath.sol";
 
 contract UniswapV3Manager {
     function mint(
@@ -13,7 +14,7 @@ contract UniswapV3Manager {
         bytes calldata data
     ) public returns (uint256, uint256) {
         return
-            UniswapV3Pool(poolAddress_).mint(
+            IUniswapV3Pool(poolAddress_).mint(
                 msg.sender,
                 lowerTick,
                 upperTick,
@@ -30,7 +31,7 @@ contract UniswapV3Manager {
         bytes calldata data
     ) public returns (int256, int256) {
         return
-            UniswapV3Pool(poolAddress_).swap(
+            IUniswapV3Pool(poolAddress_).swap(
                 msg.sender,
                 zeroForOne,
                 amountSpecified,
@@ -50,9 +51,9 @@ contract UniswapV3Manager {
         uint256 amount1,
         bytes calldata data
     ) public {
-        UniswapV3Pool.CallbackData memory extra = abi.decode(
+        IUniswapV3Pool.CallbackData memory extra = abi.decode(
             data,
-            (UniswapV3Pool.CallbackData)
+            (IUniswapV3Pool.CallbackData)
         );
 
         IERC20(extra.token0).transferFrom(extra.payer, msg.sender, amount0);
@@ -64,9 +65,9 @@ contract UniswapV3Manager {
         int256 amount1,
         bytes calldata data
     ) public {
-        UniswapV3Pool.CallbackData memory extra = abi.decode(
+        IUniswapV3Pool.CallbackData memory extra = abi.decode(
             data,
-            (UniswapV3Pool.CallbackData)
+            (IUniswapV3Pool.CallbackData)
         );
 
         if (amount0 > 0) {

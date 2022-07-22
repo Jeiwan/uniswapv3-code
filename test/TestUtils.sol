@@ -5,8 +5,9 @@ import "forge-std/Test.sol";
 import "prb-math/PRBMathUD60x18.sol";
 import "abdk-math/ABDKMath64x64.sol";
 
-import "../src/UniswapV3Pool.sol";
+import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/lib/FixedPoint96.sol";
+import "../src/UniswapV3Pool.sol";
 
 import "./ERC20Mintable.sol";
 
@@ -189,7 +190,7 @@ abstract contract TestUtils is Test {
     ) internal pure returns (bytes memory) {
         return
             abi.encode(
-                UniswapV3Pool.CallbackData({
+                IUniswapV3Pool.CallbackData({
                     token0: token0_,
                     token1: token1_,
                     payer: payer

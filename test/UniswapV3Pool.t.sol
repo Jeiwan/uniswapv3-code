@@ -5,9 +5,10 @@ import "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
 import "./TestUtils.sol";
 
-import "../src/UniswapV3Pool.sol";
+import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/lib/LiquidityMath.sol";
 import "../src/lib/TickMath.sol";
+import "../src/UniswapV3Pool.sol";
 
 contract UniswapV3PoolTest is Test, TestUtils {
     ERC20Mintable token0;
@@ -346,9 +347,9 @@ contract UniswapV3PoolTest is Test, TestUtils {
         bytes calldata data
     ) public {
         if (transferInMintCallback) {
-            UniswapV3Pool.CallbackData memory extra = abi.decode(
+            IUniswapV3Pool.CallbackData memory extra = abi.decode(
                 data,
-                (UniswapV3Pool.CallbackData)
+                (IUniswapV3Pool.CallbackData)
             );
 
             IERC20(extra.token0).transferFrom(extra.payer, msg.sender, amount0);
