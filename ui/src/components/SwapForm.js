@@ -1,57 +1,13 @@
 import './SwapForm.css';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
+import { uint256Max } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
 import config from "../config.js";
 import debounce from '../lib/debounce';
+import LiquidityForm from './LiquidityForm';
 
-const uint256Max = ethers.constants.MaxUint256;
-const pairs = [["WETH", "USDC"]];
-
-const addLiquidity = (account, { token0, token1, manager }) => {
-  if (!token0 || !token1) {
-    return;
-  }
-
-  const amount0 = ethers.utils.parseEther("0.998976618347425280");
-  const amount1 = ethers.utils.parseEther("5000"); // 5000 USDC
-  const lowerTick = 84222;
-  const upperTick = 86129;
-  const liquidity = ethers.BigNumber.from("1517882343751509868544");
-  const extra = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "address"],
-    [token0.address, token1.address, account]
-  );
-
-  Promise.all(
-    [
-      token0.allowance(account, config.managerAddress),
-      token1.allowance(account, config.managerAddress)
-    ]
-  ).then(([allowance0, allowance1]) => {
-    return Promise.resolve()
-      .then(() => {
-        if (allowance0.lt(amount0)) {
-          return token0.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
-        }
-      })
-      .then(() => {
-        if (allowance1.lt(amount1)) {
-          return token1.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
-        }
-      })
-      .then(() => {
-        return manager.mint(config.poolAddress, lowerTick, upperTick, liquidity, extra)
-          .then(tx => tx.wait())
-      })
-      .then(() => {
-        alert('Liquidity added!');
-      });
-  }).catch((err) => {
-    console.error(err);
-    alert('Failed!');
-  });
-}
+const pairs = [{ token0: "WETH", token1: "USDC" }];
 
 const swap = (zeroForOne, amountIn, account, { tokenIn, manager, token0, token1 }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
@@ -105,6 +61,7 @@ const SwapForm = (props) => {
   const [manager, setManager] = useState();
   const [quoter, setQuoter] = useState();
   const [loading, setLoading] = useState(false);
+  const [managingLiquidity, setManagingLiquidity] = useState(false);
 
   useEffect(() => {
     setToken0(new ethers.Contract(
@@ -128,10 +85,6 @@ const SwapForm = (props) => {
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
   }, []);
-
-  const addLiquidity_ = () => {
-    addLiquidity(metamaskContext.account, { token0, token1, manager });
-  }
 
   const swap_ = (e) => {
     e.preventDefault();
@@ -166,11 +119,16 @@ const SwapForm = (props) => {
     }
   }
 
+  const toggleLiquidityForm = () => {
+    setManagingLiquidity(!managingLiquidity);
+  }
+
   return (
     <section className="SwapContainer">
+      {managingLiquidity && <LiquidityForm pair={pair} toggle={toggleLiquidityForm} />}
       <header>
         <h1>Swap tokens</h1>
-        <button disabled={!enabled || loading} onClick={addLiquidity_}>Add liquidity</button>
+        <button disabled={!enabled || loading} onClick={toggleLiquidityForm}>Add liquidity</button>
       </header>
       <form className="SwapForm">
         <SwapInput
@@ -178,13 +136,13 @@ const SwapForm = (props) => {
           disabled={!enabled || loading}
           readOnly={false}
           setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1)}
-          token={zeroForOne ? pair[0] : pair[1]} />
+          token={zeroForOne ? pair.token0 : pair.token1} />
         <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} disabled={!enabled || loading} />
         <SwapInput
           amount={zeroForOne ? amount1 : amount0}
           disabled={!enabled || loading}
           readOnly={true}
-          token={zeroForOne ? pair[1] : pair[0]} />
+          token={zeroForOne ? pair.token1 : pair.token0} />
         <button className='swap' disabled={!enabled || loading} onClick={swap_}>Swap</button>
       </form>
     </section>

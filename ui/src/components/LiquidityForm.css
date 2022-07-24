@@ -1,0 +1,39 @@
+.BackButton {
+  @apply mb-4 inline-block;
+}
+
+.LiquidityWrapper {
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: opacity .15s linear;
+  @apply fixed top-0 left-0 w-full h-full outline-none overflow-x-hidden overflow-y-auto flex flex-col items-center justify-center;
+}
+
+.LiquidityForm {
+  width: 22vw;
+  @apply py-4 px-6 bg-white rounded-xl shadow-lg relative;
+}
+
+.LiquidityForm fieldset {
+  @apply flex flex-col mb-2;
+}
+
+.LiquidityForm fieldset label {
+  @apply whitespace-nowrap pr-2;
+}
+
+.LiquidityForm fieldset input {
+  @apply border border-purple-400 rounded px-4 py-2 bg-slate-50 text-xl w-full;
+}
+
+.LiquidityForm button.addLiquidity {
+  @apply w-full rounded-xl py-4 bg-slate-100 text-xl mt-3;
+}
+
+.LiquidityForm button.addLiquidity:hover {
+  @apply bg-pink-100;
+}
+
+.PriceRangeInputs {
+  vertical-align: middle;
+  @apply flex flex-row items-center;
+}
