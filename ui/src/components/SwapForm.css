@@ -1,5 +1,5 @@
 .SwapContainer {
-  width: 22vw;
+  width: 25rem;
   @apply py-4 px-6 bg-white rounded-xl shadow-lg;
 }
 
