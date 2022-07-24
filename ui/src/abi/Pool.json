@@ -32,7 +32,17 @@
   },
   {
     "inputs": [],
+    "name": "InvalidPriceLimit",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidTickRange",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotEnoughLiquidity",
     "type": "error"
   },
   {
@@ -266,6 +276,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint160",
+        "name": "sqrtPriceLimitX96",
+        "type": "uint160"
+      },
+      {
         "internalType": "bytes",
         "name": "data",
         "type": "bytes"
@@ -323,8 +338,13 @@
       },
       {
         "internalType": "uint128",
-        "name": "liquidity",
+        "name": "liquidityGross",
         "type": "uint128"
+      },
+      {
+        "internalType": "int128",
+        "name": "liquidityNet",
+        "type": "int128"
       }
     ],
     "stateMutability": "view",

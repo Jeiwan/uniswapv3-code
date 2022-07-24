@@ -61,6 +61,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint160",
+        "name": "sqrtPriceLimitX96",
+        "type": "uint160"
+      },
+      {
         "internalType": "bytes",
         "name": "data",
         "type": "bytes"
