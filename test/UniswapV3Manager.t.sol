@@ -416,9 +416,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5604415652688968742392013927525,
+                sqrtPriceX96: 5604415652688968742392013927525, // 5003.8180249710795
                 tick: 85183,
-                currentLiquidity: 1518129116516325614066
+                currentLiquidity: liquidity[0].amount
             })
         );
     }
@@ -471,9 +471,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5598737223630966236662554421688,
+                sqrtPriceX96: 5598737223630966236662554421688, // 4993.683362269102
                 tick: 85163,
-                currentLiquidity: 1518129116516325614066
+                currentLiquidity: liquidity[0].amount
             })
         );
     }
@@ -536,9 +536,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 poolBalance1: uint256(
                     int256(poolBalance1) + amount1Delta1 + amount1Delta2
                 ),
-                sqrtPriceX96: 5601607565086694240599300641950,
+                sqrtPriceX96: 5601607565086694240599300641950, // 4998.804963817196
                 tick: 85173,
-                currentLiquidity: 1518129116516325614066
+                currentLiquidity: liquidity[0].amount
             })
         );
     }

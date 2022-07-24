@@ -10,6 +10,8 @@ import "../src/lib/LiquidityMath.sol";
 import "../src/lib/TickMath.sol";
 import "../src/UniswapV3Pool.sol";
 
+import "forge-std/console.sol";
+
 contract UniswapV3PoolSwapsTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
@@ -79,7 +81,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5604415652688968742392013927525,
+                sqrtPriceX96: 5604415652688968742392013927525, // 5003.8180249710795
                 tick: 85183,
                 currentLiquidity: liquidity[0].amount
             })
@@ -148,7 +150,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5603319704133145322707074461607,
+                sqrtPriceX96: 5603319704133145322707074461607, // 5001.861214026131
                 tick: 85179,
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount
             })
@@ -210,7 +212,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 6190476002219365604851182401841,
+                sqrtPriceX96: 6190476002219365604851182401841, // 6105.045728033458
                 tick: 87173,
                 currentLiquidity: liquidity[1].amount
             })
@@ -272,7 +274,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 6165345094827913637987008642386,
+                sqrtPriceX96: 6165345094827913637987008642386, // 6055.578153852725
                 tick: 87091,
                 currentLiquidity: liquidity[1].amount
             })
@@ -332,7 +334,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5598737223630966236662554421688,
+                sqrtPriceX96: 5598737223630966236662554421688, // 4993.683362269102
                 tick: 85163,
                 currentLiquidity: liquidity[0].amount
             })
@@ -401,7 +403,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5600479946976371527693873969480,
+                sqrtPriceX96: 5600479946976371527693873969480, // 4996.792621611429
                 tick: 85169,
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount
             })
@@ -463,7 +465,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5069962753257045266417033265661,
+                sqrtPriceX96: 5069962753257045266417033265661, // 4094.9666586581643
                 tick: 83179,
                 currentLiquidity: liquidity[1].amount
             })
@@ -525,7 +527,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5090915820491052794734777344590,
+                sqrtPriceX96: 5090915820491052794734777344590, // 4128.883835866256
                 tick: 83261,
                 currentLiquidity: liquidity[1].amount
             })
@@ -634,9 +636,9 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 poolBalance1: uint256(
                     int256(poolBalance1) + amount1Delta1 + amount1Delta2
                 ),
-                sqrtPriceX96: 5601607565086694240599300641950,
+                sqrtPriceX96: 5601607565086694240599300641950, // 4998.804963817196
                 tick: 85173,
-                currentLiquidity: 1518129116516325614066
+                currentLiquidity: liquidity[0].amount
             })
         );
     }
