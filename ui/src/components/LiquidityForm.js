@@ -3,17 +3,27 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { uint256Max } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
+import { sqrt } from '@uniswap/sdk-core';
+import { TickMath } from '@uniswap/v3-sdk';
 import config from "../config.js";
+import JSBI from 'jsbi';
+
+const priceToTick = (price) => {
+  const sqrtP = sqrt(
+    JSBI.leftShift(JSBI.BigInt(price), JSBI.BigInt(192))
+  );
+  return TickMath.getTickAtSqrtRatio(sqrtP);
+}
 
 const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager }) => {
   if (!token0 || !token1) {
     return;
   }
 
-  // const amount0 = ethers.utils.parseEther("0.998976618347425280");
-  // const amount1 = ethers.utils.parseEther("5000"); // 5000 USDC
-  const lowerTick = 84222;
-  const upperTick = 86129;
+  const amount0Big = ethers.utils.parseEther(amount0);
+  const amount1Big = ethers.utils.parseEther(amount1);
+  const lowerTick = priceToTick(lowerPrice);
+  const upperTick = priceToTick(upperPrice);
   const liquidity = ethers.BigNumber.from("1517882343751509868544");
   const extra = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "address"],
@@ -28,12 +38,12 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
   ).then(([allowance0, allowance1]) => {
     return Promise.resolve()
       .then(() => {
-        if (allowance0.lt(amount0)) {
+        if (allowance0.lt(amount0Big)) {
           return token0.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
-        if (allowance1.lt(amount1)) {
+        if (allowance1.lt(amount1Big)) {
           return token1.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
