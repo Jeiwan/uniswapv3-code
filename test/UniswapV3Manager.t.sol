@@ -31,8 +31,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -79,8 +78,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -127,8 +125,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 10 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -182,8 +179,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 3 ether,
             usdcBalance: 15000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -249,8 +245,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 3 ether,
             usdcBalance: 15000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -355,8 +350,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 0,
             usdcBalance: 0,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: false,
             transferInSwapCallback: true,
@@ -380,8 +374,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -436,8 +429,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -492,8 +484,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -558,8 +549,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -581,8 +571,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: true,
@@ -604,8 +593,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
-            currentTick: tick(5000),
-            currentSqrtP: sqrtP(5000),
+            currentPrice: 5000,
             liquidity: liquidity,
             transferInMintCallback: true,
             transferInSwapCallback: false,
@@ -632,8 +620,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         pool = new UniswapV3Pool(
             address(token0),
             address(token1),
-            params.currentSqrtP,
-            params.currentTick
+            sqrtP(params.currentPrice),
+            tick(params.currentPrice)
         );
 
         manager = new UniswapV3Manager();

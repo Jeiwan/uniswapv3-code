@@ -21,8 +21,7 @@ abstract contract TestUtils is Test {
     struct TestCaseParams {
         uint256 wethBalance;
         uint256 usdcBalance;
-        int24 currentTick;
-        uint160 currentSqrtP;
+        uint256 currentPrice;
         LiquidityRange[] liquidity;
         bool transferInMintCallback;
         bool transferInSwapCallback;
