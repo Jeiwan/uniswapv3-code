@@ -1,4 +1,4 @@
-# Uniswap V3 Created From Scratch
+# Uniswap V3 Built From Scratch
 
 A Uniswap V3 clone built from scratch for educational purposes. Part of free and open-source [Uniswap V3 Development Book](https://uniswapv3book.com).
 
