@@ -67,7 +67,7 @@ const swap = (zeroForOne, amountIn, account, { tokenIn, manager, token0, token1 
       }
     })
     .then(() => {
-      return manager.swap(config.poolAddress, zeroForOne, amountInWei, extra).then(tx => tx.wait())
+      return manager.swap(config.poolAddress, zeroForOne, amountInWei, 0, extra).then(tx => tx.wait())
     })
     .then(() => {
       alert('Swap succeeded!');
@@ -146,7 +146,7 @@ const SwapForm = (props) => {
     setLoading(true);
 
     quoter.callStatic
-      .quote({ pool: config.poolAddress, amountIn: ethers.utils.parseEther(amount), zeroForOne: zeroForOne })
+      .quote({ pool: config.poolAddress, amountIn: ethers.utils.parseEther(amount), sqrtPriceLimitX96: 0, zeroForOne: zeroForOne })
       .then(({ amountOut }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
         setLoading(false);
