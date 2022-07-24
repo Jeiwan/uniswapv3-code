@@ -230,4 +230,16 @@ abstract contract TestUtils is Test {
             )
         });
     }
+
+    function liquidityRange(
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint128 amount
+    ) internal pure returns (LiquidityRange memory range) {
+        range = LiquidityRange({
+            lowerTick: tick(lowerPrice),
+            upperTick: tick(upperPrice),
+            amount: amount
+        });
+    }
 }

@@ -170,22 +170,12 @@ contract UniswapV3PoolTest is Test, TestUtils {
     //
     function testMintOverlappingRanges() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
-        liquidity[1] = LiquidityRange({
-            lowerTick: tick(4000),
-            upperTick: tick(6250),
-            amount: (liquidity[0].amount * 75) / 100
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        liquidity[1] = liquidityRange(
+            4000,
+            6250,
+            (liquidity[0].amount * 75) / 100
+        );
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 3 ether,
             usdcBalance: 15000 ether,
