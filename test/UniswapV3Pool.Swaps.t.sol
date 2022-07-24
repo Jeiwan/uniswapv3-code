@@ -33,17 +33,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     function testBuyETHOnePriceRange() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -104,17 +94,13 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //  4545 -----|----- 5500
     //
     function testBuyETHTwoEqualPriceRanges() public {
-        LiquidityRange memory range = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        LiquidityRange memory range = liquidityRange(
+            4545,
+            5500,
+            1 ether,
+            5000 ether,
+            5000
+        );
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
         liquidity[0] = range;
         liquidity[1] = range;
@@ -179,28 +165,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     function testBuyETHConsecutivePriceRanges() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
-        liquidity[1] = LiquidityRange({
-            lowerTick: tick(5500),
-            upperTick: tick(6250),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(5500),
-                sqrtP(6250),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        liquidity[1] = liquidityRange(5500, 6250, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 2 ether,
             usdcBalance: 10000 ether,
@@ -262,28 +228,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     function testBuyETHPartiallyOverlappingPriceRanges() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
-        liquidity[1] = LiquidityRange({
-            lowerTick: tick(5001),
-            upperTick: tick(6250),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(5001),
-                sqrtP(6250),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        liquidity[1] = liquidityRange(5001, 6250, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 2 ether,
             usdcBalance: 10000 ether,
@@ -344,17 +290,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     function testBuyUSDCOnePriceRange() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -415,17 +351,13 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //  4545 -----|----- 5500
     //
     function testBuyUSDCTwoEqualPriceRanges() public {
-        LiquidityRange memory range = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        LiquidityRange memory range = liquidityRange(
+            4545,
+            5500,
+            1 ether,
+            5000 ether,
+            5000
+        );
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
         liquidity[0] = range;
         liquidity[1] = range;
@@ -490,28 +422,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     function testBuyUSDCConsecutivePriceRanges() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
-        liquidity[1] = LiquidityRange({
-            lowerTick: tick(4000),
-            upperTick: tick(4545),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4000),
-                sqrtP(4545),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        liquidity[1] = liquidityRange(4000, 4545, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 2 ether,
             usdcBalance: 10000 ether,
@@ -573,28 +485,8 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
     //
     function testBuyUSDCPartiallyOverlappingPriceRanges() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
-        liquidity[1] = LiquidityRange({
-            lowerTick: tick(4000),
-            upperTick: tick(4999),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4000),
-                sqrtP(4999),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        liquidity[1] = liquidityRange(4000, 4999, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 2 ether,
             usdcBalance: 10000 ether,
@@ -650,17 +542,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
     function testSwapBuyEthNotEnoughLiquidity() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -683,17 +565,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
     function testSwapBuyUSDCNotEnoughLiquidity() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -716,17 +588,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
     function testSwapMixed() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -792,17 +654,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
 
     function testSwapInsufficientInputAmount() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = LiquidityRange({
-            lowerTick: tick(4545),
-            upperTick: tick(5500),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(5000),
-                sqrtP(4545),
-                sqrtP(5500),
-                1 ether,
-                5000 ether
-            )
-        });
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,

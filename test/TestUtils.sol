@@ -210,4 +210,24 @@ abstract contract TestUtils is Test {
 
         initialized = (word & (1 << bitPos)) != 0;
     }
+
+    function liquidityRange(
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint256 amount0,
+        uint256 amount1,
+        uint256 currentPrice
+    ) internal pure returns (LiquidityRange memory range) {
+        range = LiquidityRange({
+            lowerTick: tick(lowerPrice),
+            upperTick: tick(upperPrice),
+            amount: LiquidityMath.getLiquidityForAmounts(
+                sqrtP(currentPrice),
+                sqrtP(lowerPrice),
+                sqrtP(upperPrice),
+                amount0,
+                amount1
+            )
+        });
+    }
 }
