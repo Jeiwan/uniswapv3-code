@@ -215,7 +215,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 6190476002219365604851182401841,
                 tick: 87173,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[1].amount
             })
         );
     }
@@ -278,7 +278,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 6165345094827913637987008642386,
                 tick: 87091,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[1].amount
             })
         );
     }
@@ -472,7 +472,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 5069962753257045266417033265661,
                 tick: 83179,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[1].amount
             })
         );
     }
@@ -535,7 +535,7 @@ contract UniswapV3PoolSwapsTest is Test, TestUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 5090915820491052794734777344590,
                 tick: 83261,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[1].amount
             })
         );
     }

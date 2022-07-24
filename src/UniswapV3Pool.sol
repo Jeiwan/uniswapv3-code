@@ -191,7 +191,9 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint160 sqrtPriceLimitX96,
         bytes calldata data
     ) public returns (int256 amount0, int256 amount1) {
+        // Caching for gas saving
         Slot0 memory slot0_ = slot0;
+        uint128 liquidity_ = liquidity;
 
         if (
             zeroForOne
@@ -206,7 +208,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
             amountCalculated: 0,
             sqrtPriceX96: slot0_.sqrtPriceX96,
             tick: slot0_.tick,
-            liquidity: liquidity
+            liquidity: liquidity_
         });
 
         while (
@@ -263,6 +265,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
             (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);
         }
 
+        if (liquidity_ != state.liquidity) liquidity = state.liquidity;
+
         (amount0, amount1) = zeroForOne
             ? (
                 int256(amountSpecified - state.amountSpecifiedRemaining),
@@ -303,7 +307,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
             amount0,
             amount1,
             slot0.sqrtPriceX96,
-            liquidity,
+            state.liquidity,
             slot0.tick
         );
     }
