@@ -407,6 +407,50 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         manager.mint(mints[0]);
     }
 
+    function testMintSlippageProtection() public {
+        (uint256 amount0, uint256 amount1) = (
+            1 ether,
+            5000 ether
+        );
+        pool = new UniswapV3Pool(
+            address(token0),
+            address(token1),
+            sqrtP(5000),
+            tick(5000)
+        );
+        manager = new UniswapV3Manager();
+
+        token0.mint(address(this), amount0);
+        token1.mint(address(this), amount1);
+        token0.approve(address(manager), amount0);
+        token1.approve(address(manager), amount1);
+
+        vm.expectRevert(encodeError("SlippageCheckFailed()"));
+        manager.mint(
+            IUniswapV3Manager.MintParams({
+                poolAddress: address(pool),
+                lowerTick: tick(4545),
+                upperTick: tick(5500),
+                amount0Desired: amount0,
+                amount1Desired: amount1,
+                amount0Min: amount0,
+                amount1Min: amount1
+            })
+        );
+
+        manager.mint(
+            IUniswapV3Manager.MintParams({
+                poolAddress: address(pool),
+                lowerTick: tick(4545),
+                upperTick: tick(5500),
+                amount0Desired: amount0,
+                amount1Desired: amount1,
+                amount0Min: (amount0 * 99) / 100,
+                amount1Min: (amount1 * 99) / 100
+            })
+        );
+    }
+
     function testSwapBuyEth() public {
         IUniswapV3Manager.MintParams[]
             memory mints = new IUniswapV3Manager.MintParams[](1);
