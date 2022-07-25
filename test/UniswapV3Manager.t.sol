@@ -408,10 +408,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintSlippageProtection() public {
-        (uint256 amount0, uint256 amount1) = (
-            1 ether,
-            5000 ether
-        );
+        (uint256 amount0, uint256 amount1) = (1 ether, 5000 ether);
         pool = new UniswapV3Pool(
             address(token0),
             address(token1),
@@ -425,7 +422,12 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.approve(address(manager), amount0);
         token1.approve(address(manager), amount1);
 
-        vm.expectRevert(encodeError("SlippageCheckFailed()"));
+        vm.expectRevert(
+            encodeSlippageCheckFailed(
+                0.998995580131581600 ether,
+                4999.999999999999999999 ether
+            )
+        );
         manager.mint(
             IUniswapV3Manager.MintParams({
                 poolAddress: address(pool),

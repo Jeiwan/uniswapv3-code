@@ -8,7 +8,7 @@ import "./lib/LiquidityMath.sol";
 import "./lib/TickMath.sol";
 
 contract UniswapV3Manager is IUniswapV3Manager {
-    error SlippageCheckFailed();
+    error SlippageCheckFailed(uint256 amount0, uint256 amount1);
 
     function mint(MintParams calldata params)
         public
@@ -47,7 +47,7 @@ contract UniswapV3Manager is IUniswapV3Manager {
         );
 
         if (amount0 < params.amount0Min || amount1 < params.amount1Min)
-            revert SlippageCheckFailed();
+            revert SlippageCheckFailed(amount0, amount1);
     }
 
     function swap(

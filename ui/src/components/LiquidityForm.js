@@ -10,6 +10,8 @@ import JSBI from 'jsbi';
 
 const slippage = 0.01;
 
+const formatAmount = ethers.utils.formatUnits
+
 const priceToSqrtP = (price) => {
   return sqrt(
     JSBI.leftShift(JSBI.BigInt(price), JSBI.BigInt(192))
@@ -28,7 +30,7 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
   const amount0Desired = ethers.utils.parseEther(amount0);
   const amount1Desired = ethers.utils.parseEther(amount1);
   const amount0Min = amount0Desired.mul((1 - slippage) * 100).div(100);
-  const amount1Min = amount0Desired.mul((1 - slippage) * 100).div(100);
+  const amount1Min = amount1Desired.mul((1 - slippage) * 100).div(100);
 
   const lowerTick = priceToTick(lowerPrice);
   const upperTick = priceToTick(upperPrice);
@@ -63,6 +65,15 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
         alert('Liquidity added!');
       });
   }).catch((err) => {
+    if (err.error && err.error.data && err.error.data.data) {
+      const error = manager.interface.parseError(err.error.data.data);
+      switch (error.name) {
+        case "SlippageCheckFailed":
+          alert(`Slippage check failed (amount0: ${formatAmount(error.args.amount0)}, amount1: ${formatAmount(error.args.amount1)})`)
+          return
+      }
+    }
+
     console.error(err);
     alert('Failed!');
   });
@@ -124,8 +135,8 @@ const LiquidityForm = ({ pair, toggle }) => {
   const [token1, setToken1] = useState();
   const [manager, setManager] = useState();
 
-  const [amount0, setAmount0] = useState(0);
-  const [amount1, setAmount1] = useState(0);
+  const [amount0, setAmount0] = useState("0");
+  const [amount1, setAmount1] = useState("0");
   const [lowerPrice, setLowerPrice] = useState(0);
   const [upperPrice, setUpperPrice] = useState(0);
   const [loading, setLoading] = useState(false);

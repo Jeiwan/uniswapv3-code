@@ -166,6 +166,18 @@ abstract contract TestUtils is Test {
         encoded = abi.encodeWithSignature(error);
     }
 
+    function encodeSlippageCheckFailed(uint256 amount0, uint256 amount1)
+        internal
+        pure
+        returns (bytes memory encoded)
+    {
+        encoded = abi.encodeWithSignature(
+            "SlippageCheckFailed(uint256,uint256)",
+            amount0,
+            amount1
+        );
+    }
+
     function encodeExtra(
         address token0_,
         address token1_,
