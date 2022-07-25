@@ -3,7 +3,7 @@ pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
 import "./ERC20Mintable.sol";
-import "./TestUtils.sol";
+import "./UniswapV3Pool.Utils.t.sol";
 
 import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/lib/LiquidityMath.sol";
@@ -12,7 +12,7 @@ import "../src/UniswapV3Pool.sol";
 
 import "forge-std/console.sol";
 
-contract UniswapV3PoolSwapsTest is Test, TestUtils {
+contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
     UniswapV3Pool pool;

@@ -12,22 +12,6 @@ import "../src/UniswapV3Pool.sol";
 import "./ERC20Mintable.sol";
 
 abstract contract TestUtils is Test {
-    struct LiquidityRange {
-        int24 lowerTick;
-        int24 upperTick;
-        uint128 amount;
-    }
-
-    struct TestCaseParams {
-        uint256 wethBalance;
-        uint256 usdcBalance;
-        uint256 currentPrice;
-        LiquidityRange[] liquidity;
-        bool transferInMintCallback;
-        bool transferInSwapCallback;
-        bool mintLiqudity;
-    }
-
     struct ExpectedStateAfterMint {
         UniswapV3Pool pool;
         ERC20Mintable token0;
@@ -208,37 +192,5 @@ abstract contract TestUtils is Test {
         uint256 word = pool.tickBitmap(wordPos);
 
         initialized = (word & (1 << bitPos)) != 0;
-    }
-
-    function liquidityRange(
-        uint256 lowerPrice,
-        uint256 upperPrice,
-        uint256 amount0,
-        uint256 amount1,
-        uint256 currentPrice
-    ) internal pure returns (LiquidityRange memory range) {
-        range = LiquidityRange({
-            lowerTick: tick(lowerPrice),
-            upperTick: tick(upperPrice),
-            amount: LiquidityMath.getLiquidityForAmounts(
-                sqrtP(currentPrice),
-                sqrtP(lowerPrice),
-                sqrtP(upperPrice),
-                amount0,
-                amount1
-            )
-        });
-    }
-
-    function liquidityRange(
-        uint256 lowerPrice,
-        uint256 upperPrice,
-        uint128 amount
-    ) internal pure returns (LiquidityRange memory range) {
-        range = LiquidityRange({
-            lowerTick: tick(lowerPrice),
-            upperTick: tick(upperPrice),
-            amount: amount
-        });
     }
 }
