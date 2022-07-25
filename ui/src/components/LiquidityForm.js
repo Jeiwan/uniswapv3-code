@@ -40,7 +40,7 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
     lowerTick, upperTick, amount0Desired, amount1Desired, amount0Min, amount1Min
   }
 
-  Promise.all(
+  return Promise.all(
     [
       token0.allowance(account, config.managerAddress),
       token1.allowance(account, config.managerAddress)
@@ -70,7 +70,13 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
       switch (error.name) {
         case "SlippageCheckFailed":
           alert(`Slippage check failed (amount0: ${formatAmount(error.args.amount0)}, amount1: ${formatAmount(error.args.amount1)})`)
-          return
+          return;
+
+        default:
+          console.error(err);
+          alert('Failed!');
+
+          return;
       }
     }
 
@@ -161,7 +167,9 @@ const LiquidityForm = ({ pair, toggle }) => {
 
   const addLiquidity_ = (e) => {
     e.preventDefault();
-    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager });
+    setLoading(true);
+    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager })
+      .then(() => setLoading(false));
   }
 
   return (
@@ -170,22 +178,22 @@ const LiquidityForm = ({ pair, toggle }) => {
         <BackButton
           onClick={toggle} />
         <PriceRange
-          disabled={!enabled}
+          disabled={!enabled || loading}
           lowerPrice={lowerPrice}
           upperPrice={upperPrice}
           setLowerPrice={setLowerPrice}
           setUpperPrice={setUpperPrice} />
         <AmountInput
           amount={amount0}
-          disabled={!enabled}
+          disabled={!enabled || loading}
           setAmount={setAmount0}
           token={pair.token0} />
         <AmountInput
           amount={amount1}
-          disabled={!enabled}
+          disabled={!enabled || loading}
           setAmount={setAmount1}
           token={pair.token1} />
-        <button className="addLiquidity" disabled={!enabled} onClick={addLiquidity_}>Add liquidity</button>
+        <button className="addLiquidity" disabled={!enabled || loading} onClick={addLiquidity_}>Add liquidity</button>
       </form>
     </section>
   );
