@@ -4,9 +4,11 @@ import { useContext, useEffect, useState } from 'react';
 import { uint256Max } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
 import { sqrt } from '@uniswap/sdk-core';
-import { TickMath, maxLiquidityForAmounts } from '@uniswap/v3-sdk';
+import { TickMath } from '@uniswap/v3-sdk';
 import config from "../config.js";
 import JSBI from 'jsbi';
+
+const slippage = 0.01;
 
 const priceToSqrtP = (price) => {
   return sqrt(
@@ -18,41 +20,23 @@ const priceToTick = (price) => {
   return TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
 }
 
-const calculateLiquidity = (lowerPrice, upperPrice, amount0, amount1) => {
-  const currentSqrtP = priceToSqrtP(5000);
-  const maxLiqudiity = maxLiquidityForAmounts(
-    currentSqrtP,
-    priceToSqrtP(lowerPrice),
-    priceToSqrtP(upperPrice),
-    amount0,
-    amount1,
-    false
-  );
-
-  return ethers.BigNumber.from(maxLiqudiity.toString());
-}
-
 const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager }) => {
   if (!token0 || !token1) {
     return;
   }
 
-  const amount0Big = ethers.utils.parseEther(amount0);
-  const amount1Big = ethers.utils.parseEther(amount1);
+  const amount0Desired = ethers.utils.parseEther(amount0);
+  const amount1Desired = ethers.utils.parseEther(amount1);
+  const amount0Min = amount0Desired.mul((1 - slippage) * 100).div(100);
+  const amount1Min = amount0Desired.mul((1 - slippage) * 100).div(100);
 
   const lowerTick = priceToTick(lowerPrice);
   const upperTick = priceToTick(upperPrice);
-  const liquidity = calculateLiquidity(
-    lowerPrice,
-    upperPrice,
-    amount0Big,
-    amount1Big
-  );
 
-  const extra = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "address"],
-    [token0.address, token1.address, account]
-  );
+  const mintParams = {
+    poolAddress: config.poolAddress,
+    lowerTick, upperTick, amount0Desired, amount1Desired, amount0Min, amount1Min
+  }
 
   Promise.all(
     [
@@ -62,17 +46,17 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
   ).then(([allowance0, allowance1]) => {
     return Promise.resolve()
       .then(() => {
-        if (allowance0.lt(amount0Big)) {
+        if (allowance0.lt(amount0Desired)) {
           return token0.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
-        if (allowance1.lt(amount1Big)) {
+        if (allowance1.lt(amount1Desired)) {
           return token1.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
-        return manager.mint(config.poolAddress, lowerTick, upperTick, liquidity, extra)
+        return manager.mint(mintParams)
           .then(tx => tx.wait())
       })
       .then(() => {

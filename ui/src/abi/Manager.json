@@ -2,41 +2,79 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "poolAddress_",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "prod1",
+        "type": "uint256"
       },
       {
-        "internalType": "int24",
-        "name": "lowerTick",
-        "type": "int24"
-      },
+        "internalType": "uint256",
+        "name": "denominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "PRBMath__MulDivOverflow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SlippageCheckFailed",
+    "type": "error"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "int24",
-        "name": "upperTick",
-        "type": "int24"
-      },
-      {
-        "internalType": "uint128",
-        "name": "liquidity",
-        "type": "uint128"
-      },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "poolAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "int24",
+            "name": "lowerTick",
+            "type": "int24"
+          },
+          {
+            "internalType": "int24",
+            "name": "upperTick",
+            "type": "int24"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount0Desired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount1Desired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount0Min",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount1Min",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IUniswapV3Manager.MintParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "mint",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "amount0",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "amount1",
         "type": "uint256"
       }
     ],
