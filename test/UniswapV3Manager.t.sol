@@ -21,18 +21,20 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function setUp() public {
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+        manager = new UniswapV3Manager();
 
         extra = encodeExtra(address(token0), address(token1), address(this));
     }
 
     function testMintInRange() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -62,10 +64,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: expectedAmount0,
                 amount1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                positionLiquidity: liquidity[0].amount,
-                currentLiquidity: liquidity[0].amount,
+                lowerTick: mints[0].lowerTick,
+                upperTick: mints[0].upperTick,
+                positionLiquidity: liquidity(mints[0], 5000),
+                currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
             })
@@ -73,13 +75,14 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintRangeBelow() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4000, 4999, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4000, 4999, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -109,9 +112,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: expectedAmount0,
                 amount1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                positionLiquidity: liquidity[0].amount,
+                lowerTick: mints[0].lowerTick,
+                upperTick: mints[0].upperTick,
+                positionLiquidity: liquidity(mints[0], 5000),
                 currentLiquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
@@ -120,13 +123,14 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintRangeAbove() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(5001, 6250, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(5001, 6250, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 10 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -153,9 +157,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: expectedAmount0,
                 amount1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                positionLiquidity: liquidity[0].amount,
+                lowerTick: mints[0].lowerTick,
+                upperTick: mints[0].upperTick,
+                positionLiquidity: liquidity(mints[0], 5000),
                 currentLiquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
@@ -169,18 +173,20 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     // 4000 ------|------ 6250
     //
     function testMintOverlappingRanges() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        liquidity[1] = liquidityRange(
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](2);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
+        mints[1] = mintParams(
             4000,
             6250,
-            (liquidity[0].amount * 75) / 100
+            (1 ether * 75) / 100,
+            (5000 ether * 75) / 100
         );
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 3 ether,
             usdcBalance: 15000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -188,8 +194,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            2.698571339742487358 ether,
-            13501.317327786998874075 ether
+            1.748692227462822454 ether,
+            8749.999999999999999999 ether
         );
 
         assertMintState(
@@ -201,8 +207,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 amount1: amount1,
                 lowerTick: tick(4545),
                 upperTick: tick(5500),
-                positionLiquidity: liquidity[0].amount,
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
+                positionLiquidity: liquidity(mints[0], 5000),
+                currentLiquidity: liquidity(mints[0], 5000) +
+                    liquidity(mints[1], 5000),
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
             })
@@ -216,8 +223,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 amount1: amount1,
                 lowerTick: tick(4000),
                 upperTick: tick(6250),
-                positionLiquidity: liquidity[1].amount,
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
+                positionLiquidity: liquidity(mints[1], 5000),
+                currentLiquidity: liquidity(mints[0], 5000) +
+                    liquidity(mints[1], 5000),
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
             })
@@ -230,23 +238,26 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     // 4000 ------ ------ 6250
     //      5000-1 5000+1
     function testMintPartiallyOverlappingRanges() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](3);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        liquidity[1] = liquidityRange(
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](3);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
+        mints[1] = mintParams(
             4000,
             4999,
-            (liquidity[0].amount * 75) / 100
+            (1 ether * 75) / 100,
+            (5000 ether * 75) / 100
         );
-        liquidity[2] = liquidityRange(
+        mints[2] = mintParams(
             5001,
             6250,
-            (liquidity[0].amount * 50) / 100
+            (1 ether * 50) / 100,
+            (5000 ether * 50) / 100
         );
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 3 ether,
             usdcBalance: 15000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -254,8 +265,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            2.130972704262877414 ether,
-            13493.267114019081386731 ether
+            1.498995580131581600 ether,
+            8749.999999999999999993 ether
         );
 
         assertMintState(
@@ -267,8 +278,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 amount1: amount1,
                 lowerTick: tick(4545),
                 upperTick: tick(5500),
-                positionLiquidity: liquidity[0].amount,
-                currentLiquidity: liquidity[0].amount,
+                positionLiquidity: liquidity(mints[0], 5000),
+                currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
             })
@@ -282,8 +293,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 amount1: amount1,
                 lowerTick: tick(4000),
                 upperTick: tick(4999),
-                positionLiquidity: liquidity[1].amount,
-                currentLiquidity: liquidity[0].amount,
+                positionLiquidity: liquidity(mints[1], 5000),
+                currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
             })
@@ -297,8 +308,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 amount1: amount1,
                 lowerTick: tick(5001),
                 upperTick: tick(6250),
-                positionLiquidity: liquidity[2].amount,
-                currentLiquidity: liquidity[0].amount,
+                positionLiquidity: liquidity(mints[2], 5000),
+                currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
             })
@@ -314,8 +325,19 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
         manager = new UniswapV3Manager();
 
-        vm.expectRevert(encodeError("InvalidTickRange()"));
-        manager.mint(address(pool), -887273, 0, 0, "");
+        // Reverted in TickMath.getSqrtRatioAtTick
+        vm.expectRevert(bytes("T"));
+        manager.mint(
+            IUniswapV3Manager.MintParams({
+                poolAddress: address(pool),
+                lowerTick: -887273,
+                upperTick: 0,
+                amount0Desired: 0,
+                amount1Desired: 0,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
     }
 
     function testMintInvalidTickRangeUpper() public {
@@ -327,8 +349,19 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
         manager = new UniswapV3Manager();
 
-        vm.expectRevert(encodeError("InvalidTickRange()"));
-        manager.mint(address(pool), 0, 887273, 0, "");
+        // Reverted in TickMath.getSqrtRatioAtTick
+        vm.expectRevert(bytes("T"));
+        manager.mint(
+            IUniswapV3Manager.MintParams({
+                poolAddress: address(pool),
+                lowerTick: 0,
+                upperTick: 887273,
+                amount0Desired: 0,
+                amount1Desired: 0,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
     }
 
     function testMintZeroLiquidity() public {
@@ -341,41 +374,48 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         manager = new UniswapV3Manager();
 
         vm.expectRevert(encodeError("ZeroLiquidity()"));
-        manager.mint(address(pool), 0, 1, 0, "");
+        manager.mint(
+            IUniswapV3Manager.MintParams({
+                poolAddress: address(pool),
+                lowerTick: 0,
+                upperTick: 1,
+                amount0Desired: 0,
+                amount1Desired: 0,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
     }
 
     function testMintInsufficientTokenBalance() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 0,
             usdcBalance: 0,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: false,
             transferInSwapCallback: true,
             mintLiqudity: false
         });
         setupTestCase(params);
+        mints[0].poolAddress = address(pool);
 
         vm.expectRevert(stdError.arithmeticError);
-        manager.mint(
-            address(pool),
-            liquidity[0].lowerTick,
-            liquidity[0].upperTick,
-            liquidity[0].amount,
-            extra
-        );
+        manager.mint(mints[0]);
     }
 
     function testSwapBuyEth() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -418,19 +458,20 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 5604415652688968742392013927525, // 5003.8180249710795
                 tick: 85183,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity(mints[0], 5000)
             })
         );
     }
 
     function testSwapBuyUSDC() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -473,19 +514,20 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 5598737223630966236662554421688, // 4993.683362269102
                 tick: 85163,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity(mints[0], 5000)
             })
         );
     }
 
     function testSwapMixed() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -538,19 +580,20 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ),
                 sqrtPriceX96: 5601607565086694240599300641950, // 4998.804963817196
                 tick: 85173,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity(mints[0], 5000)
             })
         );
     }
 
     function testSwapBuyEthNotEnoughLiquidity() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -566,13 +609,14 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testSwapBuyUSDCNotEnoughLiquidity() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: true,
             mintLiqudity: true
@@ -588,13 +632,14 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testSwapInsufficientInputAmount() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
             currentPrice: 5000,
-            liquidity: liquidity,
+            mints: mints,
             transferInMintCallback: true,
             transferInSwapCallback: false,
             mintLiqudity: true
@@ -610,6 +655,46 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     // INTERNAL
     //
     ////////////////////////////////////////////////////////////////////////////
+    struct TestCaseParams {
+        uint256 wethBalance;
+        uint256 usdcBalance;
+        uint256 currentPrice;
+        IUniswapV3Manager.MintParams[] mints;
+        bool transferInMintCallback;
+        bool transferInSwapCallback;
+        bool mintLiqudity;
+    }
+
+    function mintParams(
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint256 amount0,
+        uint256 amount1
+    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
+        params = IUniswapV3Manager.MintParams({
+            poolAddress: address(0x0), // set in setupTestCase
+            lowerTick: tick(lowerPrice),
+            upperTick: tick(upperPrice),
+            amount0Desired: amount0,
+            amount1Desired: amount1,
+            amount0Min: 0,
+            amount1Min: 0
+        });
+    }
+
+    function liquidity(
+        IUniswapV3Manager.MintParams memory params,
+        uint256 currentPrice
+    ) internal pure returns (uint128 liquidity_) {
+        liquidity_ = LiquidityMath.getLiquidityForAmounts(
+            sqrtP(currentPrice),
+            TickMath.getSqrtRatioAtTick(params.lowerTick),
+            TickMath.getSqrtRatioAtTick(params.upperTick),
+            params.amount0Desired,
+            params.amount1Desired
+        );
+    }
+
     function setupTestCase(TestCaseParams memory params)
         internal
         returns (uint256 poolBalance0, uint256 poolBalance1)
@@ -624,21 +709,16 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             tick(params.currentPrice)
         );
 
-        manager = new UniswapV3Manager();
-
         if (params.mintLiqudity) {
             token0.approve(address(manager), params.wethBalance);
             token1.approve(address(manager), params.usdcBalance);
 
             uint256 poolBalance0Tmp;
             uint256 poolBalance1Tmp;
-            for (uint256 i = 0; i < params.liquidity.length; i++) {
+            for (uint256 i = 0; i < params.mints.length; i++) {
+                params.mints[i].poolAddress = address(pool);
                 (poolBalance0Tmp, poolBalance1Tmp) = manager.mint(
-                    address(pool),
-                    params.liquidity[i].lowerTick,
-                    params.liquidity[i].upperTick,
-                    params.liquidity[i].amount,
-                    extra
+                    params.mints[i]
                 );
                 poolBalance0 += poolBalance0Tmp;
                 poolBalance1 += poolBalance1Tmp;

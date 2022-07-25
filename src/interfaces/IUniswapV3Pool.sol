@@ -10,6 +10,10 @@ interface IUniswapV3Pool {
 
     function slot0() external view returns (uint160 sqrtPriceX96, int24 tick);
 
+    function token0() external view returns (address);
+
+    function token1() external view returns (address);
+
     function mint(
         address owner,
         int24 lowerTick,
