@@ -318,7 +318,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            0.013370000000000000 ether,
+            0.01337 ether,
             -66.807123823853842027 ether
         );
 
