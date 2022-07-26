@@ -281,6 +281,62 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    // Slippage protection doesn't cause a failure but interrupts early.
+    function testBuyETHSlippageInterruption() public {
+        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentPrice: 5000,
+            liquidity: liquidity,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        uint256 swapAmount = 42 ether; // 42 USDC
+        token1.mint(address(this), swapAmount);
+        token1.approve(address(this), swapAmount);
+
+        (int256 userBalance0Before, int256 userBalance1Before) = (
+            int256(token0.balanceOf(address(this))),
+            int256(token1.balanceOf(address(this)))
+        );
+
+        (int256 amount0Delta, int256 amount1Delta) = pool.swap(
+            address(this),
+            false,
+            swapAmount,
+            sqrtP(5003),
+            extra
+        );
+
+        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
+            -0.006439649712342416 ether,
+            32.207295672039751277 ether
+        );
+
+        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
+        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+
+        assertSwapState(
+            ExpectedStateAfterSwap({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                userBalance0: uint256(userBalance0Before - amount0Delta),
+                userBalance1: uint256(userBalance1Before - amount1Delta),
+                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
+                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                sqrtPriceX96: sqrtP(5003),
+                tick: tick(5003),
+                currentLiquidity: liquidity[0].amount
+            })
+        );
+    }
+
     //  One price range
     //
     //          5000
@@ -530,6 +586,62 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 sqrtPriceX96: 5090915820491052794734777344590, // 4128.883835866256
                 tick: 83261,
                 currentLiquidity: liquidity[1].amount
+            })
+        );
+    }
+
+    // Slippage protection doesn't cause a failure but interrupts early.
+    function testBuyUSDCSlippageInterruption() public {
+        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentPrice: 5000,
+            liquidity: liquidity,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        uint256 swapAmount = 0.01337 ether;
+        token0.mint(address(this), swapAmount);
+        token0.approve(address(this), swapAmount);
+
+        (int256 userBalance0Before, int256 userBalance1Before) = (
+            int256(token0.balanceOf(address(this))),
+            int256(token1.balanceOf(address(this)))
+        );
+
+        (int256 amount0Delta, int256 amount1Delta) = pool.swap(
+            address(this),
+            true,
+            swapAmount,
+            sqrtP(4994),
+            extra
+        );
+
+        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
+            0.012885096268698130 ether,
+            -64.385613471819270749 ether
+        );
+
+        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
+        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+
+        assertSwapState(
+            ExpectedStateAfterSwap({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                userBalance0: uint256(userBalance0Before - amount0Delta),
+                userBalance1: uint256(userBalance1Before - amount1Delta),
+                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
+                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                sqrtPriceX96: sqrtP(4994),
+                tick: tick(4994),
+                currentLiquidity: liquidity[0].amount
             })
         );
     }
