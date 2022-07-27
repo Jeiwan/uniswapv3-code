@@ -25,6 +25,29 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         factory = new UniswapV3Factory();
     }
 
+    function testInitialize() public {
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
+        );
+
+        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        assertEq(sqrtPriceX96, 0, "invalid sqrtPriceX96");
+        assertEq(tick, 0, "invalid tick");
+
+        pool.initialize(sqrtP(31337));
+
+        (sqrtPriceX96, tick) = pool.slot0();
+        assertEq(
+            sqrtPriceX96,
+            14024667397959891360888894856271,
+            "invalid sqrtPriceX96"
+        );
+        assertEq(tick, 103530, "invalid tick");
+
+        vm.expectRevert(encodeError("AlreadyInitialized()"));
+        pool.initialize(sqrtP(42));
+    }
+
     function testMintInRange() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
         liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
