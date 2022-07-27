@@ -8,7 +8,7 @@ import { TickMath } from '@uniswap/v3-sdk';
 import config from "../config.js";
 import JSBI from 'jsbi';
 
-const slippage = 0.01;
+const slippage = 0.1;
 
 const formatAmount = ethers.utils.formatUnits
 
@@ -29,8 +29,8 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
 
   const amount0Desired = ethers.utils.parseEther(amount0);
   const amount1Desired = ethers.utils.parseEther(amount1);
-  const amount0Min = amount0Desired.mul((1 - slippage) * 100).div(100);
-  const amount1Min = amount1Desired.mul((1 - slippage) * 100).div(100);
+  const amount0Min = amount0Desired.mul((100 - slippage) * 100).div(10000);
+  const amount1Min = amount1Desired.mul((100 - slippage) * 100).div(10000);
 
   const lowerTick = priceToTick(lowerPrice);
   const upperTick = priceToTick(upperPrice);
