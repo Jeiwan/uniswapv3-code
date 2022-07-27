@@ -4,6 +4,7 @@ pragma solidity ^0.8.14;
 import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
 import "./interfaces/IUniswapV3Pool.sol";
+import "./interfaces/IUniswapV3PoolDeployer.sol";
 import "./interfaces/IUniswapV3SwapCallback.sol";
 
 import "./lib/LiquidityMath.sol";
@@ -20,6 +21,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     using Position for mapping(bytes32 => Position.Info);
     using Position for Position.Info;
 
+    error AlreadyInitialized();
     error InsufficientInputAmount();
     error InvalidPriceLimit();
     error InvalidTickRange();
@@ -46,9 +48,11 @@ contract UniswapV3Pool is IUniswapV3Pool {
         int24 tick
     );
 
-    // Pool tokens, immutable
+    // Pool parameters
+    address public immutable factory;
     address public immutable token0;
     address public immutable token1;
+    uint24 public immutable tickSpacing;
 
     // First slot will contain essential data
     struct Slot0 {
@@ -84,14 +88,16 @@ contract UniswapV3Pool is IUniswapV3Pool {
     mapping(int16 => uint256) public tickBitmap;
     mapping(bytes32 => Position.Info) public positions;
 
-    constructor(
-        address token0_,
-        address token1_,
-        uint160 sqrtPriceX96,
-        int24 tick
-    ) {
-        token0 = token0_;
-        token1 = token1_;
+    constructor() {
+        (factory, token0, token1, tickSpacing) = IUniswapV3PoolDeployer(
+            msg.sender
+        ).parameters();
+    }
+
+    function initialize(uint160 sqrtPriceX96) public {
+        if (slot0.sqrtPriceX96 != 0) revert AlreadyInitialized();
+
+        int24 tick = TickMath.getTickAtSqrtRatio(sqrtPriceX96);
 
         slot0 = Slot0({sqrtPriceX96: sqrtPriceX96, tick: tick});
     }
@@ -115,11 +121,11 @@ contract UniswapV3Pool is IUniswapV3Pool {
         bool flippedUpper = ticks.update(upperTick, int128(amount), true);
 
         if (flippedLower) {
-            tickBitmap.flipTick(lowerTick, 1);
+            tickBitmap.flipTick(lowerTick, int24(tickSpacing));
         }
 
         if (flippedUpper) {
-            tickBitmap.flipTick(upperTick, 1);
+            tickBitmap.flipTick(upperTick, int24(tickSpacing));
         }
 
         Position.Info storage position = positions.get(
@@ -221,7 +227,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
             (step.nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
                 state.tick,
-                1,
+                int24(tickSpacing),
                 zeroForOne
             );
 

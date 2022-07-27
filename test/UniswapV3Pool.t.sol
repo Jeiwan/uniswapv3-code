@@ -8,18 +8,21 @@ import "./UniswapV3Pool.Utils.t.sol";
 import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/lib/LiquidityMath.sol";
 import "../src/lib/TickMath.sol";
+import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Pool.sol";
 
 contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
+    UniswapV3Factory factory;
     UniswapV3Pool pool;
 
     bool transferInMintCallback = true;
 
     function setUp() public {
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+        token0 = new ERC20Mintable("Ether", "ETH", 18);
+        factory = new UniswapV3Factory();
     }
 
     function testMintInRange() public {
@@ -222,36 +225,30 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testMintInvalidTickRangeLower() public {
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(1),
-            0
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(1));
 
         vm.expectRevert(encodeError("InvalidTickRange()"));
         pool.mint(address(this), -887273, 0, 0, "");
     }
 
     function testMintInvalidTickRangeUpper() public {
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(1),
-            0
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(1));
 
         vm.expectRevert(encodeError("InvalidTickRange()"));
         pool.mint(address(this), 0, 887273, 0, "");
     }
 
     function testMintZeroLiquidity() public {
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(1),
-            0
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(1));
 
         vm.expectRevert(encodeError("ZeroLiquidity()"));
         pool.mint(address(this), 0, 1, 0, "");
@@ -314,12 +311,10 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         token0.mint(address(this), params.wethBalance);
         token1.mint(address(this), params.usdcBalance);
 
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            sqrtP(params.currentPrice),
-            tick(params.currentPrice)
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(params.currentPrice));
 
         if (params.mintLiqudity) {
             token0.approve(address(this), params.wethBalance);

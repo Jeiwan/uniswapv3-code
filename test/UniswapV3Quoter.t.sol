@@ -2,22 +2,25 @@
 pragma solidity ^0.8.14;
 
 import "forge-std/Test.sol";
-import "../src/UniswapV3Quoter.sol";
-import "../src/UniswapV3Pool.sol";
+import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Manager.sol";
+import "../src/UniswapV3Pool.sol";
+import "../src/UniswapV3Quoter.sol";
 import "./ERC20Mintable.sol";
 import "./TestUtils.sol";
 
 contract UniswapV3QuoterTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
+    UniswapV3Factory factory;
     UniswapV3Pool pool;
     UniswapV3Manager manager;
     UniswapV3Quoter quoter;
 
     function setUp() public {
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+        token0 = new ERC20Mintable("Ether", "ETH", 18);
+        factory = new UniswapV3Factory();
 
         uint256 wethBalance = 100 ether;
         uint256 usdcBalance = 1000000 ether;
@@ -25,12 +28,10 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         token0.mint(address(this), wethBalance);
         token1.mint(address(this), usdcBalance);
 
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            sqrtP(5000),
-            tick(5000)
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(5000));
 
         manager = new UniswapV3Manager();
 

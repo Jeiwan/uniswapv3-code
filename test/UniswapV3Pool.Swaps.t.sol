@@ -8,6 +8,7 @@ import "./UniswapV3Pool.Utils.t.sol";
 import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/lib/LiquidityMath.sol";
 import "../src/lib/TickMath.sol";
+import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Pool.sol";
 
 import "forge-std/console.sol";
@@ -15,6 +16,7 @@ import "forge-std/console.sol";
 contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
+    UniswapV3Factory factory;
     UniswapV3Pool pool;
 
     bool transferInMintCallback = true;
@@ -22,8 +24,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
     bytes extra;
 
     function setUp() public {
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+        token0 = new ERC20Mintable("Ether", "ETH", 18);
+        factory = new UniswapV3Factory();
 
         extra = encodeExtra(address(token0), address(token1), address(this));
     }
@@ -843,12 +846,10 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         token0.mint(address(this), params.wethBalance);
         token1.mint(address(this), params.usdcBalance);
 
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            sqrtP(params.currentPrice),
-            tick(params.currentPrice)
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(params.currentPrice));
 
         if (params.mintLiqudity) {
             token0.approve(address(this), params.wethBalance);

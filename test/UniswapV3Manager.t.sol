@@ -6,11 +6,13 @@ import "./ERC20Mintable.sol";
 import "./TestUtils.sol";
 
 import "../src/lib/LiquidityMath.sol";
+import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Manager.sol";
 
 contract UniswapV3ManagerTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
+    UniswapV3Factory factory;
     UniswapV3Pool pool;
     UniswapV3Manager manager;
 
@@ -19,8 +21,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     bytes extra;
 
     function setUp() public {
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
         token1 = new ERC20Mintable("USDC", "USDC", 18);
+        token0 = new ERC20Mintable("Ether", "ETH", 18);
+        factory = new UniswapV3Factory();
         manager = new UniswapV3Manager();
 
         extra = encodeExtra(address(token0), address(token1), address(this));
@@ -317,12 +320,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInvalidTickRangeLower() public {
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(1),
-            0
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(1));
         manager = new UniswapV3Manager();
 
         // Reverted in TickMath.getSqrtRatioAtTick
@@ -341,12 +342,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInvalidTickRangeUpper() public {
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(1),
-            0
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(1));
         manager = new UniswapV3Manager();
 
         // Reverted in TickMath.getSqrtRatioAtTick
@@ -365,12 +364,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintZeroLiquidity() public {
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            uint160(1),
-            0
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(1));
         manager = new UniswapV3Manager();
 
         vm.expectRevert(encodeError("ZeroLiquidity()"));
@@ -409,12 +406,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     function testMintSlippageProtection() public {
         (uint256 amount0, uint256 amount1) = (1 ether, 5000 ether);
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            sqrtP(5000),
-            tick(5000)
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(5000));
         manager = new UniswapV3Manager();
 
         token0.mint(address(this), amount0);
@@ -748,12 +743,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.mint(address(this), params.wethBalance);
         token1.mint(address(this), params.usdcBalance);
 
-        pool = new UniswapV3Pool(
-            address(token0),
-            address(token1),
-            sqrtP(params.currentPrice),
-            tick(params.currentPrice)
+        pool = UniswapV3Pool(
+            factory.createPool(address(token0), address(token1), 1)
         );
+        pool.initialize(sqrtP(params.currentPrice));
 
         if (params.mintLiqudity) {
             token0.approve(address(manager), params.wethBalance);
