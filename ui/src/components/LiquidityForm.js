@@ -14,7 +14,7 @@ const priceToSqrtP = (price) => encodeSqrtRatioX96(price, 1);
 
 const priceToTick = (price) => TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
 
-const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager }) => {
+const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager, poolInterface }) => {
   if (!token0 || !token1) {
     return;
   }
@@ -58,15 +58,28 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
       });
   }).catch((err) => {
     if (err.error && err.error.data && err.error.data.data) {
-      const error = manager.interface.parseError(err.error.data.data);
+      let error;
+
+      try {
+        error = manager.interface.parseError(err.error.data.data);
+      } catch (e) {
+        if (e.message.includes('no matching error')) {
+          error = poolInterface.parseError(err.error.data.data);
+        }
+      }
+
       switch (error.name) {
         case "SlippageCheckFailed":
           alert(`Slippage check failed (amount0: ${formatAmount(error.args.amount0)}, amount1: ${formatAmount(error.args.amount1)})`)
           return;
 
+        case "ZeroLiquidity":
+          alert('Zero liquidity!');
+          return;
+
         default:
-          console.error(err);
-          alert('Failed!');
+          console.error(error);
+          alert('Unknown error!');
 
           return;
       }
@@ -128,6 +141,7 @@ const AmountInput = ({ amount, disabled, setAmount, token }) => {
 const LiquidityForm = ({ pair, toggle }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
+  const poolInterface = new ethers.utils.Interface(config.ABIs.Pool);
 
   const [token0, setToken0] = useState();
   const [token1, setToken1] = useState();
@@ -160,7 +174,7 @@ const LiquidityForm = ({ pair, toggle }) => {
   const addLiquidity_ = (e) => {
     e.preventDefault();
     setLoading(true);
-    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager })
+    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager, poolInterface })
       .finally(() => setLoading(false));
   }
 
