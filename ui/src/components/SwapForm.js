@@ -9,8 +9,9 @@ import LiquidityForm from './LiquidityForm';
 
 const pairs = [{ token0: "WETH", token1: "USDC" }];
 
-const swap = (zeroForOne, amountIn, account, slippage, { tokenIn, manager, token0, token1 }) => {
+const swap = (zeroForOne, amountIn, account, priceAfter, slippage, { tokenIn, manager, token0, token1 }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
+  const limitPrice = priceAfter.mul((100 - parseFloat(slippage)) * 100).div(10000);
   const extra = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "address"],
     [token0.address, token1.address, account]
@@ -23,7 +24,7 @@ const swap = (zeroForOne, amountIn, account, slippage, { tokenIn, manager, token
       }
     })
     .then(() => {
-      return manager.swap(config.poolAddress, zeroForOne, amountInWei, 0, extra).then(tx => tx.wait())
+      return manager.swap(config.poolAddress, zeroForOne, amountInWei, limitPrice, extra).then(tx => tx.wait())
     })
     .then(() => {
       alert('Swap succeeded!');
@@ -72,6 +73,7 @@ const SwapForm = (props) => {
   const [loading, setLoading] = useState(false);
   const [managingLiquidity, setManagingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
+  const [priceAfter, setPriceAfter] = useState();
 
   useEffect(() => {
     setToken0(new ethers.Contract(
@@ -98,7 +100,7 @@ const SwapForm = (props) => {
 
   const swap_ = (e) => {
     e.preventDefault();
-    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, slippage, { tokenIn: token1, manager, token0, token1 });
+    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, priceAfter, slippage, { tokenIn: token1, manager, token0, token1 });
   }
 
   const updateAmountOut = debounce((amount) => {
@@ -110,8 +112,9 @@ const SwapForm = (props) => {
 
     quoter.callStatic
       .quote({ pool: config.poolAddress, amountIn: ethers.utils.parseEther(amount), sqrtPriceLimitX96: 0, zeroForOne: zeroForOne })
-      .then(({ amountOut }) => {
+      .then(({ amountOut, sqrtPriceX96After }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
+        setPriceAfter(sqrtPriceX96After);
         setLoading(false);
       })
       .catch((err) => {
