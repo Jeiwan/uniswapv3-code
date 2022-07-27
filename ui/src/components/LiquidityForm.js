@@ -3,24 +3,16 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { uint256Max } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
-import { sqrt } from '@uniswap/sdk-core';
-import { TickMath } from '@uniswap/v3-sdk';
+import { TickMath, encodeSqrtRatioX96 } from '@uniswap/v3-sdk';
 import config from "../config.js";
-import JSBI from 'jsbi';
 
 const slippage = 0.5;
 
 const formatAmount = ethers.utils.formatUnits
 
-const priceToSqrtP = (price) => {
-  return sqrt(
-    JSBI.leftShift(JSBI.BigInt(price), JSBI.BigInt(192))
-  );
-}
+const priceToSqrtP = (price) => encodeSqrtRatioX96(price, 1);
 
-const priceToTick = (price) => {
-  return TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
-}
+const priceToTick = (price) => TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
 
 const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager }) => {
   if (!token0 || !token1) {
@@ -169,7 +161,7 @@ const LiquidityForm = ({ pair, toggle }) => {
     e.preventDefault();
     setLoading(true);
     addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager })
-      .then(() => setLoading(false));
+      .finally(() => setLoading(false));
   }
 
   return (
