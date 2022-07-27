@@ -8,7 +8,7 @@ import { TickMath } from '@uniswap/v3-sdk';
 import config from "../config.js";
 import JSBI from 'jsbi';
 
-const slippage = 0.1;
+const slippage = 0.5;
 
 const formatAmount = ethers.utils.formatUnits
 
