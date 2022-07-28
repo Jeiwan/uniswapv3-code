@@ -2,14 +2,23 @@
 pragma solidity ^0.8.14;
 
 import "./interfaces/IUniswapV3Pool.sol";
+import "./lib/PoolAddress.sol";
 import "./lib/TickMath.sol";
 
 contract UniswapV3Quoter {
     struct QuoteParams {
-        address pool;
+        address tokenA;
+        address tokenB;
+        uint24 tickSpacing;
         uint256 amountIn;
         uint160 sqrtPriceLimitX96;
         bool zeroForOne;
+    }
+
+    address public immutable factory;
+
+    constructor(address factory_) {
+        factory = factory_;
     }
 
     function quote(QuoteParams memory params)
@@ -20,8 +29,19 @@ contract UniswapV3Quoter {
             int24 tickAfter
         )
     {
+        (params.tokenA, params.tokenB) = params.tokenA < params.tokenB
+            ? (params.tokenA, params.tokenB)
+            : (params.tokenB, params.tokenA);
+
+        address poolAddress = PoolAddress.computeAddress(
+            factory,
+            params.tokenA,
+            params.tokenB,
+            params.tickSpacing
+        );
+
         try
-            IUniswapV3Pool(params.pool).swap(
+            IUniswapV3Pool(poolAddress).swap(
                 address(this),
                 params.zeroForOne,
                 params.amountIn,
@@ -32,7 +52,7 @@ contract UniswapV3Quoter {
                             : TickMath.MAX_SQRT_RATIO - 1
                     )
                     : params.sqrtPriceLimitX96,
-                abi.encode(params.pool)
+                abi.encode(poolAddress)
             )
         {} catch (bytes memory reason) {
             return abi.decode(reason, (uint256, uint160, int24));

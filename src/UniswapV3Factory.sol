@@ -60,7 +60,7 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
 
         pool = address(
             new UniswapV3Pool{
-                salt: keccak256(abi.encode(tokenX, tokenY, tickSpacing))
+                salt: keccak256(abi.encodePacked(tokenX, tokenY, tickSpacing))
             }()
         );
 

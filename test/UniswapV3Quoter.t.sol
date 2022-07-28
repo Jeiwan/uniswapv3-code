@@ -50,14 +50,16 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             })
         );
 
-        quoter = new UniswapV3Quoter();
+        quoter = new UniswapV3Quoter(address(factory));
     }
 
     function testQuoteUSDCforETH() public {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
             .quote(
                 UniswapV3Quoter.QuoteParams({
-                    pool: address(pool),
+                    tokenA: address(token0),
+                    tokenB: address(token1),
+                    tickSpacing: 1,
                     amountIn: 0.01337 ether,
                     sqrtPriceLimitX96: sqrtP(4993),
                     zeroForOne: true
@@ -77,7 +79,9 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
             .quote(
                 UniswapV3Quoter.QuoteParams({
-                    pool: address(pool),
+                    tokenA: address(token0),
+                    tokenB: address(token1),
+                    tickSpacing: 1,
                     amountIn: 42 ether,
                     sqrtPriceLimitX96: sqrtP(5005),
                     zeroForOne: false
@@ -97,7 +101,9 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         uint256 amountIn = 0.01337 ether;
         (uint256 amountOut, , ) = quoter.quote(
             UniswapV3Quoter.QuoteParams({
-                pool: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(4993),
                 zeroForOne: true
@@ -126,7 +132,9 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         uint256 amountIn = 55 ether;
         (uint256 amountOut, , ) = quoter.quote(
             UniswapV3Quoter.QuoteParams({
-                pool: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(5010),
                 zeroForOne: false
