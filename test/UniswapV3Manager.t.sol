@@ -24,7 +24,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1 = new ERC20Mintable("USDC", "USDC", 18);
         token0 = new ERC20Mintable("Ether", "ETH", 18);
         factory = new UniswapV3Factory();
-        manager = new UniswapV3Manager();
+        manager = new UniswapV3Manager(address(factory));
 
         extra = encodeExtra(address(token0), address(token1), address(this));
     }
@@ -324,13 +324,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             factory.createPool(address(token0), address(token1), 1)
         );
         pool.initialize(sqrtP(1));
-        manager = new UniswapV3Manager();
+        manager = new UniswapV3Manager(address(factory));
 
         // Reverted in TickMath.getSqrtRatioAtTick
         vm.expectRevert(bytes("T"));
         manager.mint(
             IUniswapV3Manager.MintParams({
-                poolAddress: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 lowerTick: -887273,
                 upperTick: 0,
                 amount0Desired: 0,
@@ -346,13 +348,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             factory.createPool(address(token0), address(token1), 1)
         );
         pool.initialize(sqrtP(1));
-        manager = new UniswapV3Manager();
+        manager = new UniswapV3Manager(address(factory));
 
         // Reverted in TickMath.getSqrtRatioAtTick
         vm.expectRevert(bytes("T"));
         manager.mint(
             IUniswapV3Manager.MintParams({
-                poolAddress: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 lowerTick: 0,
                 upperTick: 887273,
                 amount0Desired: 0,
@@ -368,12 +372,14 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             factory.createPool(address(token0), address(token1), 1)
         );
         pool.initialize(sqrtP(1));
-        manager = new UniswapV3Manager();
+        manager = new UniswapV3Manager(address(factory));
 
         vm.expectRevert(encodeError("ZeroLiquidity()"));
         manager.mint(
             IUniswapV3Manager.MintParams({
-                poolAddress: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 lowerTick: 0,
                 upperTick: 1,
                 amount0Desired: 0,
@@ -398,7 +404,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             mintLiqudity: false
         });
         setupTestCase(params);
-        mints[0].poolAddress = address(pool);
 
         vm.expectRevert(stdError.arithmeticError);
         manager.mint(mints[0]);
@@ -410,7 +415,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             factory.createPool(address(token0), address(token1), 1)
         );
         pool.initialize(sqrtP(5000));
-        manager = new UniswapV3Manager();
+        manager = new UniswapV3Manager(address(factory));
 
         token0.mint(address(this), amount0);
         token1.mint(address(this), amount1);
@@ -425,7 +430,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
         manager.mint(
             IUniswapV3Manager.MintParams({
-                poolAddress: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 lowerTick: tick(4545),
                 upperTick: tick(5500),
                 amount0Desired: amount0,
@@ -437,7 +444,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         manager.mint(
             IUniswapV3Manager.MintParams({
-                poolAddress: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 lowerTick: tick(4545),
                 upperTick: tick(5500),
                 amount0Desired: amount0,
@@ -711,9 +720,11 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         uint256 upperPrice,
         uint256 amount0,
         uint256 amount1
-    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
+    ) internal view returns (IUniswapV3Manager.MintParams memory params) {
         params = IUniswapV3Manager.MintParams({
-            poolAddress: address(0x0), // set in setupTestCase
+            tokenA: address(token0),
+            tokenB: address(token1),
+            tickSpacing: 1,
             lowerTick: tick(lowerPrice),
             upperTick: tick(upperPrice),
             amount0Desired: amount0,
@@ -755,7 +766,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             uint256 poolBalance0Tmp;
             uint256 poolBalance1Tmp;
             for (uint256 i = 0; i < params.mints.length; i++) {
-                params.mints[i].poolAddress = address(pool);
                 (poolBalance0Tmp, poolBalance1Tmp) = manager.mint(
                     params.mints[i]
                 );

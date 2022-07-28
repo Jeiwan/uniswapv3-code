@@ -3,7 +3,9 @@ pragma solidity ^0.8.14;
 
 interface IUniswapV3Manager {
     struct MintParams {
-        address poolAddress;
+        address tokenA;
+        address tokenB;
+        uint24 tickSpacing;
         int24 lowerTick;
         int24 upperTick;
         uint256 amount0Desired;

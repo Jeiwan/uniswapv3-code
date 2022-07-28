@@ -33,14 +33,16 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         );
         pool.initialize(sqrtP(5000));
 
-        manager = new UniswapV3Manager();
+        manager = new UniswapV3Manager(address(factory));
 
         token0.approve(address(manager), wethBalance);
         token1.approve(address(manager), usdcBalance);
 
         manager.mint(
             IUniswapV3Manager.MintParams({
-                poolAddress: address(pool),
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
                 lowerTick: tick(4545),
                 upperTick: tick(5500),
                 amount0Desired: 1 ether,

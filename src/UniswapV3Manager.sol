@@ -5,16 +5,29 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3Pool.sol";
 import "./interfaces/IUniswapV3Manager.sol";
 import "./lib/LiquidityMath.sol";
+import "./lib/PoolAddress.sol";
 import "./lib/TickMath.sol";
 
 contract UniswapV3Manager is IUniswapV3Manager {
     error SlippageCheckFailed(uint256 amount0, uint256 amount1);
 
+    address public immutable factory;
+
+    constructor(address factory_) {
+        factory = factory_;
+    }
+
     function mint(MintParams calldata params)
         public
         returns (uint256 amount0, uint256 amount1)
     {
-        IUniswapV3Pool pool = IUniswapV3Pool(params.poolAddress);
+        address poolAddress = PoolAddress.computeAddress(
+            factory,
+            params.tokenA,
+            params.tokenB,
+            params.tickSpacing
+        );
+        IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
 
         (uint160 sqrtPriceX96, ) = pool.slot0();
         uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(
