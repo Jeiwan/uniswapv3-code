@@ -63,39 +63,31 @@ contract UniswapV3Manager is IUniswapV3Manager {
             revert SlippageCheckFailed(amount0, amount1);
     }
 
-    function swap(
-        address tokenA,
-        address tokenB,
-        uint24 tickSpacing,
-        bool zeroForOne,
-        uint256 amountSpecified,
-        uint160 sqrtPriceLimitX96,
-        bytes calldata data
-    ) public returns (int256, int256) {
-        (tokenA, tokenB) = tokenA < tokenB
-            ? (tokenA, tokenB)
-            : (tokenB, tokenA);
+    function swap(SwapParams calldata params) public returns (int256, int256) {
+        (address tokenA, address tokenB) = params.tokenA < params.tokenB
+            ? (params.tokenA, params.tokenB)
+            : (params.tokenB, params.tokenA);
 
         address poolAddress = PoolAddress.computeAddress(
             factory,
             tokenA,
             tokenB,
-            tickSpacing
+            params.tickSpacing
         );
 
         return
             IUniswapV3Pool(poolAddress).swap(
                 msg.sender,
-                zeroForOne,
-                amountSpecified,
-                sqrtPriceLimitX96 == 0
+                params.zeroForOne,
+                params.amountSpecified,
+                params.sqrtPriceLimitX96 == 0
                     ? (
-                        zeroForOne
+                        params.zeroForOne
                             ? TickMath.MIN_SQRT_RATIO + 1
                             : TickMath.MAX_SQRT_RATIO - 1
                     )
-                    : sqrtPriceLimitX96,
-                data
+                    : params.sqrtPriceLimitX96,
+                params.data
             );
     }
 

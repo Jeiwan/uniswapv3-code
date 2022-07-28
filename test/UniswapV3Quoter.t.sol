@@ -118,15 +118,17 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             address(this)
         );
 
-        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            true,
-            amountIn,
-            sqrtP(4993),
-            extra
-        );
+        IUniswapV3Manager.SwapParams memory swapParams = IUniswapV3Manager
+            .SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: true,
+                amountSpecified: amountIn,
+                sqrtPriceLimitX96: sqrtP(4993),
+                data: extra
+            });
+        (int256 amount0Delta, int256 amount1Delta) = manager.swap(swapParams);
 
         assertEq(uint256(amount0Delta), amountIn, "invalid amount0Delta");
         assertEq(uint256(-amount1Delta), amountOut, "invalid amount1Delta");
@@ -151,15 +153,17 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             address(this)
         );
 
-        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            false,
-            amountIn,
-            sqrtP(5010),
-            extra
-        );
+        IUniswapV3Manager.SwapParams memory swapParams = IUniswapV3Manager
+            .SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: false,
+                amountSpecified: amountIn,
+                sqrtPriceLimitX96: sqrtP(5010),
+                data: extra
+            });
+        (int256 amount0Delta, int256 amount1Delta) = manager.swap(swapParams);
 
         assertEq(uint256(-amount0Delta), amountOut, "invalid amount0Delta");
         assertEq(uint256(amount1Delta), amountIn, "invalid amount1Delta");

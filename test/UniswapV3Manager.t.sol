@@ -482,13 +482,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            false,
-            swapAmount,
-            sqrtP(5004),
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: false,
+                amountSpecified: swapAmount,
+                sqrtPriceLimitX96: sqrtP(5004),
+                data: extra
+            })
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
@@ -540,13 +542,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            true,
-            swapAmount,
-            sqrtP(4993),
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: true,
+                amountSpecified: swapAmount,
+                sqrtPriceLimitX96: sqrtP(4993),
+                data: extra
+            })
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
@@ -600,23 +604,27 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         int256 userBalance1Before = int256(token1.balanceOf(address(this)));
 
         (int256 amount0Delta1, int256 amount1Delta1) = manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            true,
-            ethAmount,
-            sqrtP(4990),
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: true,
+                amountSpecified: ethAmount,
+                sqrtPriceLimitX96: sqrtP(4990),
+                data: extra
+            })
         );
 
         (int256 amount0Delta2, int256 amount1Delta2) = manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            false,
-            usdcAmount,
-            sqrtP(5004),
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: false,
+                amountSpecified: usdcAmount,
+                sqrtPriceLimitX96: sqrtP(5004),
+                data: extra
+            })
         );
 
         assertSwapState(
@@ -664,13 +672,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            false,
-            swapAmount,
-            0,
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: false,
+                amountSpecified: swapAmount,
+                sqrtPriceLimitX96: 0,
+                data: extra
+            })
         );
     }
 
@@ -695,13 +705,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            true,
-            swapAmount,
-            0,
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: true,
+                amountSpecified: swapAmount,
+                sqrtPriceLimitX96: 0,
+                data: extra
+            })
         );
     }
 
@@ -722,13 +734,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         vm.expectRevert(stdError.arithmeticError);
         manager.swap(
-            address(token0),
-            address(token1),
-            1,
-            false,
-            42 ether,
-            sqrtP(5010),
-            extra
+            IUniswapV3Manager.SwapParams({
+                tokenA: address(token0),
+                tokenB: address(token1),
+                tickSpacing: 1,
+                zeroForOne: false,
+                amountSpecified: 42 ether,
+                sqrtPriceLimitX96: sqrtP(5010),
+                data: extra
+            })
         );
     }
 
