@@ -2,6 +2,17 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "factory_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "prod1",
         "type": "uint256"
@@ -32,13 +43,36 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "factory",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "components": [
           {
             "internalType": "address",
-            "name": "poolAddress",
+            "name": "tokenA",
             "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "tickSpacing",
+            "type": "uint24"
           },
           {
             "internalType": "int24",
@@ -95,29 +129,46 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "poolAddress_",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "zeroForOne",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amountSpecified",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint160",
-        "name": "sqrtPriceLimitX96",
-        "type": "uint160"
-      },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "tickSpacing",
+            "type": "uint24"
+          },
+          {
+            "internalType": "bool",
+            "name": "zeroForOne",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountSpecified",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint160",
+            "name": "sqrtPriceLimitX96",
+            "type": "uint160"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct IUniswapV3Manager.SwapParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "swap",

@@ -30,13 +30,22 @@ const loadPairs = ({ factory }) => {
     });
 }
 
-const swap = (zeroForOne, amountIn, account, priceAfter, slippage, { tokenIn, manager, token0, token1 }) => {
+const swap = (zeroForOne, amountIn, account, priceAfter, slippage, pair, { tokenIn, manager, token0, token1 }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
   const limitPrice = priceAfter.mul((100 - parseFloat(slippage)) * 100).div(10000);
   const extra = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "address"],
     [token0.address, token1.address, account]
   );
+  const params = {
+    tokenA: pair.token0.address,
+    tokenB: pair.token1.address,
+    tickSpacing: 1,
+    zeroForOne: zeroForOne,
+    amountSpecified: amountInWei,
+    sqrtPriceLimitX96: limitPrice,
+    data: extra
+  };
 
   tokenIn.allowance(account, config.managerAddress)
     .then((allowance) => {
@@ -45,7 +54,7 @@ const swap = (zeroForOne, amountIn, account, priceAfter, slippage, { tokenIn, ma
       }
     })
     .then(() => {
-      return manager.swap(config.poolAddress, zeroForOne, amountInWei, limitPrice, extra).then(tx => tx.wait())
+      return manager.swap(params).then(tx => tx.wait())
     })
     .then(() => {
       alert('Swap succeeded!');
@@ -130,13 +139,12 @@ const SwapForm = (props) => {
     loadPairs({ factory }).then((pairs) => {
       setPairs(pairs);
       setPair(pairs[0]);
-      console.log(pairs);
     });
   }, []);
 
   const swap_ = (e) => {
     e.preventDefault();
-    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, priceAfter, slippage, { tokenIn: token1, manager, token0, token1 });
+    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, priceAfter, slippage, pair, { tokenIn: token1, manager, token0, token1 });
   }
 
   const updateAmountOut = debounce((amount) => {

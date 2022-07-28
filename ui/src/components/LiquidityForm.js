@@ -14,7 +14,7 @@ const priceToSqrtP = (price) => encodeSqrtRatioX96(price, 1);
 
 const priceToTick = (price) => TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
 
-const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager, poolInterface }) => {
+const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, pair, { token0, token1, manager, poolInterface }) => {
   if (!token0 || !token1) {
     return;
   }
@@ -28,7 +28,9 @@ const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, { token
   const upperTick = priceToTick(upperPrice);
 
   const mintParams = {
-    poolAddress: config.poolAddress,
+    tokenA: pair.token0.address,
+    tokenB: pair.token1.address,
+    tickSpacing: 1,
     lowerTick, upperTick, amount0Desired, amount1Desired, amount0Min, amount1Min
   }
 
@@ -174,7 +176,7 @@ const LiquidityForm = ({ pair, toggle }) => {
   const addLiquidity_ = (e) => {
     e.preventDefault();
     setLoading(true);
-    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, { token0, token1, manager, poolInterface })
+    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, pair, { token0, token1, manager, poolInterface })
       .finally(() => setLoading(false));
   }
 
