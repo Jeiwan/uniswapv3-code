@@ -14,84 +14,6 @@ const priceToSqrtP = (price) => encodeSqrtRatioX96(price, 1);
 
 const priceToTick = (price) => TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
 
-const addLiquidity = (account, lowerPrice, upperPrice, amount0, amount1, pair, { token0, token1, manager, poolInterface }) => {
-  if (!token0 || !token1) {
-    return;
-  }
-
-  const amount0Desired = ethers.utils.parseEther(amount0);
-  const amount1Desired = ethers.utils.parseEther(amount1);
-  const amount0Min = amount0Desired.mul((100 - slippage) * 100).div(10000);
-  const amount1Min = amount1Desired.mul((100 - slippage) * 100).div(10000);
-
-  const lowerTick = priceToTick(lowerPrice);
-  const upperTick = priceToTick(upperPrice);
-
-  const mintParams = {
-    tokenA: pair.token0.address,
-    tokenB: pair.token1.address,
-    tickSpacing: 1,
-    lowerTick, upperTick, amount0Desired, amount1Desired, amount0Min, amount1Min
-  }
-
-  return Promise.all(
-    [
-      token0.allowance(account, config.managerAddress),
-      token1.allowance(account, config.managerAddress)
-    ]
-  ).then(([allowance0, allowance1]) => {
-    return Promise.resolve()
-      .then(() => {
-        if (allowance0.lt(amount0Desired)) {
-          return token0.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
-        }
-      })
-      .then(() => {
-        if (allowance1.lt(amount1Desired)) {
-          return token1.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
-        }
-      })
-      .then(() => {
-        return manager.mint(mintParams)
-          .then(tx => tx.wait())
-      })
-      .then(() => {
-        alert('Liquidity added!');
-      });
-  }).catch((err) => {
-    if (err.error && err.error.data && err.error.data.data) {
-      let error;
-
-      try {
-        error = manager.interface.parseError(err.error.data.data);
-      } catch (e) {
-        if (e.message.includes('no matching error')) {
-          error = poolInterface.parseError(err.error.data.data);
-        }
-      }
-
-      switch (error.name) {
-        case "SlippageCheckFailed":
-          alert(`Slippage check failed (amount0: ${formatAmount(error.args.amount0)}, amount1: ${formatAmount(error.args.amount1)})`)
-          return;
-
-        case "ZeroLiquidity":
-          alert('Zero liquidity!');
-          return;
-
-        default:
-          console.error(error);
-          alert('Unknown error!');
-
-          return;
-      }
-    }
-
-    console.error(err);
-    alert('Failed!');
-  });
-}
-
 const BackButton = ({ onClick }) => {
   return (
     <button className="BackButton" onClick={onClick}>← Back</button>
@@ -143,6 +65,7 @@ const AmountInput = ({ amount, disabled, setAmount, token }) => {
 const LiquidityForm = ({ pair, toggle }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
+  const account = metamaskContext.account;
   const poolInterface = new ethers.utils.Interface(config.ABIs.Pool);
 
   const [token0, setToken0] = useState();
@@ -157,12 +80,12 @@ const LiquidityForm = ({ pair, toggle }) => {
 
   useEffect(() => {
     setToken0(new ethers.Contract(
-      config.token0Address,
+      pair.token0.address,
       config.ABIs.ERC20,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
     setToken1(new ethers.Contract(
-      config.token1Address,
+      pair.token1.address,
       config.ABIs.ERC20,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
@@ -173,11 +96,89 @@ const LiquidityForm = ({ pair, toggle }) => {
     ));
   }, []);
 
-  const addLiquidity_ = (e) => {
+  /**
+   * Adds liquidity to a pool. Asks user to allow spending of tokens.
+   */
+  const addLiquidity = (e) => {
     e.preventDefault();
+
+    if (!token0 || !token1) {
+      return;
+    }
+
     setLoading(true);
-    addLiquidity(metamaskContext.account, lowerPrice, upperPrice, amount0, amount1, pair, { token0, token1, manager, poolInterface })
-      .finally(() => setLoading(false));
+
+    const amount0Desired = ethers.utils.parseEther(amount0);
+    const amount1Desired = ethers.utils.parseEther(amount1);
+    const amount0Min = amount0Desired.mul((100 - slippage) * 100).div(10000);
+    const amount1Min = amount1Desired.mul((100 - slippage) * 100).div(10000);
+
+    const lowerTick = priceToTick(lowerPrice);
+    const upperTick = priceToTick(upperPrice);
+
+    const mintParams = {
+      tokenA: pair.token0.address,
+      tokenB: pair.token1.address,
+      tickSpacing: 1,
+      lowerTick, upperTick, amount0Desired, amount1Desired, amount0Min, amount1Min
+    }
+
+    return Promise.all(
+      [
+        token0.allowance(account, config.managerAddress),
+        token1.allowance(account, config.managerAddress)
+      ]
+    ).then(([allowance0, allowance1]) => {
+      return Promise.resolve()
+        .then(() => {
+          if (allowance0.lt(amount0Desired)) {
+            return token0.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
+          }
+        })
+        .then(() => {
+          if (allowance1.lt(amount1Desired)) {
+            return token1.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
+          }
+        })
+        .then(() => {
+          return manager.mint(mintParams)
+            .then(tx => tx.wait())
+        })
+        .then(() => {
+          alert('Liquidity added!');
+        });
+    }).catch((err) => {
+      if (err.error && err.error.data && err.error.data.data) {
+        let error;
+
+        try {
+          error = manager.interface.parseError(err.error.data.data);
+        } catch (e) {
+          if (e.message.includes('no matching error')) {
+            error = poolInterface.parseError(err.error.data.data);
+          }
+        }
+
+        switch (error.name) {
+          case "SlippageCheckFailed":
+            alert(`Slippage check failed (amount0: ${formatAmount(error.args.amount0)}, amount1: ${formatAmount(error.args.amount1)})`)
+            return;
+
+          case "ZeroLiquidity":
+            alert('Zero liquidity!');
+            return;
+
+          default:
+            console.error(error);
+            alert('Unknown error!');
+
+            return;
+        }
+      }
+
+      console.error(err);
+      alert('Failed!');
+    }).finally(() => setLoading(false));
   }
 
   return (
@@ -201,7 +202,7 @@ const LiquidityForm = ({ pair, toggle }) => {
           disabled={!enabled || loading}
           setAmount={setAmount1}
           token={pair.token1} />
-        <button className="addLiquidity" disabled={!enabled || loading} onClick={addLiquidity_}>Add liquidity</button>
+        <button className="addLiquidity" disabled={!enabled || loading} onClick={addLiquidity}>Add liquidity</button>
       </form>
     </section>
   );

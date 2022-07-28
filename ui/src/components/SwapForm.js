@@ -7,63 +7,6 @@ import config from "../config.js";
 import debounce from '../lib/debounce';
 import LiquidityForm from './LiquidityForm';
 
-const loadPairs = ({ factory }) => {
-  return factory.queryFilter("PoolCreated", "earliest", "latest")
-    .then((events) => {
-      const pairs = events.map((event) => {
-        return {
-          token0: {
-            address: event.args.token0,
-            symbol: config.tokens[event.args.token0].symbol
-          },
-          token1: {
-            address: event.args.token1,
-            symbol: config.tokens[event.args.token1].symbol
-          },
-          tickSpacing: event.tickSpacing
-        }
-      });
-
-      return Promise.resolve(pairs);
-    }).catch((err) => {
-      console.error(err)
-    });
-}
-
-const swap = (zeroForOne, amountIn, account, priceAfter, slippage, pair, { tokenIn, manager }) => {
-  const amountInWei = ethers.utils.parseEther(amountIn);
-  const limitPrice = priceAfter.mul((100 - parseFloat(slippage)) * 100).div(10000);
-  const extra = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "address"],
-    [pair.token0.address, pair.token1.address, account]
-  );
-  const params = {
-    tokenA: pair.token0.address,
-    tokenB: pair.token1.address,
-    tickSpacing: 1,
-    zeroForOne: zeroForOne,
-    amountSpecified: amountInWei,
-    sqrtPriceLimitX96: limitPrice,
-    data: extra
-  };
-
-  tokenIn.allowance(account, config.managerAddress)
-    .then((allowance) => {
-      if (allowance.lt(amountInWei)) {
-        return tokenIn.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
-      }
-    })
-    .then(() => {
-      return manager.swap(params).then(tx => tx.wait())
-    })
-    .then(() => {
-      alert('Swap succeeded!');
-    }).catch((err) => {
-      console.error(err);
-      alert('Failed!');
-    });
-}
-
 const SwapInput = ({ token, amount, setAmount, disabled, readOnly }) => {
   return (
     <fieldset className="SwapInput" disabled={disabled}>
@@ -91,6 +34,7 @@ const SlippageControl = ({ setSlippage, slippage }) => {
 const SwapForm = () => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
+  const account = metamaskContext.account;
 
   const [zeroForOne, setZeroForOne] = useState(true);
   const [amount0, setAmount0] = useState(0);
@@ -117,13 +61,7 @@ const SwapForm = () => {
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
 
-    const factory = new ethers.Contract(
-      config.factoryAddress,
-      config.ABIs.Factory,
-      new ethers.providers.Web3Provider(window.ethereum).getSigner()
-    );
-
-    loadPairs({ factory }).then((pairs) => {
+    loadPairs().then((pairs) => {
       setPairs(pairs);
       setPair(pairs[0]);
 
@@ -135,11 +73,84 @@ const SwapForm = () => {
     });
   }, []);
 
-  const swap_ = (e) => {
-    e.preventDefault();
-    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, priceAfter, slippage, pair, { tokenIn, manager });
+  /**
+   * Load pairs from a Factory address by scanning for 'PoolCreated' events.
+   * 
+   * @returns array of 'pair' objects.
+   */
+  const loadPairs = () => {
+    const factory = new ethers.Contract(
+      config.factoryAddress,
+      config.ABIs.Factory,
+      new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    );
+
+    return factory.queryFilter("PoolCreated", "earliest", "latest")
+      .then((events) => {
+        const pairs = events.map((event) => {
+          return {
+            token0: {
+              address: event.args.token0,
+              symbol: config.tokens[event.args.token0].symbol
+            },
+            token1: {
+              address: event.args.token1,
+              symbol: config.tokens[event.args.token1].symbol
+            },
+            tickSpacing: event.tickSpacing
+          }
+        });
+
+        return Promise.resolve(pairs);
+      }).catch((err) => {
+        console.error(err)
+      });
   }
 
+
+  /**
+   * Swaps tokens by calling Manager contract. Before swapping, asks users to approve spending of tokens.
+   */
+  const swap = (e) => {
+    e.preventDefault();
+
+    const amountIn = zeroForOne ? amount0 : amount1;
+    const amountInWei = ethers.utils.parseEther(amountIn);
+    const limitPrice = priceAfter.mul((100 - parseFloat(slippage)) * 100).div(10000);
+    const extra = ethers.utils.defaultAbiCoder.encode(
+      ["address", "address", "address"],
+      [pair.token0.address, pair.token1.address, account]
+    );
+    const params = {
+      tokenA: pair.token0.address,
+      tokenB: pair.token1.address,
+      tickSpacing: 1,
+      zeroForOne: zeroForOne,
+      amountSpecified: amountInWei,
+      sqrtPriceLimitX96: limitPrice,
+      data: extra
+    };
+
+    tokenIn.allowance(account, config.managerAddress)
+      .then((allowance) => {
+        if (allowance.lt(amountInWei)) {
+          return tokenIn.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
+        }
+      })
+      .then(() => {
+        return manager.swap(params).then(tx => tx.wait())
+      })
+      .then(() => {
+        alert('Swap succeeded!');
+      }).catch((err) => {
+        console.error(err);
+        alert('Failed!');
+      });
+  }
+
+  /**
+   * Calculates output amount by querying Quoter contract. Sets 'priceAfter' and 'amountOut'.
+   */
   const updateAmountOut = debounce((amount) => {
     if (amount === 0 || amount === "0") {
       return;
@@ -170,7 +181,10 @@ const SwapForm = () => {
       })
   })
 
-  const setAmount_ = (setAmountFn) => {
+  /**
+   *  Wraps 'setAmount', ensures amount is correct, and calls 'updateAmountOut'.
+   */
+  const setAmountFn = (setAmountFn) => {
     return (amount) => {
       amount = amount || 0;
       setAmountFn(amount);
@@ -178,12 +192,14 @@ const SwapForm = () => {
     }
   }
 
-  const toggleLiquidityForm = () => {
-    setManagingLiquidity(!managingLiquidity);
-  }
+  const toggleLiquidityForm = () => setManagingLiquidity(!managingLiquidity);
 
+  /**
+   * Toggles swap direction.
+   */
   const toggleDirection = (e) => {
     e.preventDefault();
+
     setZeroForOne(!zeroForOne);
     setTokenIn(tokenIn.attach(
       pair.token0.address === tokenIn.address
@@ -205,7 +221,7 @@ const SwapForm = () => {
             amount={zeroForOne ? amount0 : amount1}
             disabled={!enabled || loading}
             readOnly={false}
-            setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1)}
+            setAmount={setAmountFn(zeroForOne ? setAmount0 : setAmount1)}
             token={zeroForOne ? pair.token0.symbol : pair.token1.symbol} />
           <ChangeDirectionButton zeroForOne={zeroForOne} onClick={toggleDirection} disabled={!enabled || loading} />
           <SwapInput
@@ -216,7 +232,7 @@ const SwapForm = () => {
           <SlippageControl
             setSlippage={setSlippage}
             slippage={slippage} />
-          <button className='swap' disabled={!enabled || loading} onClick={swap_}>Swap</button>
+          <button className='swap' disabled={!enabled || loading} onClick={swap}>Swap</button>
         </form>
         :
         <span>Loading pairs...</span>}
