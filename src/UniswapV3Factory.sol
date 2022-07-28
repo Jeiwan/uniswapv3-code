@@ -13,7 +13,8 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
     event PoolCreated(
         address indexed token0,
         address indexed token1,
-        uint24 indexed tickSpacing
+        uint24 indexed tickSpacing,
+        address pool
     );
 
     address public owner;
@@ -67,5 +68,7 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
         pools[tokenY][tokenX][tickSpacing] = pool;
 
         delete parameters;
+
+        emit PoolCreated(tokenX, tokenY, tickSpacing, pool);
     }
 }
