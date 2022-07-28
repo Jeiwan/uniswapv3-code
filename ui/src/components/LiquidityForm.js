@@ -126,7 +126,7 @@ const PriceRange = ({ lowerPrice, upperPrice, setLowerPrice, setUpperPrice, disa
 const AmountInput = ({ amount, disabled, setAmount, token }) => {
   return (
     <fieldset>
-      <label htmlFor={token + "_liquidity"}>{token} amount</label>
+      <label htmlFor={token.symbol + "_liquidity"}>{token.symbol} amount</label>
       <input
         id={token + "_liquidity"}
         onChange={(ev) => setAmount(ev.target.value)}

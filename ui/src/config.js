@@ -7,10 +7,15 @@ const config = {
   quoterAddress: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
   ABIs: {
     'ERC20': require('./abi/ERC20.json'),
-    'Pool': require('./abi/Pool.json'),
+    'Factory': require('./abi/Factory.json'),
     'Manager': require('./abi/Manager.json'),
+    'Pool': require('./abi/Pool.json'),
     'Quoter': require('./abi/Quoter.json')
   }
 };
+
+config.tokens = {};
+config.tokens[config.token0Address] = { symbol: 'WETH' };
+config.tokens[config.token1Address] = { symbol: 'USDC' };
 
 export default config;

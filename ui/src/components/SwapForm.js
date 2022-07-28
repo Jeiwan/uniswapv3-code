@@ -7,7 +7,28 @@ import config from "../config.js";
 import debounce from '../lib/debounce';
 import LiquidityForm from './LiquidityForm';
 
-const pairs = [{ token0: "WETH", token1: "USDC" }];
+const loadPairs = ({ factory }) => {
+  return factory.queryFilter("PoolCreated", "earliest", "latest")
+    .then((events) => {
+      const pairs = events.map((event) => {
+        return {
+          token0: {
+            address: event.args.token0,
+            symbol: config.tokens[event.args.token0].symbol
+          },
+          token1: {
+            address: event.args.token1,
+            symbol: config.tokens[event.args.token1].symbol
+          },
+          tickSpacing: event.tickSpacing
+        }
+      });
+
+      return Promise.resolve(pairs);
+    }).catch((err) => {
+      console.error(err)
+    });
+}
 
 const swap = (zeroForOne, amountIn, account, priceAfter, slippage, { tokenIn, manager, token0, token1 }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
@@ -61,7 +82,6 @@ const SlippageControl = ({ setSlippage, slippage }) => {
 const SwapForm = (props) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
-  const pair = pairs[0];
 
   const [zeroForOne, setZeroForOne] = useState(true);
   const [amount0, setAmount0] = useState(0);
@@ -70,10 +90,13 @@ const SwapForm = (props) => {
   const [token1, setToken1] = useState();
   const [manager, setManager] = useState();
   const [quoter, setQuoter] = useState();
+  const [factory, setFactory] = useState();
   const [loading, setLoading] = useState(false);
   const [managingLiquidity, setManagingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
   const [priceAfter, setPriceAfter] = useState();
+  const [pairs, setPairs] = useState();
+  const [pair, setPair] = useState();
 
   useEffect(() => {
     setToken0(new ethers.Contract(
@@ -96,6 +119,19 @@ const SwapForm = (props) => {
       config.ABIs.Quoter,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
+
+    const factory = new ethers.Contract(
+      config.factoryAddress,
+      config.ABIs.Factory,
+      new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    );
+
+    setFactory(factory);
+    loadPairs({ factory }).then((pairs) => {
+      setPairs(pairs);
+      setPair(pairs[0]);
+      console.log(pairs);
+    });
   }, []);
 
   const swap_ = (e) => {
@@ -110,8 +146,17 @@ const SwapForm = (props) => {
 
     setLoading(true);
 
+    const params = {
+      tokenA: pair.token0.address,
+      tokenB: pair.token1.address,
+      tickSpacing: 1,
+      amountIn: ethers.utils.parseEther(amount),
+      sqrtPriceLimitX96: 0,
+      zeroForOne: zeroForOne
+    };
+
     quoter.callStatic
-      .quote({ pool: config.poolAddress, amountIn: ethers.utils.parseEther(amount), sqrtPriceLimitX96: 0, zeroForOne: zeroForOne })
+      .quote(params)
       .then(({ amountOut, sqrtPriceX96After }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
         setPriceAfter(sqrtPriceX96After);
@@ -143,24 +188,27 @@ const SwapForm = (props) => {
         <h1>Swap tokens</h1>
         <button disabled={!enabled || loading} onClick={toggleLiquidityForm}>Add liquidity</button>
       </header>
-      <form className="SwapForm">
-        <SwapInput
-          amount={zeroForOne ? amount0 : amount1}
-          disabled={!enabled || loading}
-          readOnly={false}
-          setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1)}
-          token={zeroForOne ? pair.token0 : pair.token1} />
-        <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} disabled={!enabled || loading} />
-        <SwapInput
-          amount={zeroForOne ? amount1 : amount0}
-          disabled={!enabled || loading}
-          readOnly={true}
-          token={zeroForOne ? pair.token1 : pair.token0} />
-        <SlippageControl
-          setSlippage={setSlippage}
-          slippage={slippage} />
-        <button className='swap' disabled={!enabled || loading} onClick={swap_}>Swap</button>
-      </form>
+      {pair ?
+        <form className="SwapForm">
+          <SwapInput
+            amount={zeroForOne ? amount0 : amount1}
+            disabled={!enabled || loading}
+            readOnly={false}
+            setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1)}
+            token={zeroForOne ? pair.token0.symbol : pair.token1.symbol} />
+          <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} disabled={!enabled || loading} />
+          <SwapInput
+            amount={zeroForOne ? amount1 : amount0}
+            disabled={!enabled || loading}
+            readOnly={true}
+            token={zeroForOne ? pair.token1.symbol : pair.token0.symbol} />
+          <SlippageControl
+            setSlippage={setSlippage}
+            slippage={slippage} />
+          <button className='swap' disabled={!enabled || loading} onClick={swap_}>Swap</button>
+        </form>
+        :
+        <span>Loading pairs...</span>}
     </section>
   )
 }
