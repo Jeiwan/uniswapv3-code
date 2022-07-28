@@ -30,7 +30,7 @@ contract DeployDevelopment is Script, TestUtils {
         pool.initialize(currentSqrtP);
 
         UniswapV3Manager manager = new UniswapV3Manager();
-        UniswapV3Quoter quoter = new UniswapV3Quoter();
+        UniswapV3Quoter quoter = new UniswapV3Quoter(address(factory));
 
         token0.mint(msg.sender, wethBalance);
         token1.mint(msg.sender, usdcBalance);
