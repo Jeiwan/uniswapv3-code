@@ -30,12 +30,12 @@ const loadPairs = ({ factory }) => {
     });
 }
 
-const swap = (zeroForOne, amountIn, account, priceAfter, slippage, pair, { tokenIn, manager, token0, token1 }) => {
+const swap = (zeroForOne, amountIn, account, priceAfter, slippage, pair, { tokenIn, manager }) => {
   const amountInWei = ethers.utils.parseEther(amountIn);
   const limitPrice = priceAfter.mul((100 - parseFloat(slippage)) * 100).div(10000);
   const extra = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "address"],
-    [token0.address, token1.address, account]
+    [pair.token0.address, pair.token1.address, account]
   );
   const params = {
     tokenA: pair.token0.address,
@@ -88,18 +88,16 @@ const SlippageControl = ({ setSlippage, slippage }) => {
   );
 }
 
-const SwapForm = (props) => {
+const SwapForm = () => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
 
   const [zeroForOne, setZeroForOne] = useState(true);
   const [amount0, setAmount0] = useState(0);
   const [amount1, setAmount1] = useState(0);
-  const [token0, setToken0] = useState();
-  const [token1, setToken1] = useState();
+  const [tokenIn, setTokenIn] = useState();
   const [manager, setManager] = useState();
   const [quoter, setQuoter] = useState();
-  const [factory, setFactory] = useState();
   const [loading, setLoading] = useState(false);
   const [managingLiquidity, setManagingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
@@ -108,16 +106,6 @@ const SwapForm = (props) => {
   const [pair, setPair] = useState();
 
   useEffect(() => {
-    setToken0(new ethers.Contract(
-      config.token0Address,
-      config.ABIs.ERC20,
-      new ethers.providers.Web3Provider(window.ethereum).getSigner()
-    ));
-    setToken1(new ethers.Contract(
-      config.token1Address,
-      config.ABIs.ERC20,
-      new ethers.providers.Web3Provider(window.ethereum).getSigner()
-    ));
     setManager(new ethers.Contract(
       config.managerAddress,
       config.ABIs.Manager,
@@ -135,16 +123,21 @@ const SwapForm = (props) => {
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     );
 
-    setFactory(factory);
     loadPairs({ factory }).then((pairs) => {
       setPairs(pairs);
       setPair(pairs[0]);
+
+      setTokenIn(new ethers.Contract(
+        pairs[0].token0.address,
+        config.ABIs.ERC20,
+        new ethers.providers.Web3Provider(window.ethereum).getSigner()
+      ));
     });
   }, []);
 
   const swap_ = (e) => {
     e.preventDefault();
-    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, priceAfter, slippage, pair, { tokenIn: token1, manager, token0, token1 });
+    swap(zeroForOne, zeroForOne ? amount0 : amount1, metamaskContext.account, priceAfter, slippage, pair, { tokenIn, manager });
   }
 
   const updateAmountOut = debounce((amount) => {
