@@ -73,9 +73,9 @@ const SwapInput = ({ token, amount, setAmount, disabled, readOnly }) => {
   );
 }
 
-const ChangeDirectionButton = ({ zeroForOne, setZeroForOne, disabled }) => {
+const ChangeDirectionButton = ({ onClick, disabled }) => {
   return (
-    <button className='ChangeDirectionBtn' onClick={(ev) => { ev.preventDefault(); setZeroForOne(!zeroForOne) }} disabled={disabled}>🔄</button>
+    <button className='ChangeDirectionBtn' onClick={onClick} disabled={disabled}>🔄</button>
   )
 }
 
@@ -182,6 +182,16 @@ const SwapForm = () => {
     setManagingLiquidity(!managingLiquidity);
   }
 
+  const toggleDirection = (e) => {
+    e.preventDefault();
+    setZeroForOne(!zeroForOne);
+    setTokenIn(tokenIn.attach(
+      pair.token0.address === tokenIn.address
+        ? pair.token1.address
+        : pair.token0.address
+    ));
+  }
+
   return (
     <section className="SwapContainer">
       {managingLiquidity && <LiquidityForm pair={pair} toggle={toggleLiquidityForm} />}
@@ -197,7 +207,7 @@ const SwapForm = () => {
             readOnly={false}
             setAmount={setAmount_(zeroForOne ? setAmount0 : setAmount1)}
             token={zeroForOne ? pair.token0.symbol : pair.token1.symbol} />
-          <ChangeDirectionButton zeroForOne={zeroForOne} setZeroForOne={setZeroForOne} disabled={!enabled || loading} />
+          <ChangeDirectionButton zeroForOne={zeroForOne} onClick={toggleDirection} disabled={!enabled || loading} />
           <SwapInput
             amount={zeroForOne ? amount1 : amount0}
             disabled={!enabled || loading}
