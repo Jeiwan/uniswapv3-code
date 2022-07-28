@@ -64,14 +64,27 @@ contract UniswapV3Manager is IUniswapV3Manager {
     }
 
     function swap(
-        address poolAddress_,
+        address tokenA,
+        address tokenB,
+        uint24 tickSpacing,
         bool zeroForOne,
         uint256 amountSpecified,
         uint160 sqrtPriceLimitX96,
         bytes calldata data
     ) public returns (int256, int256) {
+        (tokenA, tokenB) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
+
+        address poolAddress = PoolAddress.computeAddress(
+            factory,
+            tokenA,
+            tokenB,
+            tickSpacing
+        );
+
         return
-            IUniswapV3Pool(poolAddress_).swap(
+            IUniswapV3Pool(poolAddress).swap(
                 msg.sender,
                 zeroForOne,
                 amountSpecified,

@@ -482,7 +482,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(pool),
+            address(token0),
+            address(token1),
+            1,
             false,
             swapAmount,
             sqrtP(5004),
@@ -538,7 +540,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(pool),
+            address(token0),
+            address(token1),
+            1,
             true,
             swapAmount,
             sqrtP(4993),
@@ -596,7 +600,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         int256 userBalance1Before = int256(token1.balanceOf(address(this)));
 
         (int256 amount0Delta1, int256 amount1Delta1) = manager.swap(
-            address(pool),
+            address(token0),
+            address(token1),
+            1,
             true,
             ethAmount,
             sqrtP(4990),
@@ -604,7 +610,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (int256 amount0Delta2, int256 amount1Delta2) = manager.swap(
-            address(pool),
+            address(token0),
+            address(token1),
+            1,
             false,
             usdcAmount,
             sqrtP(5004),
@@ -655,7 +663,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        manager.swap(address(pool), false, swapAmount, 0, extra);
+        manager.swap(
+            address(token0),
+            address(token1),
+            1,
+            false,
+            swapAmount,
+            0,
+            extra
+        );
     }
 
     function testSwapBuyUSDCNotEnoughLiquidity() public {
@@ -678,7 +694,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        manager.swap(address(pool), true, swapAmount, 0, extra);
+        manager.swap(
+            address(token0),
+            address(token1),
+            1,
+            true,
+            swapAmount,
+            0,
+            extra
+        );
     }
 
     function testSwapInsufficientInputAmount() public {
@@ -697,7 +721,15 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         vm.expectRevert(stdError.arithmeticError);
-        manager.swap(address(pool), false, 42 ether, sqrtP(5010), extra);
+        manager.swap(
+            address(token0),
+            address(token1),
+            1,
+            false,
+            42 ether,
+            sqrtP(5010),
+            extra
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////

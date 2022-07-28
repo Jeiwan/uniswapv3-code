@@ -119,7 +119,9 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         );
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(pool),
+            address(token0),
+            address(token1),
+            1,
             true,
             amountIn,
             sqrtP(4993),
@@ -150,7 +152,9 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         );
 
         (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            address(pool),
+            address(token0),
+            address(token1),
+            1,
             false,
             amountIn,
             sqrtP(5010),
