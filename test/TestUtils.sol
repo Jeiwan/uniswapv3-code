@@ -25,6 +25,37 @@ abstract contract TestUtils is Test {
         int24 tick;
     }
 
+    function divRound(int128 x, int128 y)
+        internal
+        pure
+        returns (int128 result)
+    {
+        int128 quot = ABDKMath64x64.div(x, y);
+        result = quot >> 64;
+
+        // Check if remainder is greater than 0.5
+        if (quot % 2**64 >= 0x8000000000000000) {
+            result += 1;
+        }
+    }
+
+    // Implements: https://github.com/Uniswap/v3-sdk/blob/b6cd73a71f8f8ec6c40c130564d3aff12c38e693/src/utils/nearestUsableTick.ts
+    function nearestUsableTick(int24 tick_, uint24 tickSpacing)
+        internal
+        pure
+        returns (int24 result)
+    {
+        result =
+            int24(divRound(int128(tick_), int128(int24(tickSpacing)))) *
+            int24(tickSpacing);
+
+        if (result < TickMath.MIN_TICK) {
+            result += int24(tickSpacing);
+        } else if (result > TickMath.MAX_TICK) {
+            result -= int24(tickSpacing);
+        }
+    }
+
     function tick(uint256 price) internal pure returns (int24 tick_) {
         tick_ = TickMath.getTickAtSqrtRatio(
             uint160(
