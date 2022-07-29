@@ -77,6 +77,11 @@ abstract contract TestUtils is Test {
         return TickMath.getSqrtRatioAtTick(tick(price));
     }
 
+    // Calculates sqrtP from price with tick spacing equal to 60;
+    function sqrtP60(uint256 price) internal pure returns (uint160) {
+        return TickMath.getSqrtRatioAtTick(tick60(price));
+    }
+
     function assertMintState(ExpectedStateAfterMint memory expected) internal {
         assertEq(
             expected.token0.balanceOf(address(expected.pool)),

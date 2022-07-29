@@ -19,4 +19,10 @@ contract TestUtilsTest is Test, TestUtils {
         assertEq(tick60(4545), 84240);
         assertEq(tick60(6250), 87420);
     }
+
+    function testSqrtP60() public {
+        assertEq(sqrtP60(5000), 5608950122784459951015918491039);
+        assertEq(sqrtP60(4545), 5346092701810166522520541901099);
+        assertEq(sqrtP60(6250), 6267377518277060417829549285552);
+    }
 }
