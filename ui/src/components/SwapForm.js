@@ -94,6 +94,8 @@ const SwapForm = ({ pair, setPair }) => {
     ));
 
     loadPairs().then((pairs) => {
+      console.log(pairs);
+
       setPairs(pairsToMap(pairs));
       setPair(pairs[0]);
       setTokens(pairsToTokens(pairs));
@@ -120,6 +122,7 @@ const SwapForm = ({ pair, setPair }) => {
 
     return factory.queryFilter("PoolCreated", "earliest", "latest")
       .then((events) => {
+        console.log(events);
         const pairs = events.map((event) => {
           return {
             token0: {

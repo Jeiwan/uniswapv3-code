@@ -15,34 +15,43 @@ contract DeployDevelopment is Script, TestUtils {
     function run() public {
         uint256 wethBalance = 10 ether;
         uint256 usdcBalance = 100000 ether;
-        uint160 currentSqrtP = sqrtP(5000);
+        uint256 uniBalance = 100000 ether;
 
-        // DEPLOYING
+        // DEPLOYING STARGED
         vm.startBroadcast();
 
-        ERC20Mintable token0 = new ERC20Mintable("Wrapped Ether", "WETH", 18);
-        ERC20Mintable token1 = new ERC20Mintable("USD Coin", "USDC", 18);
+        ERC20Mintable weth = new ERC20Mintable("Wrapped Ether", "WETH", 18);
+        ERC20Mintable usdc = new ERC20Mintable("USD Coin", "USDC", 18);
+        ERC20Mintable uni = new ERC20Mintable("Uniswap Coin", "UNI", 18);
 
         UniswapV3Factory factory = new UniswapV3Factory();
-        UniswapV3Pool pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 60)
-        );
-        pool.initialize(currentSqrtP);
-
         UniswapV3Manager manager = new UniswapV3Manager(address(factory));
         UniswapV3Quoter quoter = new UniswapV3Quoter(address(factory));
 
-        token0.mint(msg.sender, wethBalance);
-        token1.mint(msg.sender, usdcBalance);
+        UniswapV3Pool wethUsdc = UniswapV3Pool(
+            factory.createPool(address(weth), address(usdc), 60)
+        );
+        wethUsdc.initialize(sqrtP(5000));
+
+        UniswapV3Pool wethUni = UniswapV3Pool(
+            factory.createPool(address(weth), address(uni), 60)
+        );
+        wethUni.initialize(sqrtP(13));
+
+        weth.mint(msg.sender, wethBalance);
+        usdc.mint(msg.sender, usdcBalance);
+        uni.mint(msg.sender, uniBalance);
 
         vm.stopBroadcast();
-        // DONE
+        // DEPLOYING DONE
 
-        console.log("WETH address", address(token0));
-        console.log("USDC address", address(token1));
+        console.log("WETH address", address(weth));
+        console.log("USDC address", address(usdc));
+        console.log("UNI address", address(uni));
         console.log("Factory address", address(factory));
-        console.log("Pool address", address(pool));
         console.log("Manager address", address(manager));
         console.log("Quoter address", address(quoter));
+        console.log("WETH/USDC address", address(wethUsdc));
+        console.log("WETH/UNI address", address(wethUni));
     }
 }
