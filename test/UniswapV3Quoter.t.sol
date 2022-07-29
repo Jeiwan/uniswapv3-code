@@ -29,7 +29,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         token1.mint(address(this), usdcBalance);
 
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(5000));
 
@@ -42,9 +42,9 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
-                lowerTick: tick(4545),
-                upperTick: tick(5500),
+                tickSpacing: 60,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
                 amount0Desired: 1 ether,
                 amount1Desired: 5000 ether,
                 amount0Min: 0,
@@ -61,17 +61,17 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 UniswapV3Quoter.QuoteParams({
                     tokenA: address(token0),
                     tokenB: address(token1),
-                    tickSpacing: 1,
+                    tickSpacing: 60,
                     amountIn: 0.01337 ether,
                     sqrtPriceLimitX96: sqrtP(4993),
                     zeroForOne: true
                 })
             );
 
-        assertEq(amountOut, 66.807123823853842027 ether, "invalid amountOut");
+        assertEq(amountOut, 66.809153442256308009 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
-            5598737223630966236662554421688,
+            5598854004958668990019104567840,
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85163, "invalid tickAFter");
@@ -83,17 +83,17 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 UniswapV3Quoter.QuoteParams({
                     tokenA: address(token0),
                     tokenB: address(token1),
-                    tickSpacing: 1,
+                    tickSpacing: 60,
                     amountIn: 42 ether,
                     sqrtPriceLimitX96: sqrtP(5005),
                     zeroForOne: false
                 })
             );
 
-        assertEq(amountOut, 0.008396874645169943 ether, "invalid amountOut");
+        assertEq(amountOut, 0.008396774627565324 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
-            5604415652688968742392013927525,
+            5604429046402228950611610935846,
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85183, "invalid tickAFter");
@@ -105,7 +105,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             UniswapV3Quoter.QuoteParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(4993),
                 zeroForOne: true
@@ -122,7 +122,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             .SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: true,
                 amountSpecified: amountIn,
                 sqrtPriceLimitX96: sqrtP(4993),
@@ -140,7 +140,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             UniswapV3Quoter.QuoteParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(5010),
                 zeroForOne: false
@@ -157,7 +157,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             .SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: false,
                 amountSpecified: amountIn,
                 sqrtPriceLimitX96: sqrtP(5010),

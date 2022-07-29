@@ -6,9 +6,10 @@ import "./UniswapV3Pool.sol";
 
 contract UniswapV3Factory is IUniswapV3PoolDeployer {
     error NotOwner();
-    error TokensMustBeDifferent();
-    error TokenXCannotBeZero();
     error PoolAlreadyExists();
+    error TokenXCannotBeZero();
+    error TokensMustBeDifferent();
+    error UnsupportedTickSpacing();
 
     event PoolCreated(
         address indexed token0,
@@ -42,6 +43,7 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
         uint24 tickSpacing
     ) public returns (address pool) {
         if (tokenX == tokenY) revert TokensMustBeDifferent();
+        if (!tickSpacings[tickSpacing]) revert UnsupportedTickSpacing();
 
         (tokenX, tokenY) = tokenX < tokenY
             ? (tokenX, tokenY)

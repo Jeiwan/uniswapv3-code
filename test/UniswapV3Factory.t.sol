@@ -9,6 +9,8 @@ import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Pool.sol";
 
+import "forge-std/console.sol";
+
 contract UniswapV3FactoryTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
@@ -21,22 +23,24 @@ contract UniswapV3FactoryTest is Test, TestUtils {
     }
 
     function testCreatePool() public {
+        console.log(uint128(divRound(85176, 60)));
+
         address poolAddress = factory.createPool(
             address(token0),
             address(token1),
-            1
+            10
         );
 
         IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
 
         assertEq(
-            factory.pools(address(token1), address(token0), 1),
+            factory.pools(address(token1), address(token0), 10),
             poolAddress,
             "invalid pool address in the registry"
         );
 
         assertEq(
-            factory.pools(address(token0), address(token1), 1),
+            factory.pools(address(token0), address(token1), 10),
             poolAddress,
             "invalid pool address in the registry (reverse order)"
         );
@@ -44,7 +48,7 @@ contract UniswapV3FactoryTest is Test, TestUtils {
         assertEq(pool.factory(), address(factory), "invalid factory address");
         assertEq(pool.token0(), address(token1), "invalid token0 address");
         assertEq(pool.token1(), address(token0), "invalid token1 address");
-        assertEq(pool.tickSpacing(), 1, "invalid tick spacing");
+        assertEq(pool.tickSpacing(), 10, "invalid tick spacing");
 
         (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
         assertEq(sqrtPriceX96, 0, "invalid sqrtPriceX96");
@@ -53,18 +57,18 @@ contract UniswapV3FactoryTest is Test, TestUtils {
 
     function testCreatePoolIdenticalTokens() public {
         vm.expectRevert(encodeError("TokensMustBeDifferent()"));
-        factory.createPool(address(token0), address(token0), 1);
+        factory.createPool(address(token0), address(token0), 10);
     }
 
     function testCreateZeroTokenAddress() public {
         vm.expectRevert(encodeError("TokenXCannotBeZero()"));
-        factory.createPool(address(token0), address(0), 1);
+        factory.createPool(address(token0), address(0), 10);
     }
 
     function testCreateAlreadyExists() public {
-        factory.createPool(address(token0), address(token1), 1);
+        factory.createPool(address(token0), address(token1), 10);
 
         vm.expectRevert(encodeError("PoolAlreadyExists()"));
-        factory.createPool(address(token0), address(token1), 1);
+        factory.createPool(address(token0), address(token1), 10);
     }
 }

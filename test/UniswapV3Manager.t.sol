@@ -45,8 +45,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.998995580131581600 ether,
-            4999.999999999999999999 ether
+            0.987286567250950170 ether,
+            4998.958915878679752572 ether
         );
 
         assertEq(
@@ -80,7 +80,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function testMintRangeBelow() public {
         IUniswapV3Manager.MintParams[]
             memory mints = new IUniswapV3Manager.MintParams[](1);
-        mints[0] = mintParams(4000, 4999, 1 ether, 5000 ether);
+        mints[0] = mintParams(4000, 4996, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -94,7 +94,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0 ether,
-            4999.999999999999999997 ether
+            4999.999999999999999994 ether
         );
 
         assertEq(
@@ -128,7 +128,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function testMintRangeAbove() public {
         IUniswapV3Manager.MintParams[]
             memory mints = new IUniswapV3Manager.MintParams[](1);
-        mints[0] = mintParams(5001, 6250, 1 ether, 5000 ether);
+        mints[0] = mintParams(5027, 6250, 1 ether, 5000 ether);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 10 ether,
             usdcBalance: 5000 ether,
@@ -197,8 +197,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            1.748692227462822454 ether,
-            8749.999999999999999999 ether
+            1.733464437577149733 ether,
+            8748.624200287228469107 ether
         );
 
         assertMintState(
@@ -208,8 +208,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(4545),
-                upperTick: tick(5500),
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
                 positionLiquidity: liquidity(mints[0], 5000),
                 currentLiquidity: liquidity(mints[0], 5000) +
                     liquidity(mints[1], 5000),
@@ -224,8 +224,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(4000),
-                upperTick: tick(6250),
+                lowerTick: tick60(4000),
+                upperTick: tick60(6250),
                 positionLiquidity: liquidity(mints[1], 5000),
                 currentLiquidity: liquidity(mints[0], 5000) +
                     liquidity(mints[1], 5000),
@@ -246,12 +246,12 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
         mints[1] = mintParams(
             4000,
-            4999,
+            4996,
             (1 ether * 75) / 100,
             (5000 ether * 75) / 100
         );
         mints[2] = mintParams(
-            5001,
+            5027,
             6250,
             (1 ether * 50) / 100,
             (5000 ether * 50) / 100
@@ -268,8 +268,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            1.498995580131581600 ether,
-            8749.999999999999999993 ether
+            1.487286567250950170 ether,
+            8748.958915878679752566 ether
         );
 
         assertMintState(
@@ -279,8 +279,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(4545),
-                upperTick: tick(5500),
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
                 positionLiquidity: liquidity(mints[0], 5000),
                 currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
@@ -294,8 +294,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(4000),
-                upperTick: tick(4999),
+                lowerTick: tick60(4000),
+                upperTick: tick60(4996),
                 positionLiquidity: liquidity(mints[1], 5000),
                 currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
@@ -309,8 +309,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(5001),
-                upperTick: tick(6250),
+                lowerTick: tick60(5027),
+                upperTick: tick60(6250),
                 positionLiquidity: liquidity(mints[2], 5000),
                 currentLiquidity: liquidity(mints[0], 5000),
                 sqrtPriceX96: sqrtP(5000),
@@ -321,7 +321,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     function testMintInvalidTickRangeLower() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(1));
         manager = new UniswapV3Manager(address(factory));
@@ -332,7 +332,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 lowerTick: -887273,
                 upperTick: 0,
                 amount0Desired: 0,
@@ -345,7 +345,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     function testMintInvalidTickRangeUpper() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(1));
         manager = new UniswapV3Manager(address(factory));
@@ -356,7 +356,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 lowerTick: 0,
                 upperTick: 887273,
                 amount0Desired: 0,
@@ -369,7 +369,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     function testMintZeroLiquidity() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(1));
         manager = new UniswapV3Manager(address(factory));
@@ -379,7 +379,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 lowerTick: 0,
                 upperTick: 1,
                 amount0Desired: 0,
@@ -412,7 +412,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function testMintSlippageProtection() public {
         (uint256 amount0, uint256 amount1) = (1 ether, 5000 ether);
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(5000));
         manager = new UniswapV3Manager(address(factory));
@@ -424,17 +424,17 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         vm.expectRevert(
             encodeSlippageCheckFailed(
-                0.998995580131581600 ether,
-                4999.999999999999999999 ether
+                0.987286567250950170 ether,
+                4998.958915878679752572 ether
             )
         );
         manager.mint(
             IUniswapV3Manager.MintParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
-                lowerTick: tick(4545),
-                upperTick: tick(5500),
+                tickSpacing: 60,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
                 amount0Desired: amount0,
                 amount1Desired: amount1,
                 amount0Min: amount0,
@@ -446,13 +446,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
-                lowerTick: tick(4545),
-                upperTick: tick(5500),
+                tickSpacing: 60,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
                 amount0Desired: amount0,
                 amount1Desired: amount1,
-                amount0Min: (amount0 * 99) / 100,
-                amount1Min: (amount1 * 99) / 100
+                amount0Min: (amount0 * 98) / 100,
+                amount1Min: (amount1 * 98) / 100
             })
         );
     }
@@ -485,7 +485,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: false,
                 amountSpecified: swapAmount,
                 sqrtPriceLimitX96: sqrtP(5004),
@@ -494,7 +494,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008396874645169943 ether,
+            -0.008396774627565324 ether,
             42 ether
         );
 
@@ -510,7 +510,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5604415652688968742392013927525, // 5003.8180249710795
+                sqrtPriceX96: 5604429046402228950611610935846, // 5003.841941749589
                 tick: 85183,
                 currentLiquidity: liquidity(mints[0], 5000)
             })
@@ -545,7 +545,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: true,
                 amountSpecified: swapAmount,
                 sqrtPriceLimitX96: sqrtP(4993),
@@ -555,7 +555,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             0.01337 ether,
-            -66.807123823853842027 ether
+            -66.809153442256308009 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -570,7 +570,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5598737223630966236662554421688, // 4993.683362269102
+                sqrtPriceX96: 5598854004958668990019104567840, // 4993.891686050662
                 tick: 85163,
                 currentLiquidity: liquidity(mints[0], 5000)
             })
@@ -607,7 +607,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: true,
                 amountSpecified: ethAmount,
                 sqrtPriceLimitX96: sqrtP(4990),
@@ -619,7 +619,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: false,
                 amountSpecified: usdcAmount,
                 sqrtPriceLimitX96: sqrtP(5004),
@@ -644,8 +644,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 poolBalance1: uint256(
                     int256(poolBalance1) + amount1Delta1 + amount1Delta2
                 ),
-                sqrtPriceX96: 5601607565086694240599300641950, // 4998.804963817196
-                tick: 85173,
+                sqrtPriceX96: 5601672033311021912181939079555, // 4998.9200257634275
+                tick: 85174,
                 currentLiquidity: liquidity(mints[0], 5000)
             })
         );
@@ -675,7 +675,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: false,
                 amountSpecified: swapAmount,
                 sqrtPriceLimitX96: 0,
@@ -708,7 +708,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: true,
                 amountSpecified: swapAmount,
                 sqrtPriceLimitX96: 0,
@@ -737,7 +737,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapParams({
                 tokenA: address(token0),
                 tokenB: address(token1),
-                tickSpacing: 1,
+                tickSpacing: 60,
                 zeroForOne: false,
                 amountSpecified: 42 ether,
                 sqrtPriceLimitX96: sqrtP(5010),
@@ -770,9 +770,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         params = IUniswapV3Manager.MintParams({
             tokenA: address(token0),
             tokenB: address(token1),
-            tickSpacing: 1,
-            lowerTick: tick(lowerPrice),
-            upperTick: tick(upperPrice),
+            tickSpacing: 60,
+            lowerTick: tick60(lowerPrice),
+            upperTick: tick60(upperPrice),
             amount0Desired: amount0,
             amount1Desired: amount1,
             amount0Min: 0,
@@ -786,8 +786,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     ) internal pure returns (uint128 liquidity_) {
         liquidity_ = LiquidityMath.getLiquidityForAmounts(
             sqrtP(currentPrice),
-            TickMath.getSqrtRatioAtTick(params.lowerTick),
-            TickMath.getSqrtRatioAtTick(params.upperTick),
+            sqrtP60FromTick(params.lowerTick),
+            sqrtP60FromTick(params.upperTick),
             params.amount0Desired,
             params.amount1Desired
         );
@@ -801,7 +801,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.mint(address(this), params.usdcBalance);
 
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(params.currentPrice));
 

@@ -27,7 +27,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
     function testInitialize() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
 
         (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
@@ -39,7 +39,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         (sqrtPriceX96, tick) = pool.slot0();
         assertEq(
             sqrtPriceX96,
-            14024667397959891360888894856271,
+            14025175117687921942002399182848,
             "invalid sqrtPriceX96"
         );
         assertEq(tick, 103530, "invalid tick");
@@ -63,8 +63,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.998995580131581600 ether,
-            4999.999999999999999999 ether
+            0.987286567250950170 ether,
+            4998.958915878679752572 ether
         );
 
         assertEq(
@@ -97,7 +97,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
     function testMintRangeBelow() public {
         LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4000, 4999, 1 ether, 5000 ether, 5000);
+        liquidity[0] = liquidityRange(4000, 4996, 1 ether, 5000 ether, 5000);
         TestCaseParams memory params = TestCaseParams({
             wethBalance: 1 ether,
             usdcBalance: 5000 ether,
@@ -111,7 +111,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0 ether,
-            4999.999999999999999997 ether
+            4999.999999999999999994 ether
         );
 
         assertEq(
@@ -211,8 +211,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            2.698571339742487358 ether,
-            13501.317327786998874075 ether
+            2.727944798412770988 ether,
+            13746.049925900422866812 ether
         );
 
         assertMintState(
@@ -222,8 +222,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(4545),
-                upperTick: tick(5500),
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
                 positionLiquidity: liquidity[0].amount,
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount,
                 sqrtPriceX96: sqrtP(5000),
@@ -237,8 +237,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 token1: token1,
                 amount0: amount0,
                 amount1: amount1,
-                lowerTick: tick(4000),
-                upperTick: tick(6250),
+                lowerTick: tick60(4000),
+                upperTick: tick60(6250),
                 positionLiquidity: liquidity[1].amount,
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount,
                 sqrtPriceX96: sqrtP(5000),
@@ -249,7 +249,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
     function testMintInvalidTickRangeLower() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(1));
 
@@ -259,7 +259,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
     function testMintInvalidTickRangeUpper() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(1));
 
@@ -269,7 +269,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
     function testMintZeroLiquidity() public {
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(1));
 
@@ -335,7 +335,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         token1.mint(address(this), params.usdcBalance);
 
         pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(params.currentPrice));
 

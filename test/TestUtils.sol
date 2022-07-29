@@ -56,30 +56,34 @@ abstract contract TestUtils is Test {
         }
     }
 
-    function tick(uint256 price) internal pure returns (int24 tick_) {
-        tick_ = TickMath.getTickAtSqrtRatio(
+    function sqrtP(uint256 price) internal pure returns (uint160) {
+        return
             uint160(
                 int160(
                     ABDKMath64x64.sqrt(int128(int256(price << 64))) <<
                         (FixedPoint96.RESOLUTION - 64)
                 )
-            )
-        );
+            );
+    }
+
+    // Calculates sqrtP from price with tick spacing equal to 60;
+    function sqrtP60(uint256 price) internal pure returns (uint160) {
+        return TickMath.getSqrtRatioAtTick(tick60(price));
+    }
+
+    // Calculates sqrtP from tick with tick spacing equal to 60;
+    function sqrtP60FromTick(int24 tick_) internal pure returns (uint160) {
+        return TickMath.getSqrtRatioAtTick(nearestUsableTick(tick_, 60));
+    }
+
+    function tick(uint256 price) internal pure returns (int24 tick_) {
+        tick_ = TickMath.getTickAtSqrtRatio(sqrtP(price));
     }
 
     // Calculates tick from price with tick spacing equal to 60;
     function tick60(uint256 price) internal pure returns (int24 tick_) {
         tick_ = tick(price);
         tick_ = nearestUsableTick(tick_, 60);
-    }
-
-    function sqrtP(uint256 price) internal pure returns (uint160) {
-        return TickMath.getSqrtRatioAtTick(tick(price));
-    }
-
-    // Calculates sqrtP from price with tick spacing equal to 60;
-    function sqrtP60(uint256 price) internal pure returns (uint160) {
-        return TickMath.getSqrtRatioAtTick(tick60(price));
     }
 
     function assertMintState(ExpectedStateAfterMint memory expected) internal {
@@ -239,6 +243,8 @@ abstract contract TestUtils is Test {
         view
         returns (bool initialized)
     {
+        tick_ /= int24(pool.tickSpacing());
+
         int16 wordPos = int16(tick_ >> 8);
         uint8 bitPos = uint8(uint24(tick_ % 256));
 
