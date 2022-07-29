@@ -13,4 +13,10 @@ contract TestUtilsTest is Test, TestUtils {
         assertEq(nearestUsableTick(85200, 60), 85200);
         assertEq(nearestUsableTick(85140, 60), 85140);
     }
+
+    function testTick60() public {
+        assertEq(tick60(5000), 85200);
+        assertEq(tick60(4545), 84240);
+        assertEq(tick60(6250), 87420);
+    }
 }

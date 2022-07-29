@@ -67,6 +67,12 @@ abstract contract TestUtils is Test {
         );
     }
 
+    // Calculates tick from price with tick spacing equal to 60;
+    function tick60(uint256 price) internal pure returns (int24 tick_) {
+        tick_ = tick(price);
+        tick_ = nearestUsableTick(tick_, 60);
+    }
+
     function sqrtP(uint256 price) internal pure returns (uint160) {
         return TickMath.getSqrtRatioAtTick(tick(price));
     }
