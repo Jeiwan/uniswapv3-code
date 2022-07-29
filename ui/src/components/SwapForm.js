@@ -7,11 +7,43 @@ import config from "../config.js";
 import debounce from '../lib/debounce';
 import LiquidityForm from './LiquidityForm';
 
-const SwapInput = ({ token, amount, setAmount, disabled, readOnly }) => {
+const pairsToTokens = (pairs) => {
+  return pairs.reduce((acc, pair) => {
+    acc.push({
+      symbol: pair.token0.symbol,
+      address: pair.token0.address,
+      selected: false
+    });
+    acc.push({
+      symbol: pair.token1.symbol,
+      address: pair.token1.address,
+      selected: false
+    });
+
+    return acc;
+  }, []);
+}
+
+const pairsToMap = (pairs) => {
+  return pairs.reduce((acc, pair) => {
+    if (!acc[pair.token0.address]) {
+      acc[pair.token0.address] = {};
+
+    }
+
+    acc[pair.token0.address][pair.token1.address] = pair;
+
+    return acc;
+  }, {});
+}
+
+const SwapInput = ({ token, tokens, onChange, amount, setAmount, disabled, readOnly }) => {
   return (
     <fieldset className="SwapInput" disabled={disabled}>
       <input type="text" id={token + "_amount"} placeholder="0.0" value={amount} onChange={(ev) => setAmount(ev.target.value)} readOnly={readOnly} />
-      <label htmlFor={token + "_amount"}>{token}</label>
+      <select name="token" value={token} onChange={onChange}>
+        {tokens.map(t => <option key={`${token}_${t.symbol}`}>{t.symbol}</option>)}
+      </select>
     </fieldset>
   );
 }
@@ -47,6 +79,7 @@ const SwapForm = ({ pair, setPair }) => {
   const [slippage, setSlippage] = useState(0.1);
   const [priceAfter, setPriceAfter] = useState();
   const [pairs, setPairs] = useState();
+  const [tokens, setTokens] = useState();
 
   useEffect(() => {
     setManager(new ethers.Contract(
@@ -61,8 +94,9 @@ const SwapForm = ({ pair, setPair }) => {
     ));
 
     loadPairs().then((pairs) => {
-      setPairs(pairs);
+      setPairs(pairsToMap(pairs));
       setPair(pairs[0]);
+      setTokens(pairsToTokens(pairs));
 
       setTokenIn(new ethers.Contract(
         pairs[0].token0.address,
@@ -194,6 +228,27 @@ const SwapForm = ({ pair, setPair }) => {
 
   const toggleLiquidityForm = () => setManagingLiquidity(!managingLiquidity);
 
+  const selectToken = (symbol, index) => {
+    let token0, token1;
+
+    if (index === 0) {
+      token0 = tokens.filter(t => t.symbol === symbol)
+      token1 = pair.token1;
+    }
+
+    if (index === 1) {
+      token0 = tokenIn.address;
+      token1 = tokens.filter(t => t.symbol === symbol)
+    }
+
+    try {
+      const newPair = pairs[token0.address][token1.address];
+      setPair(newPair);
+    } catch {
+      alert("Pair doesn't exist!");
+    }
+  }
+
   /**
    * Toggles swap direction.
    */
@@ -220,15 +275,19 @@ const SwapForm = ({ pair, setPair }) => {
           <SwapInput
             amount={zeroForOne ? amount0 : amount1}
             disabled={!enabled || loading}
+            onChange={(ev) => selectToken(ev.target.value, 0)}
             readOnly={false}
             setAmount={setAmountFn(zeroForOne ? setAmount0 : setAmount1)}
-            token={zeroForOne ? pair.token0.symbol : pair.token1.symbol} />
+            token={zeroForOne ? pair.token0.symbol : pair.token1.symbol}
+            tokens={tokens} />
           <ChangeDirectionButton zeroForOne={zeroForOne} onClick={toggleDirection} disabled={!enabled || loading} />
           <SwapInput
             amount={zeroForOne ? amount1 : amount0}
             disabled={!enabled || loading}
+            onChange={(ev) => selectToken(ev.target.value, 1)}
             readOnly={true}
-            token={zeroForOne ? pair.token1.symbol : pair.token0.symbol} />
+            token={zeroForOne ? pair.token1.symbol : pair.token0.symbol}
+            tokens={tokens.filter(t => t.address != tokenIn.address)} />
           <SlippageControl
             setSlippage={setSlippage}
             slippage={slippage} />
@@ -236,6 +295,10 @@ const SwapForm = ({ pair, setPair }) => {
         </form>
         :
         <span>Loading pairs...</span>}
+      {/* <ul>
+        <li>{JSON.stringify(pair ? pair.token0 : null)}</li>
+        <li>{JSON.stringify(pair ? pair.token1 : null)}</li>
+      </ul> */}
     </section>
   )
 }
