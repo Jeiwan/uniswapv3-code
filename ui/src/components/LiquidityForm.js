@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import { uint256Max } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
-import { TickMath, encodeSqrtRatioX96 } from '@uniswap/v3-sdk';
+import { TickMath, encodeSqrtRatioX96, nearestUsableTick } from '@uniswap/v3-sdk';
 import config from "../config.js";
 
 const slippage = 0.5;
@@ -119,8 +119,10 @@ const LiquidityForm = ({ pair, toggle }) => {
     const mintParams = {
       tokenA: pair.token0.address,
       tokenB: pair.token1.address,
-      tickSpacing: 1,
-      lowerTick, upperTick, amount0Desired, amount1Desired, amount0Min, amount1Min
+      tickSpacing: pair.tickSpacing,
+      lowerTick: nearestUsableTick(lowerTick, pair.tickSpacing),
+      upperTick: nearestUsableTick(upperTick, pair.tickSpacing),
+      amount0Desired, amount1Desired, amount0Min, amount1Min
     }
 
     return Promise.all(

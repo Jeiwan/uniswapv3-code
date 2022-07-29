@@ -87,7 +87,7 @@ const eventsReducer = (state, action) => {
   }
 }
 
-const EventsFeed = () => {
+const EventsFeed = ({ pair }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const [events, setEvents] = useReducer(eventsReducer, []);
   const [pool, setPool] = useState();
@@ -99,7 +99,7 @@ const EventsFeed = () => {
 
     if (!pool) {
       const newPool = new ethers.Contract(
-        config.poolAddress,
+        pair.address,
         PoolABI,
         new ethers.providers.Web3Provider(window.ethereum)
       );

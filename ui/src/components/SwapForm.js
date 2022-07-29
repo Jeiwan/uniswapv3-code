@@ -31,7 +31,7 @@ const SlippageControl = ({ setSlippage, slippage }) => {
   );
 }
 
-const SwapForm = () => {
+const SwapForm = ({ pair, setPair }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -47,7 +47,6 @@ const SwapForm = () => {
   const [slippage, setSlippage] = useState(0.1);
   const [priceAfter, setPriceAfter] = useState();
   const [pairs, setPairs] = useState();
-  const [pair, setPair] = useState();
 
   useEffect(() => {
     setManager(new ethers.Contract(
@@ -97,7 +96,8 @@ const SwapForm = () => {
               address: event.args.token1,
               symbol: config.tokens[event.args.token1].symbol
             },
-            tickSpacing: event.tickSpacing
+            tickSpacing: event.args.tickSpacing,
+            address: event.args.pool
           }
         });
 
@@ -124,7 +124,7 @@ const SwapForm = () => {
     const params = {
       tokenA: pair.token0.address,
       tokenB: pair.token1.address,
-      tickSpacing: 1,
+      tickSpacing: pair.tickSpacing,
       zeroForOne: zeroForOne,
       amountSpecified: amountInWei,
       sqrtPriceLimitX96: limitPrice,
@@ -161,7 +161,7 @@ const SwapForm = () => {
     const params = {
       tokenA: pair.token0.address,
       tokenB: pair.token1.address,
-      tickSpacing: 1,
+      tickSpacing: pair.tickSpacing,
       amountIn: ethers.utils.parseEther(amount),
       sqrtPriceLimitX96: 0,
       zeroForOne: zeroForOne
