@@ -8,20 +8,22 @@ import debounce from '../lib/debounce';
 import LiquidityForm from './LiquidityForm';
 
 const pairsToTokens = (pairs) => {
-  return pairs.reduce((acc, pair) => {
-    acc.push({
+  const tokens = pairs.reduce((acc, pair) => {
+    acc[pair.token0.address] = {
       symbol: pair.token0.symbol,
       address: pair.token0.address,
       selected: false
-    });
-    acc.push({
+    };
+    acc[pair.token1.address] = {
       symbol: pair.token1.symbol,
       address: pair.token1.address,
       selected: false
-    });
+    };
 
     return acc;
-  }, []);
+  }, {});
+
+  return Object.keys(tokens).map(k => tokens[k]);
 }
 
 const pairsToMap = (pairs) => {
@@ -94,13 +96,11 @@ const SwapForm = ({ pair, setPair }) => {
     ));
 
     loadPairs().then((pairs) => {
-      console.log(pairs);
-
       setPairs(pairsToMap(pairs));
       setPair(pairs[0]);
       setTokens(pairsToTokens(pairs));
 
-      setTokenIn(new ethers.Contract(
+      !tokenIn && setTokenIn(new ethers.Contract(
         pairs[0].token0.address,
         config.ABIs.ERC20,
         new ethers.providers.Web3Provider(window.ethereum).getSigner()
@@ -122,7 +122,6 @@ const SwapForm = ({ pair, setPair }) => {
 
     return factory.queryFilter("PoolCreated", "earliest", "latest")
       .then((events) => {
-        console.log(events);
         const pairs = events.map((event) => {
           return {
             token0: {
@@ -231,24 +230,38 @@ const SwapForm = ({ pair, setPair }) => {
 
   const toggleLiquidityForm = () => setManagingLiquidity(!managingLiquidity);
 
+  /**
+   * Set currently selected pair based on selected tokens.
+   * 
+   * @param {symbol} selected token symbol
+   * @param {index} token index
+   */
   const selectToken = (symbol, index) => {
     let token0, token1;
 
     if (index === 0) {
-      token0 = tokens.filter(t => t.symbol === symbol)
-      token1 = pair.token1;
+      token0 = tokens.filter(t => t.symbol === symbol)[0];
+      token1 = zeroForOne ? pair.token1 : pair.token0;
     }
 
     if (index === 1) {
-      token0 = tokenIn.address;
-      token1 = tokens.filter(t => t.symbol === symbol)
+      token0 = zeroForOne ? pair.token0 : pair.token1;
+      token1 = tokens.filter(t => t.symbol === symbol)[0];
+    }
+
+    [token0, token1] = zeroForOne ? [token0, token1] : [token1, token0];
+
+    if (token0.symbol === token1.symbol) {
+      return false;
     }
 
     try {
       const newPair = pairs[token0.address][token1.address];
       setPair(newPair);
+      setAmount0(0);
+      setAmount1(0);
     } catch {
-      alert("Pair doesn't exist!");
+      alert(`${token0.symbol}/${token1.symbol} pair doesn't exist!`);
     }
   }
 
@@ -298,10 +311,6 @@ const SwapForm = ({ pair, setPair }) => {
         </form>
         :
         <span>Loading pairs...</span>}
-      {/* <ul>
-        <li>{JSON.stringify(pair ? pair.token0 : null)}</li>
-        <li>{JSON.stringify(pair ? pair.token1 : null)}</li>
-      </ul> */}
     </section>
   )
 }

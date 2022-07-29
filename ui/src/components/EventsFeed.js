@@ -97,7 +97,7 @@ const EventsFeed = ({ pair }) => {
       return;
     }
 
-    if (!pool) {
+    if (!pool || pool.address !== pair.address) {
       const newPool = new ethers.Contract(
         pair.address,
         PoolABI,
@@ -111,8 +111,12 @@ const EventsFeed = ({ pair }) => {
       });
 
       setPool(newPool);
+
+      return () => {
+        newPool.removeAllListeners();
+      };
     }
-  }, [metamaskContext.status, events, pool]);
+  }, [metamaskContext.status, events, pool, pair]);
 
   return (
     <ul className="py-6">
