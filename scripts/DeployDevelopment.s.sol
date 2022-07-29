@@ -25,7 +25,7 @@ contract DeployDevelopment is Script, TestUtils {
 
         UniswapV3Factory factory = new UniswapV3Factory();
         UniswapV3Pool pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 1)
+            factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(currentSqrtP);
 
