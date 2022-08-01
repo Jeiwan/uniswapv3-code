@@ -12,6 +12,7 @@ import "../src/UniswapV3Manager.sol";
 contract UniswapV3ManagerTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
+    ERC20Mintable token2;
     UniswapV3Factory factory;
     UniswapV3Pool pool;
     UniswapV3Manager manager;
@@ -23,6 +24,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     function setUp() public {
         token1 = new ERC20Mintable("USDC", "USDC", 18);
         token0 = new ERC20Mintable("Ether", "ETH", 18);
+        token2 = new ERC20Mintable("Uniswap Coin", "UNI", 18);
         factory = new UniswapV3Factory();
         manager = new UniswapV3Manager(address(factory));
 
@@ -565,6 +567,115 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
+    function testSwapBuyMultipool() public {
+        IUniswapV3Manager.MintParams[]
+            memory mints = new IUniswapV3Manager.MintParams[](1);
+        mints[0] = mintParams(4545, 5500, 1 ether, 5000 ether);
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentPrice: 5000,
+            mints: mints,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+
+        // Deploy WETH/UNI pool
+        token0.mint(address(this), 10 ether);
+        token0.approve(address(manager), 10 ether);
+        token2.mint(address(this), 100 ether);
+        token2.approve(address(manager), 100 ether);
+        UniswapV3Pool wethUNI = UniswapV3Pool(
+            factory.createPool(address(token0), address(token2), 60)
+        );
+        wethUNI.initialize(sqrtP(10));
+        manager.mint(
+            mintParams(
+                address(token0),
+                address(token2),
+                7,
+                13,
+                10 ether,
+                100 ether
+            )
+        );
+
+        uint256 swapAmount = 2.5 ether;
+        token2.mint(address(this), swapAmount);
+        token2.approve(address(manager), swapAmount);
+
+        bytes memory path = bytes.concat(
+            bytes20(address(token2)),
+            bytes3(uint24(60)),
+            bytes20(address(token0)),
+            bytes3(uint24(60)),
+            bytes20(address(token1))
+        );
+
+        (
+            uint256 userBalance0Before,
+            uint256 userBalance1Before,
+            uint256 userBalance2Before
+        ) = (
+                token0.balanceOf(address(this)),
+                token1.balanceOf(address(this)),
+                token2.balanceOf(address(this))
+            );
+
+        uint256 amountOut = manager.swap(
+            IUniswapV3Manager.SwapParams({
+                path: path,
+                recipient: address(this),
+                amountIn: swapAmount,
+                minAmountOut: 0
+            })
+        );
+
+        uint256 expectedAmountOut = 1230.876321548630785194 ether;
+        assertEq(amountOut, expectedAmountOut, "invalid USDC out");
+
+        assertSwapState(
+            ExpectedStateAfterSwap({
+                pool: pool,
+                token0: token0,
+                token1: token1,
+                userBalance0: userBalance0Before,
+                userBalance1: userBalance1Before + expectedAmountOut,
+                poolBalance0: poolBalance0 + 0.248978073953125685 ether, // initial + 2.5 UNI sold for ETH
+                poolBalance1: poolBalance1 - expectedAmountOut,
+                sqrtPriceX96: 5539210836162906471268374755686, // 4888.061079923607
+                tick: 84949,
+                currentLiquidity: liquidity(mints[0], 5000)
+            })
+        );
+
+        assertEq(
+            token2.balanceOf(address(this)),
+            userBalance2Before - swapAmount,
+            "invalid user UNI balance"
+        );
+        assertEq(
+            token2.balanceOf(address(wethUNI)),
+            102.499932902940812596 ether, // 100 UNI minted + 2.5 UNI swapped
+            "invalid pool UNI balance"
+        );
+
+        (uint160 sqrtPriceX96, int24 currentTick) = wethUNI.slot0();
+        assertEq(
+            sqrtPriceX96,
+            251569791264246604334296963560, // 10.08225810965576
+            "invalid current sqrtP"
+        );
+        assertEq(currentTick, 23108, "invalid current tick");
+        assertEq(
+            pool.liquidity(),
+            1546311247949719370887,
+            "invalid current liquidity"
+        );
+    }
+
     function testSwapMixed() public {
         IUniswapV3Manager.MintParams[]
             memory mints = new IUniswapV3Manager.MintParams[](1);
@@ -737,9 +848,27 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         uint256 amount0,
         uint256 amount1
     ) internal view returns (IUniswapV3Manager.MintParams memory params) {
+        params = mintParams(
+            address(token0),
+            address(token1),
+            lowerPrice,
+            upperPrice,
+            amount0,
+            amount1
+        );
+    }
+
+    function mintParams(
+        address tokenA,
+        address tokenB,
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint256 amount0,
+        uint256 amount1
+    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
         params = IUniswapV3Manager.MintParams({
-            tokenA: address(token0),
-            tokenB: address(token1),
+            tokenA: tokenA,
+            tokenB: tokenB,
             tickSpacing: 60,
             lowerTick: tick60(lowerPrice),
             upperTick: tick60(upperPrice),
