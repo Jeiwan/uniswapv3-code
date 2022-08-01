@@ -7,12 +7,11 @@ import "./lib/TickMath.sol";
 
 contract UniswapV3Quoter {
     struct QuoteParams {
-        address tokenA;
-        address tokenB;
+        address tokenIn;
+        address tokenOut;
         uint24 tickSpacing;
         uint256 amountIn;
         uint160 sqrtPriceLimitX96;
-        bool zeroForOne;
     }
 
     address public immutable factory;
@@ -21,7 +20,7 @@ contract UniswapV3Quoter {
         factory = factory_;
     }
 
-    function quote(QuoteParams memory params)
+    function quote(QuoteParams calldata params)
         public
         returns (
             uint256 amountOut,
@@ -29,25 +28,27 @@ contract UniswapV3Quoter {
             int24 tickAfter
         )
     {
-        (params.tokenA, params.tokenB) = params.tokenA < params.tokenB
-            ? (params.tokenA, params.tokenB)
-            : (params.tokenB, params.tokenA);
+        (address token0, address token1) = params.tokenIn < params.tokenOut
+            ? (params.tokenIn, params.tokenOut)
+            : (params.tokenOut, params.tokenIn);
 
         address poolAddress = PoolAddress.computeAddress(
             factory,
-            params.tokenA,
-            params.tokenB,
+            token0,
+            token1,
             params.tickSpacing
         );
+
+        bool zeroForOne = params.tokenIn < params.tokenOut;
 
         try
             IUniswapV3Pool(poolAddress).swap(
                 address(this),
-                params.zeroForOne,
+                zeroForOne,
                 params.amountIn,
                 params.sqrtPriceLimitX96 == 0
                     ? (
-                        params.zeroForOne
+                        zeroForOne
                             ? TickMath.MIN_SQRT_RATIO + 1
                             : TickMath.MAX_SQRT_RATIO - 1
                     )

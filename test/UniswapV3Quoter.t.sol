@@ -59,12 +59,11 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
             .quote(
                 UniswapV3Quoter.QuoteParams({
-                    tokenA: address(token0),
-                    tokenB: address(token1),
+                    tokenIn: address(token0),
+                    tokenOut: address(token1),
                     tickSpacing: 60,
                     amountIn: 0.01337 ether,
-                    sqrtPriceLimitX96: sqrtP(4993),
-                    zeroForOne: true
+                    sqrtPriceLimitX96: sqrtP(4993)
                 })
             );
 
@@ -81,12 +80,11 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
             .quote(
                 UniswapV3Quoter.QuoteParams({
-                    tokenA: address(token0),
-                    tokenB: address(token1),
+                    tokenIn: address(token1),
+                    tokenOut: address(token0),
                     tickSpacing: 60,
                     amountIn: 42 ether,
-                    sqrtPriceLimitX96: sqrtP(5005),
-                    zeroForOne: false
+                    sqrtPriceLimitX96: sqrtP(5005)
                 })
             );
 
@@ -103,12 +101,11 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         uint256 amountIn = 0.01337 ether;
         (uint256 amountOut, , ) = quoter.quote(
             UniswapV3Quoter.QuoteParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+                tokenIn: address(token0),
+                tokenOut: address(token1),
                 tickSpacing: 60,
                 amountIn: amountIn,
-                sqrtPriceLimitX96: sqrtP(4993),
-                zeroForOne: true
+                sqrtPriceLimitX96: sqrtP(4993)
             })
         );
 
@@ -129,12 +126,11 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         uint256 amountIn = 55 ether;
         (uint256 amountOut, , ) = quoter.quote(
             UniswapV3Quoter.QuoteParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+                tokenIn: address(token1),
+                tokenOut: address(token0),
                 tickSpacing: 60,
                 amountIn: amountIn,
-                sqrtPriceLimitX96: sqrtP(5010),
-                zeroForOne: false
+                sqrtPriceLimitX96: sqrtP(5010)
             })
         );
 
