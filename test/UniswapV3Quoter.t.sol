@@ -95,7 +95,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         assertEq(amountOut, 66.809153442256308009 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
-            5598854004958668990019104567840,
+            5598854004958668990019104567840, // 4993.891686050662
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85163, "invalid tickAFter");
@@ -116,7 +116,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         assertEq(amountOut, 0.008396774627565324 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
-            5604429046402228950611610935846,
+            5604429046402228950611610935846, // 5003.841941749589
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85183, "invalid tickAFter");
@@ -143,12 +143,12 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         assertEq(amountOut, 1472.545906750265423538 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96AfterList[0],
-            251775459842086338964371349270,
+            251775459842086338964371349270, // 10.098750163842778
             "invalid sqrtPriceX96After"
         );
         assertEq(
             sqrtPriceX96AfterList[1],
-            5526828440835641442172064165001,
+            5526828440835641442172064165001, // 4866.231885685384
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfterList[0], 23125, "invalid tickAFter");
