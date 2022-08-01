@@ -10,3 +10,6 @@
 [submodule "lib/abdk-libraries-solidity"]
 	path = lib/abdk-libraries-solidity
 	url = https://github.com/abdk-consulting/abdk-libraries-solidity
+[submodule "lib/solidity-bytes-utils"]
+	path = lib/solidity-bytes-utils
+	url = https://github.com/GNSPS/solidity-bytes-utils
