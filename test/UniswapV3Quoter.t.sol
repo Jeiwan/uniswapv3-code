@@ -112,26 +112,17 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             })
         );
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
-        IUniswapV3Manager.SwapParams memory swapParams = IUniswapV3Manager
-            .SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        IUniswapV3Manager.SwapSingleParams memory swapParams = IUniswapV3Manager
+            .SwapSingleParams({
+                tokenIn: address(token0),
+                tokenOut: address(token1),
                 tickSpacing: 60,
-                zeroForOne: true,
-                amountSpecified: amountIn,
-                sqrtPriceLimitX96: sqrtP(4993),
-                data: extra
+                amountIn: amountIn,
+                sqrtPriceLimitX96: sqrtP(4993)
             });
-        (int256 amount0Delta, int256 amount1Delta) = manager.swap(swapParams);
+        uint256 amountOutActual = manager.swapSingle(swapParams);
 
-        assertEq(uint256(amount0Delta), amountIn, "invalid amount0Delta");
-        assertEq(uint256(-amount1Delta), amountOut, "invalid amount1Delta");
+        assertEq(amountOutActual, amountOut, "invalid amount1Delta");
     }
 
     function testQuoteAndSwapETHforUSDC() public {
@@ -147,25 +138,16 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             })
         );
 
-        bytes memory extra = encodeExtra(
-            address(token0),
-            address(token1),
-            address(this)
-        );
-
-        IUniswapV3Manager.SwapParams memory swapParams = IUniswapV3Manager
-            .SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        IUniswapV3Manager.SwapSingleParams memory swapParams = IUniswapV3Manager
+            .SwapSingleParams({
+                tokenIn: address(token1),
+                tokenOut: address(token0),
                 tickSpacing: 60,
-                zeroForOne: false,
-                amountSpecified: amountIn,
-                sqrtPriceLimitX96: sqrtP(5010),
-                data: extra
+                amountIn: amountIn,
+                sqrtPriceLimitX96: sqrtP(5010)
             });
-        (int256 amount0Delta, int256 amount1Delta) = manager.swap(swapParams);
+        uint256 amountOutActual = manager.swapSingle(swapParams);
 
-        assertEq(uint256(-amount0Delta), amountOut, "invalid amount0Delta");
-        assertEq(uint256(amount1Delta), amountIn, "invalid amount1Delta");
+        assertEq(amountOutActual, amountOut, "invalid amount0Delta");
     }
 }

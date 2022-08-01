@@ -9,8 +9,6 @@ import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Pool.sol";
 
-import "forge-std/console.sol";
-
 contract UniswapV3FactoryTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
@@ -23,8 +21,6 @@ contract UniswapV3FactoryTest is Test, TestUtils {
     }
 
     function testCreatePool() public {
-        console.log(uint128(divRound(85176, 60)));
-
         address poolAddress = factory.createPool(
             address(token0),
             address(token1),

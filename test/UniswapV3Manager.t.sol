@@ -476,40 +476,34 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.mint(address(this), swapAmount);
         token1.approve(address(manager), swapAmount);
 
-        (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+        (uint256 userBalance0Before, uint256 userBalance1Before) = (
+            token0.balanceOf(address(this)),
+            token1.balanceOf(address(this))
         );
 
-        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        uint256 amountOut = manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token1),
+                tokenOut: address(token0),
                 tickSpacing: 60,
-                zeroForOne: false,
-                amountSpecified: swapAmount,
-                sqrtPriceLimitX96: sqrtP(5004),
-                data: extra
+                amountIn: swapAmount,
+                sqrtPriceLimitX96: sqrtP(5004)
             })
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008396774627565324 ether,
-            42 ether
-        );
+        uint256 expectedAmountOut = 0.008396774627565324 ether;
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        assertEq(amountOut, expectedAmountOut, "invalid ETH out");
 
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                userBalance0: userBalance0Before + amountOut,
+                userBalance1: userBalance1Before - swapAmount,
+                poolBalance0: poolBalance0 - amountOut,
+                poolBalance1: poolBalance1 + swapAmount,
                 sqrtPriceX96: 5604429046402228950611610935846, // 5003.841941749589
                 tick: 85183,
                 currentLiquidity: liquidity(mints[0], 5000)
@@ -536,40 +530,34 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.mint(address(this), swapAmount);
         token0.approve(address(manager), swapAmount);
 
-        (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+        (uint256 userBalance0Before, uint256 userBalance1Before) = (
+            token0.balanceOf(address(this)),
+            token1.balanceOf(address(this))
         );
 
-        (int256 amount0Delta, int256 amount1Delta) = manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        uint256 amountOut = manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token0),
+                tokenOut: address(token1),
                 tickSpacing: 60,
-                zeroForOne: true,
-                amountSpecified: swapAmount,
-                sqrtPriceLimitX96: sqrtP(4993),
-                data: extra
+                amountIn: swapAmount,
+                sqrtPriceLimitX96: sqrtP(4993)
             })
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            0.01337 ether,
-            -66.809153442256308009 ether
-        );
+        uint256 expectedAmountOut = 66.809153442256308009 ether;
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        assertEq(amountOut, expectedAmountOut, "invalid ETH out");
 
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                userBalance0: userBalance0Before - swapAmount,
+                userBalance1: userBalance1Before + amountOut,
+                poolBalance0: poolBalance0 + swapAmount,
+                poolBalance1: poolBalance1 - amountOut,
                 sqrtPriceX96: 5598854004958668990019104567840, // 4993.891686050662
                 tick: 85163,
                 currentLiquidity: liquidity(mints[0], 5000)
@@ -600,30 +588,26 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.mint(address(this), usdcAmount);
         token1.approve(address(manager), usdcAmount);
 
-        int256 userBalance0Before = int256(token0.balanceOf(address(this)));
-        int256 userBalance1Before = int256(token1.balanceOf(address(this)));
+        uint256 userBalance0Before = token0.balanceOf(address(this));
+        uint256 userBalance1Before = token1.balanceOf(address(this));
 
-        (int256 amount0Delta1, int256 amount1Delta1) = manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        uint256 amountOut1 = manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token0),
+                tokenOut: address(token1),
                 tickSpacing: 60,
-                zeroForOne: true,
-                amountSpecified: ethAmount,
-                sqrtPriceLimitX96: sqrtP(4990),
-                data: extra
+                amountIn: ethAmount,
+                sqrtPriceLimitX96: sqrtP(4990)
             })
         );
 
-        (int256 amount0Delta2, int256 amount1Delta2) = manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        uint256 amountOut2 = manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token1),
+                tokenOut: address(token0),
                 tickSpacing: 60,
-                zeroForOne: false,
-                amountSpecified: usdcAmount,
-                sqrtPriceLimitX96: sqrtP(5004),
-                data: extra
+                amountIn: usdcAmount,
+                sqrtPriceLimitX96: sqrtP(5004)
             })
         );
 
@@ -632,18 +616,10 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 pool: pool,
                 token0: token0,
                 token1: token1,
-                userBalance0: uint256(
-                    userBalance0Before - amount0Delta1 - amount0Delta2
-                ),
-                userBalance1: uint256(
-                    userBalance1Before - amount1Delta1 - amount1Delta2
-                ),
-                poolBalance0: uint256(
-                    int256(poolBalance0) + amount0Delta1 + amount0Delta2
-                ),
-                poolBalance1: uint256(
-                    int256(poolBalance1) + amount1Delta1 + amount1Delta2
-                ),
+                userBalance0: userBalance0Before - ethAmount + amountOut2,
+                userBalance1: userBalance1Before - usdcAmount + amountOut1,
+                poolBalance0: poolBalance0 + ethAmount - amountOut2,
+                poolBalance1: poolBalance1 + usdcAmount - amountOut1,
                 sqrtPriceX96: 5601672033311021912181939079555, // 4998.9200257634275
                 tick: 85174,
                 currentLiquidity: liquidity(mints[0], 5000)
@@ -671,15 +647,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token1.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token0),
+                tokenOut: address(token1),
                 tickSpacing: 60,
-                zeroForOne: false,
-                amountSpecified: swapAmount,
-                sqrtPriceLimitX96: 0,
-                data: extra
+                amountIn: swapAmount,
+                sqrtPriceLimitX96: 0
             })
         );
     }
@@ -704,15 +678,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         token0.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
-        manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token0),
+                tokenOut: address(token1),
                 tickSpacing: 60,
-                zeroForOne: true,
-                amountSpecified: swapAmount,
-                sqrtPriceLimitX96: 0,
-                data: extra
+                amountIn: swapAmount,
+                sqrtPriceLimitX96: 0
             })
         );
     }
@@ -733,15 +705,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         setupTestCase(params);
 
         vm.expectRevert(stdError.arithmeticError);
-        manager.swap(
-            IUniswapV3Manager.SwapParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+        manager.swapSingle(
+            IUniswapV3Manager.SwapSingleParams({
+                tokenIn: address(token1),
+                tokenOut: address(token0),
                 tickSpacing: 60,
-                zeroForOne: false,
-                amountSpecified: 42 ether,
-                sqrtPriceLimitX96: sqrtP(5010),
-                data: extra
+                amountIn: 42 ether,
+                sqrtPriceLimitX96: sqrtP(5010)
             })
         );
     }

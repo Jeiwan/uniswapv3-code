@@ -4,8 +4,6 @@ pragma solidity ^0.8.14;
 import "forge-std/Test.sol";
 import "../../src/lib/Path.sol";
 
-import "forge-std/console.sol";
-
 contract PathTest is Test {
     function testHasMultiplePools() public {
         bytes memory path = bytes.concat(
