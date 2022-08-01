@@ -41,6 +41,10 @@ library Path {
         return path.length >= MULTIPLE_POOLS_MIN_LENGTH;
     }
 
+    function numPools(bytes memory path) internal pure returns (uint256) {
+        return (path.length - ADDR_SIZE) / NEXT_OFFSET;
+    }
+
     function getFirstPool(bytes memory path)
         internal
         pure

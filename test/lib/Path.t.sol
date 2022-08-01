@@ -104,4 +104,36 @@ contract PathTest is Test {
         assertEq(tokenOut, address(0x2));
         assertEq(tickSpacing, uint24(1));
     }
+
+    function testNumPools() public {
+        bytes memory path = bytes.concat(
+            bytes20(address(0x1)),
+            bytes3(uint24(1)),
+            bytes20(address(0x2))
+        );
+
+        assertEq(Path.numPools(path), 1);
+
+        path = bytes.concat(
+            bytes20(address(0x1)),
+            bytes3(uint24(1)),
+            bytes20(address(0x2)),
+            bytes3(uint24(2)),
+            bytes20(address(0x3))
+        );
+
+        assertEq(Path.numPools(path), 2);
+
+        path = bytes.concat(
+            bytes20(address(0x1)),
+            bytes3(uint24(1)),
+            bytes20(address(0x2)),
+            bytes3(uint24(2)),
+            bytes20(address(0x3)),
+            bytes3(uint24(3)),
+            bytes20(address(0x4))
+        );
+
+        assertEq(Path.numPools(path), 3);
+    }
 }
