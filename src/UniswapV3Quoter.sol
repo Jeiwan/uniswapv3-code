@@ -2,10 +2,13 @@
 pragma solidity ^0.8.14;
 
 import "./interfaces/IUniswapV3Pool.sol";
+import "./lib/Path.sol";
 import "./lib/PoolAddress.sol";
 import "./lib/TickMath.sol";
 
 contract UniswapV3Quoter {
+    using Path for bytes;
+
     struct QuoteSingleParams {
         address tokenIn;
         address tokenOut;
@@ -20,7 +23,51 @@ contract UniswapV3Quoter {
         factory = factory_;
     }
 
-    function quoteSingle(QuoteSingleParams calldata params)
+    function quote(bytes memory path, uint256 amountIn)
+        public
+        returns (
+            uint256 amountOut,
+            uint160[] memory sqrtPriceX96AfterList,
+            int24[] memory tickAfterList
+        )
+    {
+        sqrtPriceX96AfterList = new uint160[](path.numPools());
+        tickAfterList = new int24[](path.numPools());
+
+        uint256 i = 0;
+        while (true) {
+            (address tokenIn, address tokenOut, uint24 tickSpacing) = path
+                .decodeFirstPool();
+
+            (
+                uint256 amountOut_,
+                uint160 sqrtPriceX96After,
+                int24 tickAfter
+            ) = quoteSingle(
+                    QuoteSingleParams({
+                        tokenIn: tokenIn,
+                        tokenOut: tokenOut,
+                        tickSpacing: tickSpacing,
+                        amountIn: amountIn,
+                        sqrtPriceLimitX96: 0
+                    })
+                );
+
+            sqrtPriceX96AfterList[i] = sqrtPriceX96After;
+            tickAfterList[i] = tickAfter;
+            amountIn = amountOut_;
+            i++;
+
+            if (path.hasMultiplePools()) {
+                path = path.skipToken();
+            } else {
+                amountOut = amountIn;
+                break;
+            }
+        }
+    }
+
+    function quoteSingle(QuoteSingleParams memory params)
         public
         returns (
             uint256 amountOut,

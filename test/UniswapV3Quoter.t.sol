@@ -12,31 +12,42 @@ import "./TestUtils.sol";
 contract UniswapV3QuoterTest is Test, TestUtils {
     ERC20Mintable token0;
     ERC20Mintable token1;
+    ERC20Mintable token2;
     UniswapV3Factory factory;
     UniswapV3Pool pool;
+    UniswapV3Pool pool2;
     UniswapV3Manager manager;
     UniswapV3Quoter quoter;
 
     function setUp() public {
         token1 = new ERC20Mintable("USDC", "USDC", 18);
         token0 = new ERC20Mintable("Ether", "ETH", 18);
+        token2 = new ERC20Mintable("Uniswap Coin", "UNI", 18);
         factory = new UniswapV3Factory();
 
         uint256 wethBalance = 100 ether;
         uint256 usdcBalance = 1000000 ether;
+        uint256 uniBalance = 1000 ether;
 
         token0.mint(address(this), wethBalance);
         token1.mint(address(this), usdcBalance);
+        token2.mint(address(this), uniBalance);
 
         pool = UniswapV3Pool(
             factory.createPool(address(token0), address(token1), 60)
         );
         pool.initialize(sqrtP(5000));
 
+        pool2 = UniswapV3Pool(
+            factory.createPool(address(token0), address(token2), 60)
+        );
+        pool2.initialize(sqrtP(10));
+
         manager = new UniswapV3Manager(address(factory));
 
         token0.approve(address(manager), wethBalance);
         token1.approve(address(manager), usdcBalance);
+        token2.approve(address(manager), uniBalance);
 
         manager.mint(
             IUniswapV3Manager.MintParams({
@@ -47,6 +58,20 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 upperTick: tick60(5500),
                 amount0Desired: 1 ether,
                 amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
+
+        manager.mint(
+            IUniswapV3Manager.MintParams({
+                tokenA: address(token0),
+                tokenB: address(token2),
+                tickSpacing: 60,
+                lowerTick: tick60(7),
+                upperTick: tick60(13),
+                amount0Desired: 10 ether,
+                amount1Desired: 100 ether,
                 amount0Min: 0,
                 amount1Min: 0
             })
@@ -95,6 +120,35 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85183, "invalid tickAFter");
+    }
+
+    function testQuoteUNIforUSDCviaETH() public {
+        bytes memory path = bytes.concat(
+            bytes20(address(token2)),
+            bytes3(uint24(60)),
+            bytes20(address(token0)),
+            bytes3(uint24(60)),
+            bytes20(address(token1))
+        );
+        (
+            uint256 amountOut,
+            uint160[] memory sqrtPriceX96AfterList,
+            int24[] memory tickAfterList
+        ) = quoter.quote(path, 3 ether);
+
+        assertEq(amountOut, 1472.545906750265423538 ether, "invalid amountOut");
+        assertEq(
+            sqrtPriceX96AfterList[0],
+            251775459842086338964371349270,
+            "invalid sqrtPriceX96After"
+        );
+        assertEq(
+            sqrtPriceX96AfterList[1],
+            5526828440835641442172064165001,
+            "invalid sqrtPriceX96After"
+        );
+        assertEq(tickAfterList[0], 23125, "invalid tickAFter");
+        assertEq(tickAfterList[1], 84904, "invalid tickAFter");
     }
 
     function testQuoteAndSwapUSDCforETH() public {
