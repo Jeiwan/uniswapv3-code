@@ -57,8 +57,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
     function testQuoteUSDCforETH() public {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
-            .quote(
-                UniswapV3Quoter.QuoteParams({
+            .quoteSingle(
+                UniswapV3Quoter.QuoteSingleParams({
                     tokenIn: address(token0),
                     tokenOut: address(token1),
                     tickSpacing: 60,
@@ -78,8 +78,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
     function testQuoteETHforUSDC() public {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
-            .quote(
-                UniswapV3Quoter.QuoteParams({
+            .quoteSingle(
+                UniswapV3Quoter.QuoteSingleParams({
                     tokenIn: address(token1),
                     tokenOut: address(token0),
                     tickSpacing: 60,
@@ -99,8 +99,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
     function testQuoteAndSwapUSDCforETH() public {
         uint256 amountIn = 0.01337 ether;
-        (uint256 amountOut, , ) = quoter.quote(
-            UniswapV3Quoter.QuoteParams({
+        (uint256 amountOut, , ) = quoter.quoteSingle(
+            UniswapV3Quoter.QuoteSingleParams({
                 tokenIn: address(token0),
                 tokenOut: address(token1),
                 tickSpacing: 60,
@@ -124,8 +124,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
     function testQuoteAndSwapETHforUSDC() public {
         uint256 amountIn = 55 ether;
-        (uint256 amountOut, , ) = quoter.quote(
-            UniswapV3Quoter.QuoteParams({
+        (uint256 amountOut, , ) = quoter.quoteSingle(
+            UniswapV3Quoter.QuoteSingleParams({
                 tokenIn: address(token1),
                 tokenOut: address(token0),
                 tickSpacing: 60,

@@ -6,7 +6,7 @@ import "./lib/PoolAddress.sol";
 import "./lib/TickMath.sol";
 
 contract UniswapV3Quoter {
-    struct QuoteParams {
+    struct QuoteSingleParams {
         address tokenIn;
         address tokenOut;
         uint24 tickSpacing;
@@ -20,7 +20,7 @@ contract UniswapV3Quoter {
         factory = factory_;
     }
 
-    function quote(QuoteParams calldata params)
+    function quoteSingle(QuoteSingleParams calldata params)
         public
         returns (
             uint256 amountOut,
@@ -28,11 +28,11 @@ contract UniswapV3Quoter {
             int24 tickAfter
         )
     {
-        (address token0, address token1) = params.tokenIn < params.tokenOut
-            ? (params.tokenIn, params.tokenOut)
-            : (params.tokenOut, params.tokenIn);
-
-        IUniswapV3Pool pool = getPool(token0, token1, params.tickSpacing);
+        IUniswapV3Pool pool = getPool(
+            params.tokenIn,
+            params.tokenOut,
+            params.tickSpacing
+        );
 
         bool zeroForOne = params.tokenIn < params.tokenOut;
 
