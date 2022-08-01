@@ -32,17 +32,12 @@ contract UniswapV3Quoter {
             ? (params.tokenIn, params.tokenOut)
             : (params.tokenOut, params.tokenIn);
 
-        address poolAddress = PoolAddress.computeAddress(
-            factory,
-            token0,
-            token1,
-            params.tickSpacing
-        );
+        IUniswapV3Pool pool = getPool(token0, token1, params.tickSpacing);
 
         bool zeroForOne = params.tokenIn < params.tokenOut;
 
         try
-            IUniswapV3Pool(poolAddress).swap(
+            pool.swap(
                 address(this),
                 zeroForOne,
                 params.amountIn,
@@ -53,7 +48,7 @@ contract UniswapV3Quoter {
                             : TickMath.MAX_SQRT_RATIO - 1
                     )
                     : params.sqrtPriceLimitX96,
-                abi.encode(poolAddress)
+                abi.encode(address(pool))
             )
         {} catch (bytes memory reason) {
             return abi.decode(reason, (uint256, uint160, int24));
@@ -81,5 +76,18 @@ contract UniswapV3Quoter {
             mstore(add(ptr, 0x40), tickAfter)
             revert(ptr, 96)
         }
+    }
+
+    function getPool(
+        address token0,
+        address token1,
+        uint24 tickSpacing
+    ) internal view returns (IUniswapV3Pool pool) {
+        (token0, token1) = token0 < token1
+            ? (token0, token1)
+            : (token1, token0);
+        pool = IUniswapV3Pool(
+            PoolAddress.computeAddress(factory, token0, token1, tickSpacing)
+        );
     }
 }
