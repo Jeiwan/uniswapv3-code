@@ -94,7 +94,7 @@ const LiquidityForm = ({ pair, toggle }) => {
       config.ABIs.Manager,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
-  }, []);
+  }, [pair]);
 
   /**
    * Adds liquidity to a pool. Asks user to allow spending of tokens.

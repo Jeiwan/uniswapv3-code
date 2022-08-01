@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { MetaMaskContext } from "../contexts/MetaMask";
-import config from "../config.js";
 
 const PoolABI = require('../abi/Pool.json');
 

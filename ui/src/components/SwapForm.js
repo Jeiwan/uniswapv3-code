@@ -106,7 +106,7 @@ const SwapForm = ({ pair, setPair }) => {
         new ethers.providers.Web3Provider(window.ethereum).getSigner()
       ));
     });
-  }, []);
+  }, [setPair, tokenIn]);
 
   /**
    * Load pairs from a Factory address by scanning for 'PoolCreated' events.
@@ -303,7 +303,7 @@ const SwapForm = ({ pair, setPair }) => {
             onChange={(ev) => selectToken(ev.target.value, 1)}
             readOnly={true}
             token={zeroForOne ? pair.token1.symbol : pair.token0.symbol}
-            tokens={tokens.filter(t => t.address != tokenIn.address)} />
+            tokens={tokens.filter(t => t.address !== tokenIn.address)} />
           <SlippageControl
             setSlippage={setSlippage}
             slippage={slippage} />
