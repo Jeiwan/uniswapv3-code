@@ -26,7 +26,7 @@ interface IUniswapV3Manager {
         bytes path;
         address recipient;
         uint256 amountIn;
-        uint160 minAmountOut;
+        uint256 minAmountOut;
     }
 
     struct SwapCallbackData {

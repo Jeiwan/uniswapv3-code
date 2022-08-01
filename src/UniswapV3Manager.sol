@@ -187,17 +187,15 @@ contract UniswapV3Manager is IUniswapV3Manager {
 
         bool zeroForOne = tokenIn < tokenOut;
 
-        if (zeroForOne) {
-            IERC20(tokenIn).transferFrom(
-                data.payer,
-                msg.sender,
-                uint256(amount0)
-            );
+        int256 amount = zeroForOne ? amount0 : amount1;
+
+        if (data.payer == address(this)) {
+            IERC20(tokenIn).transfer(msg.sender, uint256(amount));
         } else {
             IERC20(tokenIn).transferFrom(
                 data.payer,
                 msg.sender,
-                uint256(amount1)
+                uint256(amount)
             );
         }
     }

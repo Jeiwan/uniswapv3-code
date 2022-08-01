@@ -155,6 +155,33 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         assertEq(tickAfterList[1], 84904, "invalid tickAFter");
     }
 
+    /**
+     * UNI -> ETH -> USDC
+     *    10/1   1/5000
+     */
+    function testQuoteAndSwapUNIforUSDCviaETH() public {
+        uint256 amountIn = 3 ether;
+        bytes memory path = bytes.concat(
+            bytes20(address(uni)),
+            bytes3(uint24(60)),
+            bytes20(address(weth)),
+            bytes3(uint24(60)),
+            bytes20(address(usdc))
+        );
+        (uint256 amountOut, , ) = quoter.quote(path, amountIn);
+
+        uint256 amountOutActual = manager.swap(
+            IUniswapV3Manager.SwapParams({
+                path: path,
+                recipient: address(this),
+                amountIn: amountIn,
+                minAmountOut: amountOut
+            })
+        );
+
+        assertEq(amountOutActual, amountOut, "invalid amount1Delta");
+    }
+
     function testQuoteAndSwapUSDCforETH() public {
         uint256 amountIn = 0.01337 ether;
         (uint256 amountOut, , ) = quoter.quoteSingle(
