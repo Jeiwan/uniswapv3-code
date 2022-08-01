@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.14;
 
+import "bytes-utils/BytesLib.sol";
+
 library Path {
+    using BytesLib for bytes;
+
     /// @dev The length the bytes encoded address
     uint256 private constant ADDR_SIZE = 20;
     /// @dev The length the bytes encoded tick spacing
