@@ -10,49 +10,49 @@ import "./ERC20Mintable.sol";
 import "./TestUtils.sol";
 
 contract UniswapV3QuoterTest is Test, TestUtils {
-    ERC20Mintable token0;
-    ERC20Mintable token1;
-    ERC20Mintable token2;
+    ERC20Mintable weth;
+    ERC20Mintable usdc;
+    ERC20Mintable uni;
     UniswapV3Factory factory;
-    UniswapV3Pool pool;
-    UniswapV3Pool pool2;
+    UniswapV3Pool wethUSDC;
+    UniswapV3Pool wethUNI;
     UniswapV3Manager manager;
     UniswapV3Quoter quoter;
 
     function setUp() public {
-        token1 = new ERC20Mintable("USDC", "USDC", 18);
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
-        token2 = new ERC20Mintable("Uniswap Coin", "UNI", 18);
+        usdc = new ERC20Mintable("USDC", "USDC", 18);
+        weth = new ERC20Mintable("Ether", "ETH", 18);
+        uni = new ERC20Mintable("Uniswap Coin", "UNI", 18);
         factory = new UniswapV3Factory();
 
         uint256 wethBalance = 100 ether;
         uint256 usdcBalance = 1000000 ether;
         uint256 uniBalance = 1000 ether;
 
-        token0.mint(address(this), wethBalance);
-        token1.mint(address(this), usdcBalance);
-        token2.mint(address(this), uniBalance);
+        weth.mint(address(this), wethBalance);
+        usdc.mint(address(this), usdcBalance);
+        uni.mint(address(this), uniBalance);
 
-        pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 60)
+        wethUSDC = UniswapV3Pool(
+            factory.createPool(address(weth), address(usdc), 60)
         );
-        pool.initialize(sqrtP(5000));
+        wethUSDC.initialize(sqrtP(5000));
 
-        pool2 = UniswapV3Pool(
-            factory.createPool(address(token0), address(token2), 60)
+        wethUNI = UniswapV3Pool(
+            factory.createPool(address(weth), address(uni), 60)
         );
-        pool2.initialize(sqrtP(10));
+        wethUNI.initialize(sqrtP(10));
 
         manager = new UniswapV3Manager(address(factory));
 
-        token0.approve(address(manager), wethBalance);
-        token1.approve(address(manager), usdcBalance);
-        token2.approve(address(manager), uniBalance);
+        weth.approve(address(manager), wethBalance);
+        usdc.approve(address(manager), usdcBalance);
+        uni.approve(address(manager), uniBalance);
 
         manager.mint(
             IUniswapV3Manager.MintParams({
-                tokenA: address(token0),
-                tokenB: address(token1),
+                tokenA: address(weth),
+                tokenB: address(usdc),
                 tickSpacing: 60,
                 lowerTick: tick60(4545),
                 upperTick: tick60(5500),
@@ -65,8 +65,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
         manager.mint(
             IUniswapV3Manager.MintParams({
-                tokenA: address(token0),
-                tokenB: address(token2),
+                tokenA: address(weth),
+                tokenB: address(uni),
                 tickSpacing: 60,
                 lowerTick: tick60(7),
                 upperTick: tick60(13),
@@ -84,8 +84,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
             .quoteSingle(
                 UniswapV3Quoter.QuoteSingleParams({
-                    tokenIn: address(token0),
-                    tokenOut: address(token1),
+                    tokenIn: address(weth),
+                    tokenOut: address(usdc),
                     tickSpacing: 60,
                     amountIn: 0.01337 ether,
                     sqrtPriceLimitX96: sqrtP(4993)
@@ -105,8 +105,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         (uint256 amountOut, uint160 sqrtPriceX96After, int24 tickAfter) = quoter
             .quoteSingle(
                 UniswapV3Quoter.QuoteSingleParams({
-                    tokenIn: address(token1),
-                    tokenOut: address(token0),
+                    tokenIn: address(usdc),
+                    tokenOut: address(weth),
                     tickSpacing: 60,
                     amountIn: 42 ether,
                     sqrtPriceLimitX96: sqrtP(5005)
@@ -122,13 +122,17 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         assertEq(tickAfter, 85183, "invalid tickAFter");
     }
 
+    /**
+     * UNI -> ETH -> USDC
+     *    10/1   1/5000
+     */
     function testQuoteUNIforUSDCviaETH() public {
         bytes memory path = bytes.concat(
-            bytes20(address(token2)),
+            bytes20(address(uni)),
             bytes3(uint24(60)),
-            bytes20(address(token0)),
+            bytes20(address(weth)),
             bytes3(uint24(60)),
-            bytes20(address(token1))
+            bytes20(address(usdc))
         );
         (
             uint256 amountOut,
@@ -155,8 +159,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         uint256 amountIn = 0.01337 ether;
         (uint256 amountOut, , ) = quoter.quoteSingle(
             UniswapV3Quoter.QuoteSingleParams({
-                tokenIn: address(token0),
-                tokenOut: address(token1),
+                tokenIn: address(weth),
+                tokenOut: address(usdc),
                 tickSpacing: 60,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(4993)
@@ -165,8 +169,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
         IUniswapV3Manager.SwapSingleParams memory swapParams = IUniswapV3Manager
             .SwapSingleParams({
-                tokenIn: address(token0),
-                tokenOut: address(token1),
+                tokenIn: address(weth),
+                tokenOut: address(usdc),
                 tickSpacing: 60,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(4993)
@@ -180,8 +184,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         uint256 amountIn = 55 ether;
         (uint256 amountOut, , ) = quoter.quoteSingle(
             UniswapV3Quoter.QuoteSingleParams({
-                tokenIn: address(token1),
-                tokenOut: address(token0),
+                tokenIn: address(usdc),
+                tokenOut: address(weth),
                 tickSpacing: 60,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(5010)
@@ -190,8 +194,8 @@ contract UniswapV3QuoterTest is Test, TestUtils {
 
         IUniswapV3Manager.SwapSingleParams memory swapParams = IUniswapV3Manager
             .SwapSingleParams({
-                tokenIn: address(token1),
-                tokenOut: address(token0),
+                tokenIn: address(usdc),
+                tokenOut: address(weth),
                 tickSpacing: 60,
                 amountIn: amountIn,
                 sqrtPriceLimitX96: sqrtP(5010)
