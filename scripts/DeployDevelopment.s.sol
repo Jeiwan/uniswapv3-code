@@ -42,9 +42,9 @@ contract DeployDevelopment is Script, TestUtils {
         usdc.mint(msg.sender, usdcBalance);
         uni.mint(msg.sender, uniBalance);
 
-        weth.approve(address(manager), 2**256 - 1);
-        usdc.approve(address(manager), 2**256 - 1);
-        uni.approve(address(manager), 2**256 - 1);
+        weth.approve(address(manager), 11 ether);
+        usdc.approve(address(manager), 5000 ether);
+        uni.approve(address(manager), 100 ether);
 
         manager.mint(
             mintParams(

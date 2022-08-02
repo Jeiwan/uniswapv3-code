@@ -59,7 +59,7 @@ const SlippageControl = ({ setSlippage, slippage }) => {
   );
 }
 
-const SwapForm = ({ pair, setPair }) => {
+const SwapForm = () => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -73,7 +73,6 @@ const SwapForm = ({ pair, setPair }) => {
   const [loading, setLoading] = useState(false);
   const [managingLiquidity, setManagingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
-  const [pairs, setPairs] = useState();
   const [tokens, setTokens] = useState();
   const [path, setPath] = useState();
   const [pathFinder, setPathFinder] = useState();
@@ -106,8 +105,6 @@ const SwapForm = ({ pair, setPair }) => {
         pair_.token0.address === config.wethAddress ? pair_.token1.address : pair_.token0.address
       ];
 
-      setPairs(pairs);
-      setPair(pair_);
       setPath(path_);
       setTokens(pairsToTokens(pairs));
       setPathFinder(new PathFinder(pairs));
@@ -166,11 +163,12 @@ const SwapForm = ({ pair, setPair }) => {
       amountIn: amountIn,
       minAmountOut: minAmountOut
     };
+    const token = tokenIn.attach(path[0]);
 
-    tokenIn.allowance(account, config.managerAddress)
+    token.allowance(account, config.managerAddress)
       .then((allowance) => {
         if (allowance.lt(amountIn)) {
-          return tokenIn.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
+          return token.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
       .then(() => {
@@ -233,24 +231,21 @@ const SwapForm = ({ pair, setPair }) => {
     let token0, token1;
 
     if (index === 0) {
-      token0 = tokens.filter(t => t.symbol === symbol)[0];
-      token1 = zeroForOne ? pair.token1 : pair.token0;
+      token0 = tokens.filter(t => t.symbol === symbol)[0].address;
+      token1 = path[path.length - 1];
     }
 
     if (index === 1) {
-      token0 = zeroForOne ? pair.token0 : pair.token1;
-      token1 = tokens.filter(t => t.symbol === symbol)[0];
+      token0 = path[0];
+      token1 = tokens.filter(t => t.symbol === symbol)[0].address;
     }
 
-    [token0, token1] = zeroForOne ? [token0, token1] : [token1, token0];
-
-    if (token0.symbol === token1.symbol) {
+    if (token0 === token1) {
       return false;
     }
 
     try {
-      const path_ = pathFinder.findPath(token0.address, token1.address);
-      setPath(zeroForOne ? path_ : path_.reverse());
+      setPath(pathFinder.findPath(token0, token1));
       setAmount0(0);
       setAmount1(0);
     } catch {
@@ -274,7 +269,7 @@ const SwapForm = ({ pair, setPair }) => {
 
   return (
     <section className="SwapContainer">
-      {managingLiquidity && <LiquidityForm pair={pair} toggle={toggleLiquidityForm} />}
+      {managingLiquidity && <LiquidityForm pair={path} toggle={toggleLiquidityForm} />}
       <header>
         <h1>Swap tokens</h1>
         <button disabled={!enabled || loading} onClick={toggleLiquidityForm}>Add liquidity</button>
