@@ -851,27 +851,6 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
-    function mintParams(
-        address tokenA,
-        address tokenB,
-        uint256 lowerPrice,
-        uint256 upperPrice,
-        uint256 amount0,
-        uint256 amount1
-    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
-        params = IUniswapV3Manager.MintParams({
-            tokenA: tokenA,
-            tokenB: tokenB,
-            tickSpacing: 60,
-            lowerTick: tick60(lowerPrice),
-            upperTick: tick60(upperPrice),
-            amount0Desired: amount0,
-            amount1Desired: amount1,
-            amount0Min: 0,
-            amount1Min: 0
-        });
-    }
-
     function liquidity(
         IUniswapV3Manager.MintParams memory params,
         uint256 currentPrice

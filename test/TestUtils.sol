@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "abdk-math/ABDKMath64x64.sol";
 
 import "../src/interfaces/IUniswapV3Pool.sol";
+import "../src/interfaces/IUniswapV3Manager.sol";
 import "../src/lib/FixedPoint96.sol";
 import "../src/UniswapV3Pool.sol";
 
@@ -251,5 +252,26 @@ abstract contract TestUtils is Test {
         uint256 word = pool.tickBitmap(wordPos);
 
         initialized = (word & (1 << bitPos)) != 0;
+    }
+
+    function mintParams(
+        address tokenA,
+        address tokenB,
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint256 amount0,
+        uint256 amount1
+    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
+        params = IUniswapV3Manager.MintParams({
+            tokenA: tokenA,
+            tokenB: tokenB,
+            tickSpacing: 60,
+            lowerTick: tick60(lowerPrice),
+            upperTick: tick60(upperPrice),
+            amount0Desired: amount0,
+            amount1Desired: amount1,
+            amount0Min: 0,
+            amount1Min: 0
+        });
     }
 }
