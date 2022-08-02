@@ -106,7 +106,7 @@ const SwapForm = ({ pair, setPair }) => {
         new ethers.providers.Web3Provider(window.ethereum).getSigner()
       ));
     });
-  }, [setPair, tokenIn]);
+  }, []);
 
   /**
    * Load pairs from a Factory address by scanning for 'PoolCreated' events.
