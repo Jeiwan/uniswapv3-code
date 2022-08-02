@@ -79,7 +79,6 @@ const SwapForm = ({ pair, setPair }) => {
   const [loading, setLoading] = useState(false);
   const [managingLiquidity, setManagingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
-  const [priceAfter, setPriceAfter] = useState();
   const [pairs, setPairs] = useState();
   const [tokens, setTokens] = useState();
 
@@ -201,7 +200,6 @@ const SwapForm = ({ pair, setPair }) => {
       .quote(path, amountIn)
       .then(({ amountOut, sqrtPriceX96After }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
-        setPriceAfter(sqrtPriceX96After);
         setLoading(false);
       })
       .catch((err) => {
