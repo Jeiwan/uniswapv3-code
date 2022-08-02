@@ -57,7 +57,10 @@ const renderEvent = (event, i) => {
   }
 
   return (
-    <li key={i}>{content}</li>
+    <tr key={i}>
+      <td className="pr-2">{event.pairID}</td>
+      <td>{content}</td>
+    </tr>
   )
 }
 
@@ -66,62 +69,78 @@ const isMintOrSwap = (event) => {
 }
 
 const cleanEvents = (events) => {
-  return events
-    .sort((a, b) => b.blockNumber - a.blockNumber)
-    .filter((el, i, arr) => {
-      return i === 0 || el.blockNumber !== arr[i - 1].blockNumber || el.logIndex !== arr[i - 1].logIndex
-    })
+  const eventsMap = events.reduce((acc, event) => {
+    acc[`${event.address}_${event.transactionHash}`] = event;
+    return acc;
+  }, {});
+
+  return Object.keys(eventsMap)
+    .map(k => eventsMap[k])
+    .sort((a, b) => b.blockNumber - a.blockNumber);
 }
 
 const eventsReducer = (state, action) => {
   switch (action.type) {
     case 'add':
-      return cleanEvents([action.value, ...state]);
-
-    case 'set':
-      return cleanEvents(action.value);
+      return cleanEvents(state.concat(action.value));
 
     default:
       return;
   }
 }
 
-const EventsFeed = ({ pair }) => {
+
+const EventsList = ({ events }) => {
+  return (
+    <table className="py-6 mb-2">
+      <tbody>
+        {events.filter(isMintOrSwap).map(renderEvent)}
+      </tbody>
+    </table>
+  )
+}
+
+const pairID = (pair) => `${pair.token0.symbol}/${pair.token1.symbol}`;
+const addPairIDToEvents = (events, pair) => events.map(ev => { ev.pairID = pairID(pair); return ev });
+
+const EventsFeed = ({ pairs }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const [events, setEvents] = useReducer(eventsReducer, []);
-  const [pool, setPool] = useState();
 
   useEffect(() => {
     if (metamaskContext.status !== 'connected') {
       return;
     }
 
-    if (!pool || pool.address !== pair.address) {
-      const newPool = new ethers.Contract(
+    const pairContracts = pairs.map((pair) => {
+      const contract = new ethers.Contract(
         pair.address,
         PoolABI,
         new ethers.providers.Web3Provider(window.ethereum)
       );
 
-      subscribeToEvents(newPool, event => setEvents({ type: 'add', value: event }));
+      subscribeToEvents(
+        contract,
+        event => setEvents({
+          type: 'add',
+          value: addPairIDToEvents([event], pair)
+        })
+      );
+      getEvents(contract)
+        .then(events => setEvents({
+          type: 'add',
+          value: addPairIDToEvents(events, pair)
+        }));
 
-      getEvents(newPool).then(events => {
-        setEvents({ type: 'set', value: events });
-      });
+      return contract;
+    });
 
-      setPool(newPool);
+    return () => {
+      pairContracts.forEach((pair) => pair.removeAllListeners());
+    };
+  }, [metamaskContext.status, setEvents]);
 
-      return () => {
-        newPool.removeAllListeners();
-      };
-    }
-  }, [metamaskContext.status, events, pool, pair]);
-
-  return (
-    <ul className="py-6">
-      {events.filter(isMintOrSwap).map(renderEvent)}
-    </ul>
-  );
+  return (<EventsList events={events} />);
 }
 
 export default EventsFeed;

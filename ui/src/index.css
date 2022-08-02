@@ -17,6 +17,7 @@ code {
 }
 
 html, body, #root {
+  min-height: 100%;
   @apply w-full h-full;
 }
 

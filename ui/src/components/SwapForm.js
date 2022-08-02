@@ -59,7 +59,7 @@ const SlippageControl = ({ setSlippage, slippage }) => {
   );
 }
 
-const SwapForm = () => {
+const SwapForm = ({ setPairs }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -105,11 +105,12 @@ const SwapForm = () => {
         pair_.token0.address === config.wethAddress ? pair_.token1.address : pair_.token0.address
       ];
 
+      setPairs(pairs);
       setPath(path_);
-      setTokens(pairsToTokens(pairs));
       setPathFinder(new PathFinder(pairs));
+      setTokens(pairsToTokens(pairs));
     });
-  }, []);
+  }, [setPairs]);
 
   /**
    * Load pairs from a Factory address by scanning for 'PoolCreated' events.

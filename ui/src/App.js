@@ -7,15 +7,15 @@ import { MetaMaskProvider } from './contexts/MetaMask';
 import config from './config';
 
 const App = () => {
-  const [pair, setPair] = useState({ address: config.wethAddress });
+  const [pairs, setPairs] = useState([]);
 
   return (
     <MetaMaskProvider>
       <div className="App flex flex-col justify-between items-center w-full h-full">
         <MetaMask />
-        <SwapForm pair={pair} setPair={setPair} />
+        <SwapForm setPairs={setPairs} />
         <footer>
-          <EventsFeed pair={pair} />
+          <EventsFeed pairs={pairs} />
         </footer>
       </div>
     </MetaMaskProvider>
