@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { useContext, useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer } from "react";
 import { MetaMaskContext } from "../contexts/MetaMask";
 
 const PoolABI = require('../abi/Pool.json');
@@ -138,7 +138,7 @@ const EventsFeed = ({ pairs }) => {
     return () => {
       pairContracts.forEach((pair) => pair.removeAllListeners());
     };
-  }, [metamaskContext.status, setEvents]);
+  }, [metamaskContext.status, setEvents, pairs]);
 
   return (<EventsList events={events} />);
 }

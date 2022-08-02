@@ -4,7 +4,6 @@ import SwapForm from './components/SwapForm.js';
 import MetaMask from './components/MetaMask.js';
 import EventsFeed from './components/EventsFeed.js';
 import { MetaMaskProvider } from './contexts/MetaMask';
-import config from './config';
 
 const App = () => {
   const [pairs, setPairs] = useState([]);
