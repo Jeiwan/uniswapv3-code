@@ -13,9 +13,9 @@ import "../test/TestUtils.sol";
 
 contract DeployDevelopment is Script, TestUtils {
     function run() public {
-        uint256 wethBalance = 10 ether;
+        uint256 wethBalance = 100 ether;
         uint256 usdcBalance = 100000 ether;
-        uint256 uniBalance = 100000 ether;
+        uint256 uniBalance = 1000 ether;
 
         // DEPLOYING STARGED
         vm.startBroadcast();
@@ -41,6 +41,24 @@ contract DeployDevelopment is Script, TestUtils {
         weth.mint(msg.sender, wethBalance);
         usdc.mint(msg.sender, usdcBalance);
         uni.mint(msg.sender, uniBalance);
+
+        weth.approve(address(manager), 2**256 - 1);
+        usdc.approve(address(manager), 2**256 - 1);
+        uni.approve(address(manager), 2**256 - 1);
+
+        manager.mint(
+            mintParams(
+                address(weth),
+                address(usdc),
+                4545,
+                5500,
+                1 ether,
+                5000 ether
+            )
+        );
+        manager.mint(
+            mintParams(address(weth), address(uni), 7, 13, 10 ether, 100 ether)
+        );
 
         vm.stopBroadcast();
         // DEPLOYING DONE
