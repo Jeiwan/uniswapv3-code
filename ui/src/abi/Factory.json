@@ -25,6 +25,11 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "UnsupportedTickSpacing",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

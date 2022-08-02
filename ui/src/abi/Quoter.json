@@ -26,15 +26,49 @@
   {
     "inputs": [
       {
+        "internalType": "bytes",
+        "name": "path",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "quote",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint160[]",
+        "name": "sqrtPriceX96AfterList",
+        "type": "uint160[]"
+      },
+      {
+        "internalType": "int24[]",
+        "name": "tickAfterList",
+        "type": "int24[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "components": [
           {
             "internalType": "address",
-            "name": "tokenA",
+            "name": "tokenIn",
             "type": "address"
           },
           {
             "internalType": "address",
-            "name": "tokenB",
+            "name": "tokenOut",
             "type": "address"
           },
           {
@@ -51,19 +85,14 @@
             "internalType": "uint160",
             "name": "sqrtPriceLimitX96",
             "type": "uint160"
-          },
-          {
-            "internalType": "bool",
-            "name": "zeroForOne",
-            "type": "bool"
           }
         ],
-        "internalType": "struct UniswapV3Quoter.QuoteParams",
+        "internalType": "struct UniswapV3Quoter.QuoteSingleParams",
         "name": "params",
         "type": "tuple"
       }
     ],
-    "name": "quote",
+    "name": "quoteSingle",
     "outputs": [
       {
         "internalType": "uint256",

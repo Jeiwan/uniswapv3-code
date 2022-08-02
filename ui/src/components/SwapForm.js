@@ -150,26 +150,23 @@ const SwapForm = ({ pair, setPair }) => {
   const swap = (e) => {
     e.preventDefault();
 
-    const amountIn = zeroForOne ? amount0 : amount1;
-    const amountInWei = ethers.utils.parseEther(amountIn);
-    const limitPrice = priceAfter.mul((100 - parseFloat(slippage)) * 100).div(10000);
-    const extra = ethers.utils.defaultAbiCoder.encode(
-      ["address", "address", "address"],
-      [pair.token0.address, pair.token1.address, account]
+    const amountIn = ethers.utils.parseEther(zeroForOne ? amount0 : amount1);
+    const amountOut = ethers.utils.parseEther(zeroForOne ? amount1 : amount0);
+    const minAmountOut = amountOut.mul((100 - parseFloat(slippage)) * 100).div(10000);
+    const path = ethers.utils.solidityPack(
+      ["address", "uint24", "address"],
+      [tokenIn.address, 60, zeroForOne ? pair.token1.address : pair.token0.address]
     );
     const params = {
-      tokenA: pair.token0.address,
-      tokenB: pair.token1.address,
-      tickSpacing: pair.tickSpacing,
-      zeroForOne: zeroForOne,
-      amountSpecified: amountInWei,
-      sqrtPriceLimitX96: limitPrice,
-      data: extra
+      path: path,
+      recipient: account,
+      amountIn: amountIn,
+      minAmountOut: minAmountOut
     };
 
     tokenIn.allowance(account, config.managerAddress)
       .then((allowance) => {
-        if (allowance.lt(amountInWei)) {
+        if (allowance.lt(amountIn)) {
           return tokenIn.approve(config.managerAddress, uint256Max).then(tx => tx.wait())
         }
       })
@@ -194,17 +191,14 @@ const SwapForm = ({ pair, setPair }) => {
 
     setLoading(true);
 
-    const params = {
-      tokenA: pair.token0.address,
-      tokenB: pair.token1.address,
-      tickSpacing: pair.tickSpacing,
-      amountIn: ethers.utils.parseEther(amount),
-      sqrtPriceLimitX96: 0,
-      zeroForOne: zeroForOne
-    };
+    const path = ethers.utils.solidityPack(
+      ["address", "uint24", "address"],
+      [tokenIn.address, 60, zeroForOne ? pair.token1.address : pair.token0.address]
+    );
+    const amountIn = ethers.utils.parseEther(amount);
 
     quoter.callStatic
-      .quote(params)
+      .quote(path, amountIn)
       .then(({ amountOut, sqrtPriceX96After }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
         setPriceAfter(sqrtPriceX96After);

@@ -43,6 +43,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "TooLittleReceived",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "factory",
     "outputs": [
@@ -131,39 +142,24 @@
       {
         "components": [
           {
-            "internalType": "address",
-            "name": "tokenA",
-            "type": "address"
+            "internalType": "bytes",
+            "name": "path",
+            "type": "bytes"
           },
           {
             "internalType": "address",
-            "name": "tokenB",
+            "name": "recipient",
             "type": "address"
-          },
-          {
-            "internalType": "uint24",
-            "name": "tickSpacing",
-            "type": "uint24"
-          },
-          {
-            "internalType": "bool",
-            "name": "zeroForOne",
-            "type": "bool"
           },
           {
             "internalType": "uint256",
-            "name": "amountSpecified",
+            "name": "amountIn",
             "type": "uint256"
           },
           {
-            "internalType": "uint160",
-            "name": "sqrtPriceLimitX96",
-            "type": "uint160"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
+            "internalType": "uint256",
+            "name": "minAmountOut",
+            "type": "uint256"
           }
         ],
         "internalType": "struct IUniswapV3Manager.SwapParams",
@@ -174,14 +170,55 @@
     "name": "swap",
     "outputs": [
       {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
-      },
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "int256",
-        "name": "",
-        "type": "int256"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "tokenIn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenOut",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "tickSpacing",
+            "type": "uint24"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint160",
+            "name": "sqrtPriceLimitX96",
+            "type": "uint160"
+          }
+        ],
+        "internalType": "struct IUniswapV3Manager.SwapSingleParams",
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "swapSingle",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -224,7 +261,7 @@
       },
       {
         "internalType": "bytes",
-        "name": "data",
+        "name": "data_",
         "type": "bytes"
       }
     ],

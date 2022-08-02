@@ -36,7 +36,7 @@ contract DeployDevelopment is Script, TestUtils {
         UniswapV3Pool wethUni = UniswapV3Pool(
             factory.createPool(address(weth), address(uni), 60)
         );
-        wethUni.initialize(sqrtP(13));
+        wethUni.initialize(sqrtP(10));
 
         weth.mint(msg.sender, wethBalance);
         usdc.mint(msg.sender, usdcBalance);
