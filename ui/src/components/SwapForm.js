@@ -101,7 +101,7 @@ const SwapForm = ({ pair, setPair }) => {
       setTokens(pairsToTokens(pairs));
 
       !tokenIn && setTokenIn(new ethers.Contract(
-        pairs[0].token0.address,
+        config.wethAddress,
         config.ABIs.ERC20,
         new ethers.providers.Web3Provider(window.ethereum).getSigner()
       ));
