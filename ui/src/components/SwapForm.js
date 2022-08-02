@@ -154,7 +154,7 @@ const SwapForm = ({ pair, setPair }) => {
     const minAmountOut = amountOut.mul((100 - parseFloat(slippage)) * 100).div(10000);
     const path = ethers.utils.solidityPack(
       ["address", "uint24", "address"],
-      [tokenIn.address, 60, zeroForOne ? pair.token1.address : pair.token0.address]
+      [tokenIn.address, pair.tickSpacing, zeroForOne ? pair.token1.address : pair.token0.address]
     );
     const params = {
       path: path,
@@ -192,13 +192,13 @@ const SwapForm = ({ pair, setPair }) => {
 
     const path = ethers.utils.solidityPack(
       ["address", "uint24", "address"],
-      [tokenIn.address, 60, zeroForOne ? pair.token1.address : pair.token0.address]
+      [tokenIn.address, pair.tickSpacing, zeroForOne ? pair.token1.address : pair.token0.address]
     );
     const amountIn = ethers.utils.parseEther(amount);
 
     quoter.callStatic
       .quote(path, amountIn)
-      .then(({ amountOut, sqrtPriceX96After }) => {
+      .then(({ amountOut }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
         setLoading(false);
       })
