@@ -6,6 +6,7 @@ import { MetaMaskContext } from '../contexts/MetaMask';
 import config from "../config.js";
 import debounce from '../lib/debounce';
 import LiquidityForm from './LiquidityForm';
+import PathFinder from '../lib/pathFinder';
 
 const pairsToTokens = (pairs) => {
   const tokens = pairs.reduce((acc, pair) => {
@@ -26,17 +27,10 @@ const pairsToTokens = (pairs) => {
   return Object.keys(tokens).map(k => tokens[k]);
 }
 
-const pairsToMap = (pairs) => {
-  return pairs.reduce((acc, pair) => {
-    if (!acc[pair.token0.address]) {
-      acc[pair.token0.address] = {};
+const countPathTokens = (path) => (path.length - 1) / 2 + 1;
 
-    }
-
-    acc[pair.token0.address][pair.token1.address] = pair;
-
-    return acc;
-  }, {});
+const pathToTypes = (path) => {
+  return ["address"].concat(new Array(countPathTokens(path) - 1).fill(["uint24", "address"]).flat());
 }
 
 const SwapInput = ({ token, tokens, onChange, amount, setAmount, disabled, readOnly }) => {
@@ -81,6 +75,8 @@ const SwapForm = ({ pair, setPair }) => {
   const [slippage, setSlippage] = useState(0.1);
   const [pairs, setPairs] = useState();
   const [tokens, setTokens] = useState();
+  const [path, setPath] = useState();
+  const [pathFinder, setPathFinder] = useState();
 
   useEffect(() => {
     setManager(new ethers.Contract(
@@ -94,16 +90,27 @@ const SwapForm = ({ pair, setPair }) => {
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
 
-    loadPairs().then((pairs) => {
-      setPairs(pairsToMap(pairs));
-      setPair(pairs[0]);
-      setTokens(pairsToTokens(pairs));
+    setTokenIn(new ethers.Contract(
+      config.wethAddress,
+      config.ABIs.ERC20,
+      new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    ));
 
-      !tokenIn && setTokenIn(new ethers.Contract(
+    loadPairs().then((pairs) => {
+      const pair_ = pairs.filter((pair) => {
+        return pair.token0.address === config.wethAddress || pair.token1.address === config.wethAddress;
+      })[0];
+      const path_ = [
         config.wethAddress,
-        config.ABIs.ERC20,
-        new ethers.providers.Web3Provider(window.ethereum).getSigner()
-      ));
+        pair_.tickSpacing,
+        pair_.token0.address === config.wethAddress ? pair_.token1.address : pair_.token0.address
+      ];
+
+      setPairs(pairs);
+      setPair(pair_);
+      setPath(path_);
+      setTokens(pairsToTokens(pairs));
+      setPathFinder(new PathFinder(pairs));
     });
   }, []);
 
@@ -152,12 +159,9 @@ const SwapForm = ({ pair, setPair }) => {
     const amountIn = ethers.utils.parseEther(zeroForOne ? amount0 : amount1);
     const amountOut = ethers.utils.parseEther(zeroForOne ? amount1 : amount0);
     const minAmountOut = amountOut.mul((100 - parseFloat(slippage)) * 100).div(10000);
-    const path = ethers.utils.solidityPack(
-      ["address", "uint24", "address"],
-      [tokenIn.address, pair.tickSpacing, zeroForOne ? pair.token1.address : pair.token0.address]
-    );
+    const packedPath = ethers.utils.solidityPack(pathToTypes(path), path);
     const params = {
-      path: path,
+      path: packedPath,
       recipient: account,
       amountIn: amountIn,
       minAmountOut: minAmountOut
@@ -190,14 +194,11 @@ const SwapForm = ({ pair, setPair }) => {
 
     setLoading(true);
 
-    const path = ethers.utils.solidityPack(
-      ["address", "uint24", "address"],
-      [tokenIn.address, pair.tickSpacing, zeroForOne ? pair.token1.address : pair.token0.address]
-    );
+    const packedPath = ethers.utils.solidityPack(pathToTypes(path), path);
     const amountIn = ethers.utils.parseEther(amount);
 
     quoter.callStatic
-      .quote(path, amountIn)
+      .quote(packedPath, amountIn)
       .then(({ amountOut }) => {
         zeroForOne ? setAmount1(ethers.utils.formatEther(amountOut)) : setAmount0(ethers.utils.formatEther(amountOut));
         setLoading(false);
@@ -248,8 +249,8 @@ const SwapForm = ({ pair, setPair }) => {
     }
 
     try {
-      const newPair = pairs[token0.address][token1.address];
-      setPair(newPair);
+      const path_ = pathFinder.findPath(token0.address, token1.address);
+      setPath(zeroForOne ? path_ : path_.reverse());
       setAmount0(0);
       setAmount1(0);
     } catch {
@@ -264,11 +265,11 @@ const SwapForm = ({ pair, setPair }) => {
     e.preventDefault();
 
     setZeroForOne(!zeroForOne);
-    setTokenIn(tokenIn.attach(
-      pair.token0.address === tokenIn.address
-        ? pair.token1.address
-        : pair.token0.address
-    ));
+    setPath(path.reverse());
+  }
+
+  const tokenByAddress = (address) => {
+    return tokens.filter(t => t.address === address)[0];
   }
 
   return (
@@ -278,7 +279,7 @@ const SwapForm = ({ pair, setPair }) => {
         <h1>Swap tokens</h1>
         <button disabled={!enabled || loading} onClick={toggleLiquidityForm}>Add liquidity</button>
       </header>
-      {pair ?
+      {path ?
         <form className="SwapForm">
           <SwapInput
             amount={zeroForOne ? amount0 : amount1}
@@ -286,7 +287,7 @@ const SwapForm = ({ pair, setPair }) => {
             onChange={(ev) => selectToken(ev.target.value, 0)}
             readOnly={false}
             setAmount={setAmountFn(zeroForOne ? setAmount0 : setAmount1)}
-            token={zeroForOne ? pair.token0.symbol : pair.token1.symbol}
+            token={tokenByAddress(path[0]).symbol}
             tokens={tokens} />
           <ChangeDirectionButton zeroForOne={zeroForOne} onClick={toggleDirection} disabled={!enabled || loading} />
           <SwapInput
@@ -294,8 +295,8 @@ const SwapForm = ({ pair, setPair }) => {
             disabled={!enabled || loading}
             onChange={(ev) => selectToken(ev.target.value, 1)}
             readOnly={true}
-            token={zeroForOne ? pair.token1.symbol : pair.token0.symbol}
-            tokens={tokens.filter(t => t.address !== tokenIn.address)} />
+            token={tokenByAddress(path[path.length - 1]).symbol}
+            tokens={tokens.filter(t => t.address !== path[0])} />
           <SlippageControl
             setSlippage={setSlippage}
             slippage={slippage} />
@@ -303,6 +304,9 @@ const SwapForm = ({ pair, setPair }) => {
         </form>
         :
         <span>Loading pairs...</span>}
+      <div>
+        {path && path.map(el => <span>{el} </span>)}
+      </div>
     </section>
   )
 }
