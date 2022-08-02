@@ -71,8 +71,6 @@ contract UniswapV3Manager is IUniswapV3Manager {
         public
         returns (uint256 amountOut)
     {
-        address payer = msg.sender;
-
         amountOut = _swap(
             params.amountIn,
             msg.sender,
@@ -83,16 +81,17 @@ contract UniswapV3Manager is IUniswapV3Manager {
                     params.tickSpacing,
                     params.tokenOut
                 ),
-                payer: payer
+                payer: msg.sender
             })
         );
     }
 
     function swap(SwapParams memory params) public returns (uint256 amountOut) {
         address payer = msg.sender;
+        bool hasMultiplePools;
 
         while (true) {
-            bool hasMultiplePools = params.path.hasMultiplePools();
+            hasMultiplePools = params.path.hasMultiplePools();
 
             params.amountIn = _swap(
                 params.amountIn,
