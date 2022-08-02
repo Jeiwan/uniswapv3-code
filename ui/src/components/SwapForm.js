@@ -300,9 +300,6 @@ const SwapForm = ({ setPairs }) => {
         </form>
         :
         <span>Loading pairs...</span>}
-      <div>
-        {path && path.map(el => <span>{el} </span>)}
-      </div>
     </section>
   )
 }
