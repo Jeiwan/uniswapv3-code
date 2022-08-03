@@ -5,7 +5,6 @@ import "./interfaces/IUniswapV3PoolDeployer.sol";
 import "./UniswapV3Pool.sol";
 
 contract UniswapV3Factory is IUniswapV3PoolDeployer {
-    error NotOwner();
     error PoolAlreadyExists();
     error TokenXCannotBeZero();
     error TokensMustBeDifferent();
@@ -18,21 +17,13 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
         address pool
     );
 
-    address public owner;
     PoolParameters public parameters;
 
     mapping(uint24 => bool) public tickSpacings;
     mapping(address => mapping(address => mapping(uint24 => address)))
         public pools;
 
-    modifier onlyOwner() {
-        if (msg.sender != owner) revert NotOwner();
-        _;
-    }
-
     constructor() {
-        owner = msg.sender;
-
         tickSpacings[10] = true;
         tickSpacings[60] = true;
     }
