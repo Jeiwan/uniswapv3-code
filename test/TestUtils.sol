@@ -88,6 +88,15 @@ abstract contract TestUtils is Test {
         tick_ = nearestUsableTick(tick_, 60);
     }
 
+    function sqrtPToNearestTick(uint160 sqrtP_, uint24 tickSpacing)
+        internal
+        pure
+        returns (int24 tick_)
+    {
+        tick_ = TickMath.getTickAtSqrtRatio(sqrtP_);
+        tick_ = nearestUsableTick(tick_, tickSpacing);
+    }
+
     function assertMintState(ExpectedStateAfterMint memory expected) internal {
         assertEq(
             expected.token0.balanceOf(address(expected.pool)),
