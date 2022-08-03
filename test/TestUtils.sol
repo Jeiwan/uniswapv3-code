@@ -285,6 +285,28 @@ abstract contract TestUtils is Test {
         });
     }
 
+    function mintParams(
+        address tokenA,
+        address tokenB,
+        uint160 lowerSqrtP,
+        uint160 upperSqrtP,
+        uint256 amount0,
+        uint256 amount1,
+        uint24 tickSpacing
+    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
+        params = IUniswapV3Manager.MintParams({
+            tokenA: tokenA,
+            tokenB: tokenB,
+            tickSpacing: tickSpacing,
+            lowerTick: sqrtPToNearestTick(lowerSqrtP, tickSpacing),
+            upperTick: sqrtPToNearestTick(upperSqrtP, tickSpacing),
+            amount0Desired: amount0,
+            amount1Desired: amount1,
+            amount0Min: 0,
+            amount1Min: 0
+        });
+    }
+
     function deployPool(
         UniswapV3Factory factory,
         address token0,
