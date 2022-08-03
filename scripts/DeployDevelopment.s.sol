@@ -23,14 +23,12 @@ contract DeployDevelopment is Script, TestUtils {
         uint256 weth;
     }
 
-    uint256 constant btcUnit = 10**8;
-
     TokenBalances balances =
         TokenBalances({
             uni: 200 ether,
             usdc: 2_000_000 ether,
             usdt: 2_000_000 ether,
-            wbtc: 20 * btcUnit,
+            wbtc: 20 ether,
             weth: 100 ether
         });
 
@@ -41,7 +39,7 @@ contract DeployDevelopment is Script, TestUtils {
         ERC20Mintable weth = new ERC20Mintable("Wrapped Ether", "WETH", 18);
         ERC20Mintable usdc = new ERC20Mintable("USD Coin", "USDC", 18);
         ERC20Mintable uni = new ERC20Mintable("Uniswap Coin", "UNI", 18);
-        ERC20Mintable wbtc = new ERC20Mintable("Wrapped Bitcoin", "WBTC", 8);
+        ERC20Mintable wbtc = new ERC20Mintable("Wrapped Bitcoin", "WBTC", 18);
         ERC20Mintable usdt = new ERC20Mintable("USD Token", "USDT", 18);
 
         UniswapV3Factory factory = new UniswapV3Factory();
@@ -69,7 +67,7 @@ contract DeployDevelopment is Script, TestUtils {
             address(wbtc),
             address(usdt),
             60,
-            20_000 ether / btcUnit
+            20_000
         );
 
         UniswapV3Pool usdtUSDC = deployPool(
@@ -89,7 +87,7 @@ contract DeployDevelopment is Script, TestUtils {
         uni.approve(address(manager), 100 ether);
         usdc.approve(address(manager), 1_005_000 ether);
         usdt.approve(address(manager), 1_200_000 ether);
-        wbtc.approve(address(manager), 10 * btcUnit);
+        wbtc.approve(address(manager), 10 ether);
         weth.approve(address(manager), 11 ether);
 
         manager.mint(
@@ -110,9 +108,9 @@ contract DeployDevelopment is Script, TestUtils {
             mintParams(
                 address(wbtc),
                 address(usdt),
-                19400 ether / btcUnit,
-                20600 ether / btcUnit,
-                10 * btcUnit,
+                19400,
+                20500,
+                10 ether,
                 200_000 ether
             )
         );
