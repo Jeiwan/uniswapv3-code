@@ -95,8 +95,10 @@ library Math {
         uint256 amountIn
     ) internal pure returns (uint160) {
         return
-            sqrtPriceX96 +
-            uint160((amountIn << FixedPoint96.RESOLUTION) / liquidity);
+            uint160(
+                uint256(sqrtPriceX96) +
+                    PRBMath.mulDiv(amountIn, FixedPoint96.Q96, liquidity)
+            );
     }
 
     function mulDivRoundingUp(
