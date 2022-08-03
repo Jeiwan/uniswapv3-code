@@ -12,8 +12,8 @@ import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Pool.sol";
 
 contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
-    ERC20Mintable token0;
-    ERC20Mintable token1;
+    ERC20Mintable weth;
+    ERC20Mintable usdc;
     UniswapV3Factory factory;
     UniswapV3Pool pool;
 
@@ -22,11 +22,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
     bytes extra;
 
     function setUp() public {
-        token1 = new ERC20Mintable("USDC", "USDC", 18);
-        token0 = new ERC20Mintable("Ether", "ETH", 18);
+        usdc = new ERC20Mintable("USDC", "USDC", 18);
+        weth = new ERC20Mintable("Ether", "ETH", 18);
         factory = new UniswapV3Factory();
 
-        extra = encodeExtra(address(token0), address(token1), address(this));
+        extra = encodeExtra(address(weth), address(usdc), address(this));
     }
 
     //  One price range
@@ -49,12 +49,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 42 ether; // 42 USDC
-        token1.mint(address(this), swapAmount);
-        token1.approve(address(this), swapAmount);
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -76,8 +76,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -118,12 +118,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 42 ether; // 42 USDC
-        token1.mint(address(this), swapAmount);
-        token1.approve(address(this), swapAmount);
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -145,8 +145,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -180,12 +180,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 10000 ether; // 10000 USDC
-        token1.mint(address(this), swapAmount);
-        token1.approve(address(this), swapAmount);
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -207,8 +207,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -242,12 +242,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 10000 ether; // 10000 USDC
-        token1.mint(address(this), swapAmount);
-        token1.approve(address(this), swapAmount);
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -269,8 +269,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -298,12 +298,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 42 ether; // 42 USDC
-        token1.mint(address(this), swapAmount);
-        token1.approve(address(this), swapAmount);
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -325,8 +325,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -358,12 +358,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 0.01337 ether;
-        token0.mint(address(this), swapAmount);
-        token0.approve(address(this), swapAmount);
+        weth.mint(address(this), swapAmount);
+        weth.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -385,8 +385,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -427,12 +427,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 0.01337 ether;
-        token0.mint(address(this), swapAmount);
-        token0.approve(address(this), swapAmount);
+        weth.mint(address(this), swapAmount);
+        weth.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -454,8 +454,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -489,12 +489,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 2 ether;
-        token0.mint(address(this), swapAmount);
-        token0.approve(address(this), swapAmount);
+        weth.mint(address(this), swapAmount);
+        weth.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -516,8 +516,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -551,12 +551,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 2 ether;
-        token0.mint(address(this), swapAmount);
-        token0.approve(address(this), swapAmount);
+        weth.mint(address(this), swapAmount);
+        weth.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -578,8 +578,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -607,12 +607,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 swapAmount = 0.01337 ether;
-        token0.mint(address(this), swapAmount);
-        token0.approve(address(this), swapAmount);
+        weth.mint(address(this), swapAmount);
+        weth.approve(address(this), swapAmount);
 
         (int256 userBalance0Before, int256 userBalance1Before) = (
-            int256(token0.balanceOf(address(this))),
-            int256(token1.balanceOf(address(this)))
+            int256(weth.balanceOf(address(this))),
+            int256(usdc.balanceOf(address(this)))
         );
 
         (int256 amount0Delta, int256 amount1Delta) = pool.swap(
@@ -634,8 +634,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(userBalance0Before - amount0Delta),
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
@@ -662,8 +662,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         setupTestCase(params);
 
         uint256 swapAmount = 5300 ether;
-        token1.mint(address(this), swapAmount);
-        token1.approve(address(this), swapAmount);
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
@@ -684,8 +684,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         setupTestCase(params);
 
         uint256 swapAmount = 1.1 ether;
-        token0.mint(address(this), swapAmount);
-        token0.approve(address(this), swapAmount);
+        weth.mint(address(this), swapAmount);
+        weth.approve(address(this), swapAmount);
 
         vm.expectRevert(encodeError("NotEnoughLiquidity()"));
         pool.swap(address(this), true, swapAmount, sqrtP(4000), extra);
@@ -706,15 +706,15 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         uint256 ethAmount = 0.01337 ether;
-        token0.mint(address(this), ethAmount);
-        token0.approve(address(this), ethAmount);
+        weth.mint(address(this), ethAmount);
+        weth.approve(address(this), ethAmount);
 
         uint256 usdcAmount = 55 ether;
-        token1.mint(address(this), usdcAmount);
-        token1.approve(address(this), usdcAmount);
+        usdc.mint(address(this), usdcAmount);
+        usdc.approve(address(this), usdcAmount);
 
-        int256 userBalance0Before = int256(token0.balanceOf(address(this)));
-        int256 userBalance1Before = int256(token1.balanceOf(address(this)));
+        int256 userBalance0Before = int256(weth.balanceOf(address(this)));
+        int256 userBalance1Before = int256(usdc.balanceOf(address(this)));
 
         (int256 amount0Delta1, int256 amount1Delta1) = pool.swap(
             address(this),
@@ -735,8 +735,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertSwapState(
             ExpectedStateAfterSwap({
                 pool: pool,
-                token0: token0,
-                token1: token1,
+                token0: weth,
+                token1: usdc,
                 userBalance0: uint256(
                     userBalance0Before - amount0Delta1 - amount0Delta2
                 ),
@@ -819,16 +819,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 (IUniswapV3Pool.CallbackData)
             );
 
-            IERC20(cbData.token0).transferFrom(
-                cbData.payer,
-                msg.sender,
-                amount0
-            );
-            IERC20(cbData.token1).transferFrom(
-                cbData.payer,
-                msg.sender,
-                amount1
-            );
+            IERC20(cbData.token0).transferFrom(cbData.payer, msg.sender, amount0);
+            IERC20(cbData.token1).transferFrom(cbData.payer, msg.sender, amount1);
         }
     }
 
@@ -841,20 +833,20 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         internal
         returns (uint256 poolBalance0, uint256 poolBalance1)
     {
-        token0.mint(address(this), params.wethBalance);
-        token1.mint(address(this), params.usdcBalance);
+        weth.mint(address(this), params.wethBalance);
+        usdc.mint(address(this), params.usdcBalance);
 
         pool = deployPool(
             factory,
-            address(token0),
-            address(token1),
+            address(weth),
+            address(usdc),
             60,
             params.currentPrice
         );
 
         if (params.mintLiqudity) {
-            token0.approve(address(this), params.wethBalance);
-            token1.approve(address(this), params.usdcBalance);
+            weth.approve(address(this), params.wethBalance);
+            usdc.approve(address(this), params.usdcBalance);
 
             uint256 poolBalance0Tmp;
             uint256 poolBalance1Tmp;
