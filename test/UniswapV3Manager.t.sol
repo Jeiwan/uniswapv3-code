@@ -322,10 +322,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInvalidTickRangeLower() public {
-        pool = UniswapV3Pool(
-            factory.createPool(address(weth), address(usdc), 60)
-        );
-        pool.initialize(sqrtP(1));
+        pool = deployPool(factory, address(weth), address(usdc), 60, 1);
         manager = new UniswapV3Manager(address(factory));
 
         // Reverted in TickMath.getSqrtRatioAtTick
@@ -346,10 +343,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInvalidTickRangeUpper() public {
-        pool = UniswapV3Pool(
-            factory.createPool(address(weth), address(usdc), 60)
-        );
-        pool.initialize(sqrtP(1));
+        pool = deployPool(factory, address(weth), address(usdc), 60, 1);
         manager = new UniswapV3Manager(address(factory));
 
         // Reverted in TickMath.getSqrtRatioAtTick
@@ -370,10 +364,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintZeroLiquidity() public {
-        pool = UniswapV3Pool(
-            factory.createPool(address(weth), address(usdc), 60)
-        );
-        pool.initialize(sqrtP(1));
+        pool = deployPool(factory, address(weth), address(usdc), 60, 1);
         manager = new UniswapV3Manager(address(factory));
 
         vm.expectRevert(encodeError("ZeroLiquidity()"));
@@ -413,10 +404,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     function testMintSlippageProtection() public {
         (uint256 amount0, uint256 amount1) = (1 ether, 5000 ether);
-        pool = UniswapV3Pool(
-            factory.createPool(address(weth), address(usdc), 60)
-        );
-        pool.initialize(sqrtP(5000));
+        pool = deployPool(factory, address(weth), address(usdc), 60, 5000);
         manager = new UniswapV3Manager(address(factory));
 
         weth.mint(address(this), amount0);
@@ -587,10 +575,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         weth.approve(address(manager), 10 ether);
         uni.mint(address(this), 100 ether);
         uni.approve(address(manager), 100 ether);
-        UniswapV3Pool wethUNI = UniswapV3Pool(
-            factory.createPool(address(weth), address(uni), 60)
+        UniswapV3Pool wethUNI = deployPool(
+            factory,
+            address(weth),
+            address(uni),
+            60,
+            10
         );
-        wethUNI.initialize(sqrtP(10));
         manager.mint(
             mintParams(address(weth), address(uni), 7, 13, 10 ether, 100 ether)
         );
@@ -871,10 +862,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         weth.mint(address(this), params.wethBalance);
         usdc.mint(address(this), params.usdcBalance);
 
-        pool = UniswapV3Pool(
-            factory.createPool(address(weth), address(usdc), 60)
+        pool = deployPool(
+            factory,
+            address(weth),
+            address(usdc),
+            60,
+            params.currentPrice
         );
-        pool.initialize(sqrtP(params.currentPrice));
 
         if (params.mintLiqudity) {
             weth.approve(address(manager), params.wethBalance);

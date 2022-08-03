@@ -844,10 +844,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         token0.mint(address(this), params.wethBalance);
         token1.mint(address(this), params.usdcBalance);
 
-        pool = UniswapV3Pool(
-            factory.createPool(address(token0), address(token1), 60)
+        pool = deployPool(
+            factory,
+            address(token0),
+            address(token1),
+            60,
+            params.currentPrice
         );
-        pool.initialize(sqrtP(params.currentPrice));
 
         if (params.mintLiqudity) {
             token0.approve(address(this), params.wethBalance);

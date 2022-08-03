@@ -7,6 +7,7 @@ import "abdk-math/ABDKMath64x64.sol";
 import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/interfaces/IUniswapV3Manager.sol";
 import "../src/lib/FixedPoint96.sol";
+import "../src/UniswapV3Factory.sol";
 import "../src/UniswapV3Pool.sol";
 
 import "./ERC20Mintable.sol";
@@ -273,5 +274,16 @@ abstract contract TestUtils is Test {
             amount0Min: 0,
             amount1Min: 0
         });
+    }
+
+    function deployPool(
+        UniswapV3Factory factory,
+        address token0,
+        address token1,
+        uint24 tickSpacing,
+        uint256 currentPrice
+    ) internal returns (UniswapV3Pool pool) {
+        pool = UniswapV3Pool(factory.createPool(token0, token1, tickSpacing));
+        pool.initialize(sqrtP(currentPrice));
     }
 }

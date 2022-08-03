@@ -28,15 +28,21 @@ contract DeployDevelopment is Script, TestUtils {
         UniswapV3Manager manager = new UniswapV3Manager(address(factory));
         UniswapV3Quoter quoter = new UniswapV3Quoter(address(factory));
 
-        UniswapV3Pool wethUsdc = UniswapV3Pool(
-            factory.createPool(address(weth), address(usdc), 60)
+        UniswapV3Pool wethUsdc = deployPool(
+            factory,
+            address(weth),
+            address(usdc),
+            60,
+            5000
         );
-        wethUsdc.initialize(sqrtP(5000));
 
-        UniswapV3Pool wethUni = UniswapV3Pool(
-            factory.createPool(address(weth), address(uni), 60)
+        UniswapV3Pool wethUni = deployPool(
+            factory,
+            address(weth),
+            address(uni),
+            60,
+            10
         );
-        wethUni.initialize(sqrtP(10));
 
         weth.mint(msg.sender, wethBalance);
         usdc.mint(msg.sender, usdcBalance);
