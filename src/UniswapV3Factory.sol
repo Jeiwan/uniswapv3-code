@@ -57,10 +57,10 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
             }()
         );
 
+        delete parameters;
+
         pools[tokenX][tokenY][tickSpacing] = pool;
         pools[tokenY][tokenX][tickSpacing] = pool;
-
-        delete parameters;
 
         emit PoolCreated(tokenX, tokenY, tickSpacing, pool);
     }
