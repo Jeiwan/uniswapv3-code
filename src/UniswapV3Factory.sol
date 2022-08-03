@@ -6,7 +6,7 @@ import "./UniswapV3Pool.sol";
 
 contract UniswapV3Factory is IUniswapV3PoolDeployer {
     error PoolAlreadyExists();
-    error TokenXCannotBeZero();
+    error ZeroAddressNotAllowed();
     error TokensMustBeDifferent();
     error UnsupportedTickSpacing();
 
@@ -40,7 +40,7 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
             ? (tokenX, tokenY)
             : (tokenY, tokenX);
 
-        if (tokenX == address(0)) revert TokenXCannotBeZero();
+        if (tokenX == address(0)) revert ZeroAddressNotAllowed();
         if (pools[tokenX][tokenY][tickSpacing] != address(0))
             revert PoolAlreadyExists();
 

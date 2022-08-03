@@ -57,7 +57,7 @@ contract UniswapV3FactoryTest is Test, TestUtils {
     }
 
     function testCreateZeroTokenAddress() public {
-        vm.expectRevert(encodeError("TokenXCannotBeZero()"));
+        vm.expectRevert(encodeError("ZeroAddressNotAllowed()"));
         factory.createPool(address(weth), address(0), 10);
     }
 
