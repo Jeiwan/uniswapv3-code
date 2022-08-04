@@ -16,11 +16,9 @@ class PathFinder {
   }
 
   findPath(fromToken, toToken) {
-    const that = this;
-
     return this.finder.find(fromToken, toToken).reduce((acc, node, i, orig) => {
       if (acc.length > 0) {
-        acc.push(that.graph.getLink(orig[i - 1].id, node.id).data);
+        acc.push(this.graph.getLink(orig[i - 1].id, node.id).data);
       }
 
       acc.push(node.id);
