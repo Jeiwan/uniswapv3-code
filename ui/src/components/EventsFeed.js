@@ -76,7 +76,7 @@ const cleanEvents = (events) => {
 
   return Object.keys(eventsMap)
     .map(k => eventsMap[k])
-    .sort((a, b) => b.blockNumber - a.blockNumber);
+    .sort((a, b) => b.blockNumber - a.blockNumber || b.logIndex - a.logIndex);
 }
 
 const eventsReducer = (state, action) => {
