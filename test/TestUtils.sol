@@ -365,4 +365,50 @@ abstract contract TestUtils is Test {
         pool = UniswapV3Pool(factory.createPool(token0, token1, fee));
         pool.initialize(sqrtP(currentPrice));
     }
+
+    struct AssertPositionParams {
+        UniswapV3Pool pool;
+        int24 lowerTick;
+        int24 upperTick;
+        Position.Info position;
+    }
+
+    function assertPosition(AssertPositionParams memory params) public {
+        bytes32 positionKey = keccak256(
+            abi.encodePacked(address(this), params.lowerTick, params.upperTick)
+        );
+        (
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        ) = params.pool.positions(positionKey);
+
+        assertEq(
+            liquidity,
+            params.position.liquidity,
+            "incorrect position liquidity"
+        );
+        assertEq(
+            feeGrowthInside0LastX128,
+            params.position.feeGrowthInside0LastX128,
+            "incorrect position fee growth for token0"
+        );
+        assertEq(
+            feeGrowthInside1LastX128,
+            params.position.feeGrowthInside1LastX128,
+            "incorrect position fee growth for token1"
+        );
+        assertEq(
+            tokensOwed0,
+            params.position.tokensOwed0,
+            "incorrect position tokens owed for token0"
+        );
+        assertEq(
+            tokensOwed1,
+            params.position.tokensOwed1,
+            "incorrect position tokens owed for token1"
+        );
+    }
 }
