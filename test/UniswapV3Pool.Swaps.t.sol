@@ -66,7 +66,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008396774627565324 ether,
+            -0.008371593947078468 ether,
             42 ether
         );
 
@@ -82,9 +82,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5604429046402228950611610935846, // 5003.841941749589
+                sqrtPriceX96: 5604422590555458105735383351329, // 5003.830413717752
                 tick: 85183,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[0].amount,
+                feeGrowthGlobal0X128: 0,
+                feeGrowthGlobal1X128: 27727650748765949686643356806934465 // 0.000081484242041869
             })
         );
     }
@@ -135,7 +137,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008398387004109300 ether,
+            -0.008373196666644049 ether,
             42 ether
         );
 
@@ -151,9 +153,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5603353071940421471240346849555, // 5001.920786439192
+                sqrtPriceX96: 5603349844017036048802233057296, // 5001.915023528226
                 tick: 85180,
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount
+                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
+                feeGrowthGlobal0X128: 0,
+                feeGrowthGlobal1X128: 13863825374382974843321678403467232 // 0.000040742121020935
             })
         );
     }
@@ -215,7 +219,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 6190959796047061453084569894912, // 6106.000000000001
                 tick: 87174,
-                currentLiquidity: liquidity[1].amount
+                currentLiquidity: liquidity[1].amount,
+                feeGrowthGlobal0X128: 0,
+                feeGrowthGlobal1X128: 7607942642143955456943817214090051843 // 0.022357733993050518
             })
         );
     }
@@ -277,7 +283,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 6165559837476377838496291749888, // 6055.999999999999
                 tick: 87092,
-                currentLiquidity: liquidity[1].amount
+                currentLiquidity: liquidity[1].amount,
+                feeGrowthGlobal0X128: 0,
+                feeGrowthGlobal1X128: 7279681885732197095096592710711050900 // 0.021393062331153838
             })
         );
     }
@@ -333,7 +341,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: sqrtP(5003),
                 tick: tick(5003),
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[0].amount,
+                feeGrowthGlobal0X128: 0,
+                feeGrowthGlobal1X128: 21717341909394213709358341211545367 // 0.000063821531823423
             })
         );
     }
@@ -376,7 +386,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             0.01337 ether,
-            -66.809153442256308009 ether
+            -66.608848079558229698 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -391,9 +401,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5598854004958668990019104567840, // 4993.891686050662
-                tick: 85163,
-                currentLiquidity: liquidity[0].amount
+                sqrtPriceX96: 5598864267980327381293641469695, // 4993.909994249256
+                tick: 85164,
+                currentLiquidity: liquidity[0].amount,
+                feeGrowthGlobal0X128: 8826635488357160650248135250207, // 0.000000025939150383
+                feeGrowthGlobal1X128: 0
             })
         );
     }
@@ -445,7 +457,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             0.01337 ether,
-            -66.829570479725165359 ether
+            -66.629142854363394713 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -460,9 +472,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 userBalance1: uint256(userBalance1Before - amount1Delta),
                 poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
-                sqrtPriceX96: 5600565028166000961017241487850, // 4996.9444429888335
+                sqrtPriceX96: 5600570162809008817738050929469, // 4996.953605470648
                 tick: 85170,
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount
+                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
+                feeGrowthGlobal0X128: 4413317744178580325124067625103, // 0.000000012969575192
+                feeGrowthGlobal1X128: 0
             })
         );
     }
@@ -524,7 +538,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 5069364309721000022884193665024, // 4094
                 tick: 83176,
-                currentLiquidity: liquidity[1].amount
+                currentLiquidity: liquidity[1].amount,
+                feeGrowthGlobal0X128: 1522240169177611694234867497214043, // 0.000004473461798658
+                feeGrowthGlobal1X128: 0
             })
         );
     }
@@ -586,7 +602,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: 5090370906297125436716365119488, // 4128.0
                 tick: 83259,
-                currentLiquidity: liquidity[1].amount
+                currentLiquidity: liquidity[1].amount,
+                feeGrowthGlobal0X128: 1456201564392000426097400539712801, // 0.000004279391781503
+                feeGrowthGlobal1X128: 0
             })
         );
     }
@@ -642,7 +660,9 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
                 sqrtPriceX96: sqrtP(4994),
                 tick: tick(4994),
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[0].amount,
+                feeGrowthGlobal0X128: 8696066852157821093692702995967, // 0.000000025555443648
+                feeGrowthGlobal1X128: 0
             })
         );
     }
@@ -749,9 +769,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 poolBalance1: uint256(
                     int256(poolBalance1) + amount1Delta1 + amount1Delta2
                 ),
-                sqrtPriceX96: 5601672033311021912181939079555, // 4998.9200257634275
+                sqrtPriceX96: 5601673842247623244689987477875, // 4998.923254346182
                 tick: 85174,
-                currentLiquidity: liquidity[0].amount
+                currentLiquidity: liquidity[0].amount,
+                feeGrowthGlobal0X128: 8826635488357160650248135250207, // 0.000000025939150383
+                feeGrowthGlobal1X128: 36310018837669696018223443437652275 // 0.000106705555054829
             })
         );
     }

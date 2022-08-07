@@ -188,6 +188,8 @@ abstract contract TestUtils is Test {
         uint160 sqrtPriceX96;
         int24 tick;
         uint128 currentLiquidity;
+        uint256 feeGrowthGlobal0X128;
+        uint256 feeGrowthGlobal1X128;
     }
 
     function assertSwapState(ExpectedStateAfterSwap memory expected) internal {
@@ -220,6 +222,17 @@ abstract contract TestUtils is Test {
             expected.pool.liquidity(),
             expected.currentLiquidity,
             "invalid current liquidity"
+        );
+
+        assertEq(
+            expected.pool.feeGrowthGlobal0X128(),
+            expected.feeGrowthGlobal0X128,
+            "invalid fee growth for token0"
+        );
+        assertEq(
+            expected.pool.feeGrowthGlobal1X128(),
+            expected.feeGrowthGlobal1X128,
+            "invalid fee growth for token1"
         );
     }
 

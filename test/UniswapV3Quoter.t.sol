@@ -91,13 +91,13 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 })
             );
 
-        assertEq(amountOut, 66.809153442256308009 ether, "invalid amountOut");
+        assertEq(amountOut, 66.608848079558229698 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
-            5598854004958668990019104567840, // 4993.891686050662
+            5598864267980327381293641469695, // 4993.909994249256
             "invalid sqrtPriceX96After"
         );
-        assertEq(tickAfter, 85163, "invalid tickAFter");
+        assertEq(tickAfter, 85164, "invalid tickAFter");
     }
 
     function testQuoteETHforUSDC() public {
@@ -112,10 +112,10 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 })
             );
 
-        assertEq(amountOut, 0.008396774627565324 ether, "invalid amountOut");
+        assertEq(amountOut, 0.008371593947078468 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
-            5604429046402228950611610935846, // 5003.841941749589
+            5604422590555458105735383351329, // 5003.830413717752
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfter, 85183, "invalid tickAFter");
@@ -139,19 +139,19 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             int24[] memory tickAfterList
         ) = quoter.quote(path, 3 ether);
 
-        assertEq(amountOut, 1472.545906750265423538 ether, "invalid amountOut");
+        assertEq(amountOut, 1463.863228593034640093 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96AfterList[0],
-            251775459842086338964371349270, // 10.098750163842778
+            251771757807685223741030010328, // 10.098453187753986
             "invalid sqrtPriceX96After"
         );
         assertEq(
             sqrtPriceX96AfterList[1],
-            5526828440835641442172064165001, // 4866.231885685384
+            5527273314166940201646773054671, // 4867.015316523305
             "invalid sqrtPriceX96After"
         );
-        assertEq(tickAfterList[0], 23125, "invalid tickAFter");
-        assertEq(tickAfterList[1], 84904, "invalid tickAFter");
+        assertEq(tickAfterList[0], 23124, "invalid tickAFter");
+        assertEq(tickAfterList[1], 84906, "invalid tickAFter");
     }
 
     /**
