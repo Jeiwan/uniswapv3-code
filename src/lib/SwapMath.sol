@@ -21,6 +21,11 @@ library SwapMath {
         )
     {
         bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
+        uint256 amountRemainingLessFee = PRBMath.mulDiv(
+            amountRemaining,
+            1e6 - fee,
+            1e6
+        );
 
         amountIn = zeroForOne
             ? Math.calcAmount0Delta(
@@ -34,12 +39,13 @@ library SwapMath {
                 liquidity
             );
 
-        if (amountRemaining >= amountIn) sqrtPriceNextX96 = sqrtPriceTargetX96;
+        if (amountRemainingLessFee >= amountIn)
+            sqrtPriceNextX96 = sqrtPriceTargetX96;
         else
             sqrtPriceNextX96 = Math.getNextSqrtPriceFromInput(
                 sqrtPriceCurrentX96,
                 liquidity,
-                amountRemaining,
+                amountRemainingLessFee,
                 zeroForOne
             );
 
