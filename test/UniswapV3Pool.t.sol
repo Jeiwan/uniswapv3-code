@@ -87,7 +87,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 amount1: expectedAmount1,
                 lowerTick: liquidity[0].lowerTick,
                 upperTick: liquidity[0].upperTick,
-                positionLiquidity: liquidity[0].amount,
+                position: Position.Info({
+                    liquidity: liquidity[0].amount,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: 0,
+                    tokensOwed1: 0
+                }),
                 currentLiquidity: liquidity[0].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
@@ -134,7 +140,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 amount1: expectedAmount1,
                 lowerTick: liquidity[0].lowerTick,
                 upperTick: liquidity[0].upperTick,
-                positionLiquidity: liquidity[0].amount,
+                position: Position.Info({
+                    liquidity: liquidity[0].amount,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: 0,
+                    tokensOwed1: 0
+                }),
                 currentLiquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
@@ -178,7 +190,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 amount1: expectedAmount1,
                 lowerTick: liquidity[0].lowerTick,
                 upperTick: liquidity[0].upperTick,
-                positionLiquidity: liquidity[0].amount,
+                position: Position.Info({
+                    liquidity: liquidity[0].amount,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: 0,
+                    tokensOwed1: 0
+                }),
                 currentLiquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
@@ -224,7 +242,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 amount1: amount1,
                 lowerTick: tick60(4545),
                 upperTick: tick60(5500),
-                positionLiquidity: liquidity[0].amount,
+                position: Position.Info({
+                    liquidity: liquidity[0].amount,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: 0,
+                    tokensOwed1: 0
+                }),
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
@@ -239,7 +263,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 amount1: amount1,
                 lowerTick: tick60(4000),
                 upperTick: tick60(6250),
-                positionLiquidity: liquidity[1].amount,
+                position: Position.Info({
+                    liquidity: liquidity[1].amount,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: 0,
+                    tokensOwed1: 0
+                }),
                 currentLiquidity: liquidity[0].amount + liquidity[1].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)

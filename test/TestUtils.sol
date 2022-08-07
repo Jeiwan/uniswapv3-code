@@ -21,7 +21,7 @@ abstract contract TestUtils is Test {
         uint256 amount1;
         int24 lowerTick;
         int24 upperTick;
-        uint128 positionLiquidity;
+        Position.Info position;
         uint128 currentLiquidity;
         uint160 sqrtPriceX96;
         int24 tick;
@@ -123,11 +123,37 @@ abstract contract TestUtils is Test {
                 expected.upperTick
             )
         );
-        (uint128 posLiquidity, , , , ) = expected.pool.positions(positionKey);
+        (
+            uint128 posLiquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        ) = expected.pool.positions(positionKey);
         assertEq(
             posLiquidity,
-            expected.positionLiquidity,
+            expected.position.liquidity,
             "incorrect position liquidity"
+        );
+        assertEq(
+            feeGrowthInside0LastX128,
+            expected.position.feeGrowthInside0LastX128,
+            "incorrect position fee growth for token0"
+        );
+        assertEq(
+            feeGrowthInside1LastX128,
+            expected.position.feeGrowthInside1LastX128,
+            "incorrect position fee growth for token1"
+        );
+        assertEq(
+            tokensOwed0,
+            expected.position.tokensOwed0,
+            "incorrect position tokens owed for token0"
+        );
+        assertEq(
+            tokensOwed1,
+            expected.position.tokensOwed1,
+            "incorrect position tokens owed for token1"
         );
 
         (
@@ -140,12 +166,12 @@ abstract contract TestUtils is Test {
         assertTrue(tickInitialized);
         assertEq(
             tickLiquidityGross,
-            expected.positionLiquidity,
+            expected.position.liquidity,
             "incorrect lower tick gross liquidity"
         );
         assertEq(
             tickLiquidityNet,
-            int128(expected.positionLiquidity),
+            int128(expected.position.liquidity),
             "incorrect lower tick net liquidity"
         );
 
@@ -155,12 +181,12 @@ abstract contract TestUtils is Test {
         assertTrue(tickInitialized);
         assertEq(
             tickLiquidityGross,
-            expected.positionLiquidity,
+            expected.position.liquidity,
             "incorrect upper tick gross liquidity"
         );
         assertEq(
             tickLiquidityNet,
-            -int128(expected.positionLiquidity),
+            -int128(expected.position.liquidity),
             "incorrect upper tick net liquidity"
         );
 
