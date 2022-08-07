@@ -31,12 +31,14 @@ library SwapMath {
             ? Math.calcAmount0Delta(
                 sqrtPriceCurrentX96,
                 sqrtPriceTargetX96,
-                liquidity
+                liquidity,
+                true
             )
             : Math.calcAmount1Delta(
                 sqrtPriceCurrentX96,
                 sqrtPriceTargetX96,
-                liquidity
+                liquidity,
+                true
             );
 
         if (amountRemainingLessFee >= amountIn)
@@ -52,12 +54,14 @@ library SwapMath {
         amountIn = Math.calcAmount0Delta(
             sqrtPriceCurrentX96,
             sqrtPriceNextX96,
-            liquidity
+            liquidity,
+            true
         );
         amountOut = Math.calcAmount1Delta(
             sqrtPriceCurrentX96,
             sqrtPriceNextX96,
-            liquidity
+            liquidity,
+            true
         );
 
         if (!zeroForOne) {

@@ -2,7 +2,9 @@
 pragma solidity ^0.8.14;
 
 import "prb-math/PRBMath.sol";
+
 import "./FixedPoint128.sol";
+import "./LiquidityMath.sol";
 
 library Position {
     struct Info {
@@ -26,7 +28,7 @@ library Position {
 
     function update(
         Info storage self,
-        uint128 liquidityDelta,
+        int128 liquidityDelta,
         uint256 feeGrowthInside0X128,
         uint256 feeGrowthInside1X128
     ) internal {
@@ -45,7 +47,10 @@ library Position {
             )
         );
 
-        self.liquidity = self.liquidity + liquidityDelta;
+        self.liquidity = LiquidityMath.addLiquidity(
+            self.liquidity,
+            liquidityDelta
+        );
         self.feeGrowthInside0LastX128 = feeGrowthInside0X128;
         self.feeGrowthInside1LastX128 = feeGrowthInside1X128;
 
