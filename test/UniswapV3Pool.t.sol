@@ -277,6 +277,57 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testBurn() public {
+        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentPrice: 5000,
+            liquidity: liquidity,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        setupTestCase(params);
+
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            0.987286567250950169 ether,
+            4998.958915878679752571 ether
+        );
+
+        (uint256 burnAmount0, uint256 burnAmount1) = pool.burn(
+            liquidity[0].lowerTick,
+            liquidity[0].upperTick,
+            liquidity[0].amount
+        );
+
+        assertEq(burnAmount0, expectedAmount0, "incorrect weth burned amount");
+        assertEq(burnAmount1, expectedAmount1, "incorrect usdc burned amount");
+
+        assertBurnState(
+            ExpectedStateAfterBurn({
+                pool: pool,
+                token0: weth,
+                token1: usdc,
+                amount0: expectedAmount0 + 1,
+                amount1: expectedAmount1 + 1,
+                lowerTick: liquidity[0].lowerTick,
+                upperTick: liquidity[0].upperTick,
+                position: Position.Info({
+                    liquidity: 0,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: uint128(expectedAmount0),
+                    tokensOwed1: uint128(expectedAmount1)
+                }),
+                currentLiquidity: 0,
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
+            })
+        );
+    }
+
     function testMintInvalidTickRangeLower() public {
         pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
 
