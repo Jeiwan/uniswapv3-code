@@ -198,7 +198,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             -1.806151062659754716 ether,
-            9908.332401339128822272 ether
+            9938.146841864722991247 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -260,7 +260,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             -1.846400936777913635 ether,
-            9902.944543452064503224 ether
+            9932.742771767366603035 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -316,7 +316,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
             -0.006557492291469846 ether,
-            32.797296220793130761 ether
+            32.895984173313069971 ether
         );
 
         assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
@@ -506,7 +506,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            1.986532540500686477 ether,
+            1.992510070712824953 ether,
             -9052.445703934334276106 ether
         );
 
@@ -568,7 +568,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            1.990637766773367340 ether,
+            1.996627649722534946 ether,
             -9282.886546310580739342 ether
         );
 
@@ -624,7 +624,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            0.013132706649641328 ether,
+            0.013172223319600129 ether,
             -65.624123301724744142 ether
         );
 

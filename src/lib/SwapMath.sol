@@ -8,14 +8,16 @@ library SwapMath {
         uint160 sqrtPriceCurrentX96,
         uint160 sqrtPriceTargetX96,
         uint128 liquidity,
-        uint256 amountRemaining
+        uint256 amountRemaining,
+        uint24 fee
     )
         internal
         pure
         returns (
             uint160 sqrtPriceNextX96,
             uint256 amountIn,
-            uint256 amountOut
+            uint256 amountOut,
+            uint256 feeAmount
         )
     {
         bool zeroForOne = sqrtPriceCurrentX96 >= sqrtPriceTargetX96;
@@ -54,6 +56,12 @@ library SwapMath {
 
         if (!zeroForOne) {
             (amountIn, amountOut) = (amountOut, amountIn);
+        }
+
+        if (sqrtPriceNextX96 != sqrtPriceTargetX96) {
+            feeAmount = amountRemaining - amountIn;
+        } else {
+            feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);
         }
     }
 }
