@@ -18,6 +18,8 @@ interface IUniswapV3Pool {
 
     function tickSpacing() external view returns (uint24);
 
+    function fee() external view returns (uint24);
+
     function mint(
         address owner,
         int24 lowerTick,

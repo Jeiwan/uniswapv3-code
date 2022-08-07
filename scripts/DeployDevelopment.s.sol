@@ -50,7 +50,7 @@ contract DeployDevelopment is Script, TestUtils {
             factory,
             address(weth),
             address(usdc),
-            60,
+            3000,
             5000
         );
 
@@ -58,7 +58,7 @@ contract DeployDevelopment is Script, TestUtils {
             factory,
             address(weth),
             address(uni),
-            60,
+            3000,
             10
         );
 
@@ -66,7 +66,7 @@ contract DeployDevelopment is Script, TestUtils {
             factory,
             address(wbtc),
             address(usdt),
-            60,
+            3000,
             20_000
         );
 

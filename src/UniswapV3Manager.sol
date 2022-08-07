@@ -29,7 +29,7 @@ contract UniswapV3Manager is IUniswapV3Manager {
             factory,
             params.tokenA,
             params.tokenB,
-            params.tickSpacing
+            params.fee
         );
         IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
 
@@ -78,7 +78,7 @@ contract UniswapV3Manager is IUniswapV3Manager {
             SwapCallbackData({
                 path: abi.encodePacked(
                     params.tokenIn,
-                    params.tickSpacing,
+                    params.fee,
                     params.tokenOut
                 ),
                 payer: msg.sender

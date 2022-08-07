@@ -819,8 +819,16 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 (IUniswapV3Pool.CallbackData)
             );
 
-            IERC20(cbData.token0).transferFrom(cbData.payer, msg.sender, amount0);
-            IERC20(cbData.token1).transferFrom(cbData.payer, msg.sender, amount1);
+            IERC20(cbData.token0).transferFrom(
+                cbData.payer,
+                msg.sender,
+                amount0
+            );
+            IERC20(cbData.token1).transferFrom(
+                cbData.payer,
+                msg.sender,
+                amount1
+            );
         }
     }
 
@@ -840,7 +848,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             factory,
             address(weth),
             address(usdc),
-            60,
+            3000,
             params.currentPrice
         );
 

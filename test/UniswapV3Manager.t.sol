@@ -322,7 +322,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInvalidTickRangeLower() public {
-        pool = deployPool(factory, address(weth), address(usdc), 60, 1);
+        pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
         manager = new UniswapV3Manager(address(factory));
 
         // Reverted in TickMath.getSqrtRatioAtTick
@@ -331,7 +331,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(weth),
                 tokenB: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 lowerTick: -887273,
                 upperTick: 0,
                 amount0Desired: 0,
@@ -343,7 +343,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInvalidTickRangeUpper() public {
-        pool = deployPool(factory, address(weth), address(usdc), 60, 1);
+        pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
         manager = new UniswapV3Manager(address(factory));
 
         // Reverted in TickMath.getSqrtRatioAtTick
@@ -352,7 +352,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(weth),
                 tokenB: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 lowerTick: 0,
                 upperTick: 887273,
                 amount0Desired: 0,
@@ -364,7 +364,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintZeroLiquidity() public {
-        pool = deployPool(factory, address(weth), address(usdc), 60, 1);
+        pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
         manager = new UniswapV3Manager(address(factory));
 
         vm.expectRevert(encodeError("ZeroLiquidity()"));
@@ -372,7 +372,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(weth),
                 tokenB: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 lowerTick: 0,
                 upperTick: 1,
                 amount0Desired: 0,
@@ -404,7 +404,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
     function testMintSlippageProtection() public {
         (uint256 amount0, uint256 amount1) = (1 ether, 5000 ether);
-        pool = deployPool(factory, address(weth), address(usdc), 60, 5000);
+        pool = deployPool(factory, address(weth), address(usdc), 3000, 5000);
         manager = new UniswapV3Manager(address(factory));
 
         weth.mint(address(this), amount0);
@@ -422,7 +422,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(weth),
                 tokenB: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 lowerTick: tick60(4545),
                 upperTick: tick60(5500),
                 amount0Desired: amount0,
@@ -436,7 +436,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams({
                 tokenA: address(weth),
                 tokenB: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 lowerTick: tick60(4545),
                 upperTick: tick60(5500),
                 amount0Desired: amount0,
@@ -475,7 +475,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(usdc),
                 tokenOut: address(weth),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: swapAmount,
                 sqrtPriceLimitX96: sqrtP(5004)
             })
@@ -529,7 +529,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(weth),
                 tokenOut: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: swapAmount,
                 sqrtPriceLimitX96: sqrtP(4993)
             })
@@ -579,7 +579,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             factory,
             address(weth),
             address(uni),
-            60,
+            3000,
             10
         );
         manager.mint(
@@ -592,9 +592,9 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         bytes memory path = bytes.concat(
             bytes20(address(uni)),
-            bytes3(uint24(60)),
+            bytes3(uint24(3000)),
             bytes20(address(weth)),
-            bytes3(uint24(60)),
+            bytes3(uint24(3000)),
             bytes20(address(usdc))
         );
 
@@ -690,7 +690,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(weth),
                 tokenOut: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: ethAmount,
                 sqrtPriceLimitX96: sqrtP(4990)
             })
@@ -700,7 +700,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(usdc),
                 tokenOut: address(weth),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: usdcAmount,
                 sqrtPriceLimitX96: sqrtP(5004)
             })
@@ -746,7 +746,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(weth),
                 tokenOut: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: swapAmount,
                 sqrtPriceLimitX96: 0
             })
@@ -777,7 +777,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(weth),
                 tokenOut: address(usdc),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: swapAmount,
                 sqrtPriceLimitX96: 0
             })
@@ -804,7 +804,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.SwapSingleParams({
                 tokenIn: address(usdc),
                 tokenOut: address(weth),
-                tickSpacing: 60,
+                fee: 3000,
                 amountIn: 42 ether,
                 sqrtPriceLimitX96: sqrtP(5010)
             })
@@ -866,7 +866,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             factory,
             address(weth),
             address(usdc),
-            60,
+            3000,
             params.currentPrice
         );
 

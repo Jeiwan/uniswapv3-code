@@ -53,6 +53,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     address public immutable token0;
     address public immutable token1;
     uint24 public immutable tickSpacing;
+    uint24 public immutable fee;
 
     uint256 public feeGrowthGlobal0X128;
     uint256 public feeGrowthGlobal1X128;
@@ -92,7 +93,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     mapping(bytes32 => Position.Info) public positions;
 
     constructor() {
-        (factory, token0, token1, tickSpacing) = IUniswapV3PoolDeployer(
+        (factory, token0, token1, tickSpacing, fee) = IUniswapV3PoolDeployer(
             msg.sender
         ).parameters();
     }

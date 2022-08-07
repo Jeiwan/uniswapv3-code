@@ -24,19 +24,19 @@ contract UniswapV3FactoryTest is Test, TestUtils {
         address poolAddress = factory.createPool(
             address(weth),
             address(usdc),
-            10
+            500
         );
 
         IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
 
         assertEq(
-            factory.pools(address(usdc), address(weth), 10),
+            factory.pools(address(usdc), address(weth), 500),
             poolAddress,
             "invalid pool address in the registry"
         );
 
         assertEq(
-            factory.pools(address(weth), address(usdc), 10),
+            factory.pools(address(weth), address(usdc), 500),
             poolAddress,
             "invalid pool address in the registry (reverse order)"
         );
@@ -45,6 +45,7 @@ contract UniswapV3FactoryTest is Test, TestUtils {
         assertEq(pool.token0(), address(usdc), "invalid weth address");
         assertEq(pool.token1(), address(weth), "invalid usdc address");
         assertEq(pool.tickSpacing(), 10, "invalid tick spacing");
+        assertEq(pool.fee(), 500, "invalid fee");
 
         (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
         assertEq(sqrtPriceX96, 0, "invalid sqrtPriceX96");
@@ -53,18 +54,18 @@ contract UniswapV3FactoryTest is Test, TestUtils {
 
     function testCreatePoolIdenticalTokens() public {
         vm.expectRevert(encodeError("TokensMustBeDifferent()"));
-        factory.createPool(address(weth), address(weth), 10);
+        factory.createPool(address(weth), address(weth), 500);
     }
 
     function testCreateZeroTokenAddress() public {
         vm.expectRevert(encodeError("ZeroAddressNotAllowed()"));
-        factory.createPool(address(weth), address(0), 10);
+        factory.createPool(address(weth), address(0), 500);
     }
 
     function testCreateAlreadyExists() public {
-        factory.createPool(address(weth), address(usdc), 10);
+        factory.createPool(address(weth), address(usdc), 500);
 
         vm.expectRevert(encodeError("PoolAlreadyExists()"));
-        factory.createPool(address(weth), address(usdc), 10);
+        factory.createPool(address(weth), address(usdc), 500);
     }
 }
