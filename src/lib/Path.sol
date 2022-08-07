@@ -26,12 +26,12 @@ library Path {
 
     /// @dev The length the bytes encoded address
     uint256 private constant ADDR_SIZE = 20;
-    /// @dev The length the bytes encoded tick spacing
-    uint256 private constant TICKSPACING_SIZE = 3;
+    /// @dev The length the bytes encoded fee
+    uint256 private constant FEE_SIZE = 3;
 
-    /// @dev The offset of a single token address + tick spacing
-    uint256 private constant NEXT_OFFSET = ADDR_SIZE + TICKSPACING_SIZE;
-    /// @dev The offset of an encoded pool key (tokenIn + tick spacing + tokenOut)
+    /// @dev The offset of a single token address + fee
+    uint256 private constant NEXT_OFFSET = ADDR_SIZE + FEE_SIZE;
+    /// @dev The offset of an encoded pool key (tokenIn + fee + tokenOut)
     uint256 private constant POP_OFFSET = NEXT_OFFSET + ADDR_SIZE;
     /// @dev The minimum length of a path that contains 2 or more pools;
     uint256 private constant MULTIPLE_POOLS_MIN_LENGTH =
@@ -63,11 +63,11 @@ library Path {
         returns (
             address tokenIn,
             address tokenOut,
-            uint24 tickSpacing
+            uint24 fee
         )
     {
         tokenIn = path.toAddress(0);
-        tickSpacing = path.toUint24(ADDR_SIZE);
+        fee = path.toUint24(ADDR_SIZE);
         tokenOut = path.toAddress(NEXT_OFFSET);
     }
 }
