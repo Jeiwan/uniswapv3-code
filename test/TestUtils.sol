@@ -116,7 +116,7 @@ abstract contract TestUtils is Test {
                 expected.upperTick
             )
         );
-        uint128 posLiquidity = expected.pool.positions(positionKey);
+        (uint128 posLiquidity, , , , ) = expected.pool.positions(positionKey);
         assertEq(
             posLiquidity,
             expected.positionLiquidity,
@@ -126,7 +126,9 @@ abstract contract TestUtils is Test {
         (
             bool tickInitialized,
             uint128 tickLiquidityGross,
-            int128 tickLiquidityNet
+            int128 tickLiquidityNet,
+            ,
+
         ) = expected.pool.ticks(expected.lowerTick);
         assertTrue(tickInitialized);
         assertEq(
@@ -140,7 +142,7 @@ abstract contract TestUtils is Test {
             "incorrect lower tick net liquidity"
         );
 
-        (tickInitialized, tickLiquidityGross, tickLiquidityNet) = expected
+        (tickInitialized, tickLiquidityGross, tickLiquidityNet, , ) = expected
             .pool
             .ticks(expected.upperTick);
         assertTrue(tickInitialized);

@@ -54,6 +54,9 @@ contract UniswapV3Pool is IUniswapV3Pool {
     address public immutable token1;
     uint24 public immutable tickSpacing;
 
+    uint256 public feeGrowthGlobal0X128;
+    uint256 public feeGrowthGlobal1X128;
+
     // First slot will contain essential data
     struct Slot0 {
         // Current sqrt(P)
@@ -117,25 +120,55 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
         if (amount == 0) revert ZeroLiquidity();
 
-        bool flippedLower = ticks.update(lowerTick, int128(amount), false);
-        bool flippedUpper = ticks.update(upperTick, int128(amount), true);
-
-        if (flippedLower) {
-            tickBitmap.flipTick(lowerTick, int24(tickSpacing));
-        }
-
-        if (flippedUpper) {
-            tickBitmap.flipTick(upperTick, int24(tickSpacing));
-        }
-
-        Position.Info storage position = positions.get(
-            owner,
-            lowerTick,
-            upperTick
-        );
-        position.update(amount);
-
+        // gas optimization
         Slot0 memory slot0_ = slot0;
+        uint256 feeGrowthGlobal0X128_ = feeGrowthGlobal0X128;
+        uint256 feeGrowthGlobal1X128_ = feeGrowthGlobal1X128;
+
+        {
+            bool flippedLower = ticks.update(
+                lowerTick,
+                slot0_.tick,
+                int128(amount),
+                feeGrowthGlobal0X128_,
+                feeGrowthGlobal1X128_,
+                false
+            );
+            bool flippedUpper = ticks.update(
+                upperTick,
+                slot0_.tick,
+                int128(amount),
+                feeGrowthGlobal0X128_,
+                feeGrowthGlobal1X128_,
+                true
+            );
+
+            if (flippedLower) {
+                tickBitmap.flipTick(lowerTick, int24(tickSpacing));
+            }
+
+            if (flippedUpper) {
+                tickBitmap.flipTick(upperTick, int24(tickSpacing));
+            }
+        }
+
+        {
+            Position.Info storage position = positions.get(
+                owner,
+                lowerTick,
+                upperTick
+            );
+
+            (uint256 feeGrowthInside0X128, uint256 feeGrowthInside1X128) = ticks
+                .getFeeGrowthInside(
+                    lowerTick,
+                    upperTick,
+                    slot0_.tick,
+                    feeGrowthGlobal0X128_,
+                    feeGrowthGlobal1X128_
+                );
+            position.update(amount, feeGrowthInside0X128, feeGrowthInside1X128);
+        }
 
         if (slot0_.tick < lowerTick) {
             amount0 = Math.calcAmount0Delta(

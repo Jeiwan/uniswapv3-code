@@ -18,7 +18,10 @@ library Tick {
     function update(
         mapping(int24 => Tick.Info) storage self,
         int24 tick,
+        int24 currentTick,
         int128 liquidityDelta,
+        uint256 feeGrowthGlobal0X128,
+        uint256 feeGrowthGlobal1X128,
         bool upper
     ) internal returns (bool flipped) {
         Tick.Info storage tickInfo = self[tick];
@@ -32,6 +35,13 @@ library Tick {
         flipped = (liquidityAfter == 0) != (liquidityBefore == 0);
 
         if (liquidityBefore == 0) {
+            // by convention, assume that all previous fees were collected below
+            // the tick
+            if (tick <= currentTick) {
+                tickInfo.feeGrowthOutside0X128 = feeGrowthGlobal0X128;
+                tickInfo.feeGrowthOutside1X128 = feeGrowthGlobal1X128;
+            }
+
             tickInfo.initialized = true;
         }
 
