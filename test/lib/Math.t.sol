@@ -33,7 +33,7 @@ contract MathTest is Test {
             int128(-1517882343751509868544)
         );
 
-        assertEq(amount0, 0.998833192822975409 ether);
+        assertEq(amount0, -0.998833192822975408 ether);
     }
 
     function testCalcAmount1DeltaNegative() public {
@@ -43,6 +43,6 @@ contract MathTest is Test {
             int128(-1517882343751509868544)
         );
 
-        assertEq(amount1, 4999.187247111820044641 ether);
+        assertEq(amount1, -4999.187247111820044640 ether);
     }
 }

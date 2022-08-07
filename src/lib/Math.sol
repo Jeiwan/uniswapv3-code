@@ -17,21 +17,18 @@ library Math {
 
         require(sqrtPriceAX96 > 0);
 
+        uint256 numerator1 = uint256(liquidity) << FixedPoint96.RESOLUTION;
+        uint256 numerator2 = sqrtPriceBX96 - sqrtPriceAX96;
+
         if (roundUp) {
             amount0 = divRoundingUp(
-                mulDivRoundingUp(
-                    (uint256(liquidity) << FixedPoint96.RESOLUTION),
-                    (sqrtPriceBX96 - sqrtPriceAX96),
-                    sqrtPriceBX96
-                ),
+                mulDivRoundingUp(numerator1, numerator2, sqrtPriceBX96),
                 sqrtPriceAX96
             );
         } else {
-            PRBMath.mulDiv(
-                (uint256(liquidity) << FixedPoint96.RESOLUTION),
-                (sqrtPriceBX96 - sqrtPriceAX96),
-                sqrtPriceBX96
-            ) / sqrtPriceAX96;
+            amount0 =
+                PRBMath.mulDiv(numerator1, numerator2, sqrtPriceBX96) /
+                sqrtPriceAX96;
         }
     }
 
