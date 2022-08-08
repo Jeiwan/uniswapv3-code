@@ -53,4 +53,22 @@ abstract contract UniswapV3PoolUtils is Test, TestUtils {
             amount: amount
         });
     }
+
+    function liquidityRanges(LiquidityRange memory range)
+        internal
+        pure
+        returns (LiquidityRange[] memory ranges)
+    {
+        ranges = new LiquidityRange[](1);
+        ranges[0] = range;
+    }
+
+    function liquidityRanges(
+        LiquidityRange memory range1,
+        LiquidityRange memory range2
+    ) internal pure returns (LiquidityRange[] memory ranges) {
+        ranges = new LiquidityRange[](2);
+        ranges[0] = range1;
+        ranges[1] = range2;
+    }
 }

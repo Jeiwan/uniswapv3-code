@@ -49,18 +49,23 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testMintInRange() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 1 ether,
-            usdcBalance: 5000 ether,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: true,
-            transferInSwapCallback: true,
-            mintLiqudity: true
-        });
-        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+        (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        ) = setupTestCase(
+                TestCaseParams({
+                    wethBalance: 1 ether,
+                    usdcBalance: 5000 ether,
+                    currentPrice: 5000,
+                    liquidity: liquidityRanges(
+                        liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiqudity: true
+                })
+            );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0.987286567250950170 ether,
@@ -102,18 +107,23 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testMintRangeBelow() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4000, 4996, 1 ether, 5000 ether, 5000);
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 1 ether,
-            usdcBalance: 5000 ether,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: true,
-            transferInSwapCallback: true,
-            mintLiqudity: true
-        });
-        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+        (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        ) = setupTestCase(
+                TestCaseParams({
+                    wethBalance: 1 ether,
+                    usdcBalance: 5000 ether,
+                    currentPrice: 5000,
+                    liquidity: liquidityRanges(
+                        liquidityRange(4000, 4996, 1 ether, 5000 ether, 5000)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiqudity: true
+                })
+            );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0 ether,
@@ -155,18 +165,23 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testMintRangeAbove() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(5001, 6250, 1 ether, 5000 ether, 5000);
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 10 ether,
-            usdcBalance: 5000 ether,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: true,
-            transferInSwapCallback: true,
-            mintLiqudity: true
-        });
-        (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
+        (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        ) = setupTestCase(
+                TestCaseParams({
+                    wethBalance: 10 ether,
+                    usdcBalance: 5000 ether,
+                    currentPrice: 5000,
+                    liquidity: liquidityRanges(
+                        liquidityRange(5001, 6250, 1 ether, 5000 ether, 5000)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiqudity: true
+                })
+            );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (1 ether, 0);
 
@@ -210,27 +225,24 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     // 4000 ------|------ 6250
     //
     function testMintOverlappingRanges() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](2);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        liquidity[1] = liquidityRange(
-            4000,
-            6250,
-            (liquidity[0].amount * 75) / 100
+        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
+            TestCaseParams({
+                wethBalance: 3 ether,
+                usdcBalance: 15000 ether,
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000),
+                    liquidityRange(4000, 6250, 0.8 ether, 4000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
         );
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 3 ether,
-            usdcBalance: 15000 ether,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: true,
-            transferInSwapCallback: true,
-            mintLiqudity: true
-        });
-        setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            2.727944798412770988 ether,
-            13746.049925900422866812 ether
+            1.783209628932229704 ether,
+            8998.601885914465050207 ether
         );
 
         assertMintState(
@@ -278,18 +290,19 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testBurn() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 1 ether,
-            usdcBalance: 5000 ether,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: true,
-            transferInSwapCallback: true,
-            mintLiqudity: true
-        });
-        setupTestCase(params);
+        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
+            TestCaseParams({
+                wethBalance: 1 ether,
+                usdcBalance: 5000 ether,
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
+        );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0.987286567250950169 ether,
@@ -329,18 +342,19 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testBurnPartially() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 1 ether,
-            usdcBalance: 5000 ether,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: true,
-            transferInSwapCallback: true,
-            mintLiqudity: true
-        });
-        setupTestCase(params);
+        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
+            TestCaseParams({
+                wethBalance: 1 ether,
+                usdcBalance: 5000 ether,
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
+        );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0.493643283625475084 ether,
@@ -401,18 +415,19 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testMintInsufficientTokenBalance() public {
-        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
-        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
-        TestCaseParams memory params = TestCaseParams({
-            wethBalance: 0,
-            usdcBalance: 0,
-            currentPrice: 5000,
-            liquidity: liquidity,
-            transferInMintCallback: false,
-            transferInSwapCallback: true,
-            mintLiqudity: false
-        });
-        setupTestCase(params);
+        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
+            TestCaseParams({
+                wethBalance: 0,
+                usdcBalance: 0,
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: false,
+                transferInSwapCallback: true,
+                mintLiqudity: false
+            })
+        );
 
         vm.expectRevert(encodeError("InsufficientInputAmount()"));
         pool.mint(
@@ -452,7 +467,11 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     ////////////////////////////////////////////////////////////////////////////
     function setupTestCase(TestCaseParams memory params)
         internal
-        returns (uint256 poolBalance0, uint256 poolBalance1)
+        returns (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        )
     {
         weth.mint(address(this), params.wethBalance);
         usdc.mint(address(this), params.usdcBalance);
@@ -491,5 +510,6 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         }
 
         transferInMintCallback = params.transferInMintCallback;
+        liquidity = params.liquidity;
     }
 }
