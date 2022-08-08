@@ -89,6 +89,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: liquidity[0].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
+                fees: [uint256(0), 0],
                 userBalances: [
                     1 ether - expectedAmount0,
                     5000 ether - expectedAmount1
@@ -146,6 +147,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
+                fees: [uint256(0), 0],
                 userBalances: [
                     1 ether - expectedAmount0,
                     5000 ether - expectedAmount1
@@ -200,6 +202,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
+                fees: [uint256(0), 0],
                 userBalances: [
                     1 ether - expectedAmount0,
                     5000 ether - expectedAmount1
@@ -248,6 +251,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: liquidity[0].amount + liquidity[1].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
+                fees: [uint256(0), 0],
                 userBalances: [
                     3 ether - expectedAmount0,
                     15000 ether - expectedAmount1
@@ -318,6 +322,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
+                fees: [uint256(0), 0],
                 userBalances: [
                     1 ether - expectedAmount0 - 1,
                     5000 ether - expectedAmount1 - 1
@@ -389,6 +394,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: liquidity[0].amount / 2 + 1,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
+                fees: [uint256(0), 0],
                 userBalances: [
                     1 ether - poolBalance0,
                     5000 ether - poolBalance1

@@ -13,6 +13,7 @@ abstract contract Assertions is Test {
         uint128 liquidity;
         uint160 sqrtPriceX96;
         int24 tick;
+        uint256[2] fees;
     }
 
     function assertPoolState(ExpectedPoolState memory expected) internal {
@@ -23,6 +24,17 @@ abstract contract Assertions is Test {
             expected.pool.liquidity(),
             expected.liquidity,
             "invalid current liquidity"
+        );
+
+        assertEq(
+            expected.pool.feeGrowthGlobal0X128(),
+            expected.fees[0],
+            "incorrect feeGrowthGlobal0X128"
+        );
+        assertEq(
+            expected.pool.feeGrowthGlobal1X128(),
+            expected.fees[1],
+            "incorrect feeGrowthGlobal0X128"
         );
     }
 
@@ -113,6 +125,7 @@ abstract contract Assertions is Test {
         uint128 liquidity;
         uint160 sqrtPriceX96;
         int24 tick;
+        uint256[2] fees;
         // Balances
         uint256[2] userBalances;
         uint256[2] poolBalances;
@@ -128,7 +141,8 @@ abstract contract Assertions is Test {
                 pool: expected.pool,
                 liquidity: expected.liquidity,
                 sqrtPriceX96: expected.sqrtPriceX96,
-                tick: expected.tick
+                tick: expected.tick,
+                fees: expected.fees
             })
         );
         assertBalances(
@@ -179,6 +193,7 @@ abstract contract Assertions is Test {
         uint128 liquidity;
         uint160 sqrtPriceX96;
         int24 tick;
+        uint256[2] fees;
         // Balances
         uint256[2] userBalances;
         uint256[2] poolBalances;
@@ -190,7 +205,8 @@ abstract contract Assertions is Test {
                 pool: expected.pool,
                 liquidity: expected.liquidity,
                 sqrtPriceX96: expected.sqrtPriceX96,
-                tick: expected.tick
+                tick: expected.tick,
+                fees: expected.fees
             })
         );
         assertBalances(
