@@ -108,10 +108,8 @@ abstract contract Assertions is Test {
         uint160 sqrtPriceX96;
         int24 tick;
         // Balances
-        uint256 userBalance0;
-        uint256 userBalance1;
-        uint256 poolBalance0;
-        uint256 poolBalance1;
+        uint256[2] userBalances;
+        uint256[2] poolBalances;
         // Position
         ExpectedPositionShort position;
         // Ticks
@@ -131,10 +129,10 @@ abstract contract Assertions is Test {
             ExpectedBalances({
                 pool: expected.pool,
                 tokens: expected.tokens,
-                userBalance0: expected.userBalance0,
-                userBalance1: expected.userBalance1,
-                poolBalance0: expected.poolBalance0,
-                poolBalance1: expected.poolBalance1
+                userBalance0: expected.userBalances[0],
+                userBalance1: expected.userBalances[1],
+                poolBalance0: expected.poolBalances[0],
+                poolBalance1: expected.poolBalances[1]
             })
         );
         assertPosition(

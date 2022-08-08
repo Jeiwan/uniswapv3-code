@@ -89,10 +89,11 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 liquidity: liquidity[0].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000),
-                userBalance0: 1 ether - expectedAmount0,
-                userBalance1: 5000 ether - expectedAmount1,
-                poolBalance0: expectedAmount0,
-                poolBalance1: expectedAmount1,
+                userBalances: [
+                    1 ether - expectedAmount0,
+                    5000 ether - expectedAmount1
+                ],
+                poolBalances: [expectedAmount0, expectedAmount1],
                 position: ExpectedPositionShort({
                     ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
                     liquidity: liquidity[0].amount,
