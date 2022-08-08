@@ -328,6 +328,57 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testBurnPartially() public {
+        LiquidityRange[] memory liquidity = new LiquidityRange[](1);
+        liquidity[0] = liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000);
+        TestCaseParams memory params = TestCaseParams({
+            wethBalance: 1 ether,
+            usdcBalance: 5000 ether,
+            currentPrice: 5000,
+            liquidity: liquidity,
+            transferInMintCallback: true,
+            transferInSwapCallback: true,
+            mintLiqudity: true
+        });
+        setupTestCase(params);
+
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            0.493643283625475084 ether,
+            2499.479457939339876284 ether
+        );
+
+        (uint256 burnAmount0, uint256 burnAmount1) = pool.burn(
+            liquidity[0].lowerTick,
+            liquidity[0].upperTick,
+            liquidity[0].amount / 2
+        );
+
+        assertEq(burnAmount0, expectedAmount0, "incorrect weth burned amount");
+        assertEq(burnAmount1, expectedAmount1, "incorrect usdc burned amount");
+
+        assertMintState(
+            ExpectedStateAfterMint({
+                pool: pool,
+                token0: weth,
+                token1: usdc,
+                amount0: 0.987286567250950170 ether,
+                amount1: 4998.958915878679752572 ether,
+                lowerTick: liquidity[0].lowerTick,
+                upperTick: liquidity[0].upperTick,
+                position: Position.Info({
+                    liquidity: liquidity[0].amount / 2 + 1,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: uint128(expectedAmount0),
+                    tokensOwed1: uint128(expectedAmount1)
+                }),
+                currentLiquidity: liquidity[0].amount / 2 + 1,
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
+            })
+        );
+    }
+
     function testMintInvalidTickRangeLower() public {
         pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
 
