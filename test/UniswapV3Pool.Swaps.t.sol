@@ -90,7 +90,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         assertPosition(
-            AssertPositionParams({
+            ExpectedPosition({
                 pool: pool,
                 lowerTick: liquidity[0].lowerTick,
                 upperTick: liquidity[0].upperTick,

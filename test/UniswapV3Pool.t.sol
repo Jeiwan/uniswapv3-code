@@ -102,6 +102,21 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             })
         );
 
+        assertPosition(
+            ExpectedPosition({
+                pool: pool,
+                lowerTick: liquidity[0].lowerTick,
+                upperTick: liquidity[0].upperTick,
+                position: Position.Info({
+                    liquidity: liquidity[0].amount,
+                    feeGrowthInside0LastX128: 0,
+                    feeGrowthInside1LastX128: 0,
+                    tokensOwed0: 0,
+                    tokensOwed1: 0
+                })
+            })
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,

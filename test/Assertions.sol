@@ -344,14 +344,14 @@ abstract contract Assertions is Test {
         );
     }
 
-    struct AssertPositionParams {
+    struct ExpectedPosition {
         UniswapV3Pool pool;
         int24 lowerTick;
         int24 upperTick;
         Position.Info position;
     }
 
-    function assertPosition(AssertPositionParams memory params) public {
+    function assertPosition(ExpectedPosition memory params) public {
         bytes32 positionKey = keccak256(
             abi.encodePacked(address(this), params.lowerTick, params.upperTick)
         );
