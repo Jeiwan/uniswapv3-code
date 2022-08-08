@@ -69,38 +69,36 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008371593947078468 ether,
-            42 ether
-        );
+        assertEq(amount0Delta, -0.008371593947078468 ether, "invalid ETH out");
+        assertEq(amount1Delta, 42 ether, "invalid USDC in");
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
-
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        LiquidityRange memory liq = liquidity[0];
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq.amount,
                 sqrtPriceX96: 5604422590555458105735383351329, // 5003.830413717752
                 tick: 85183,
-                currentLiquidity: liquidity[0].amount,
-                feeGrowthGlobal0X128: 0,
-                feeGrowthGlobal1X128: 27727650748765949686643356806934465 // 0.000081484242041869
-            })
-        );
-
-        assertPosition(
-            ExpectedPosition({
-                pool: pool,
-                ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
-                liquidity: liquidity[0].amount,
-                feeGrowth: [uint256(0), 0],
-                tokensOwed: [uint128(0), 0]
+                fees: [
+                    uint256(0),
+                    27727650748765949686643356806934465 // 0.000081484242041869
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liq.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liq)
             })
         );
     }
@@ -151,28 +149,51 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.008373196666644049 ether,
-            42 ether
-        );
+        assertEq(amount0Delta, -0.008373196666644049 ether, "invalid ETH out");
+        assertEq(amount1Delta, 42 ether, "invalid USDC in");
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        LiquidityRange memory liq = liquidity[0];
+        uint128 liqAmount = liquidity[0].amount + liquidity[1].amount;
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liqAmount,
                 sqrtPriceX96: 5603349844017036048802233057296, // 5001.915023528226
                 tick: 85180,
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
-                feeGrowthGlobal0X128: 0,
-                feeGrowthGlobal1X128: 13863825374382974843321678403467232 // 0.000040742121020935
+                fees: [
+                    uint256(0),
+                    13863825374382974843321678403467232 // 0.000040742121020935
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liqAmount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq.lowerTick,
+                        initialized: true,
+                        liquidityGross: liqAmount,
+                        liquidityNet: int128(liqAmount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq.upperTick,
+                        initialized: true,
+                        liquidityGross: liqAmount,
+                        liquidityNet: -int128(liqAmount)
+                    })
+                ]
             })
         );
     }
@@ -219,28 +240,87 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -1.806151062659754716 ether,
-            9938.146841864722991247 ether
+        assertEq(amount0Delta, -1.806151062659754716 ether, "invalid ETH out");
+        assertEq(
+            amount1Delta,
+            9938.146841864722991247 ether,
+            "invalid USDC in"
         );
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        LiquidityRange memory liq1 = liquidity[0];
+        LiquidityRange memory liq2 = liquidity[1];
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        assertMany(
+            ExpectedPoolAndBalances({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq2.amount,
                 sqrtPriceX96: 6190959796047061453084569894912, // 6106.000000000001
                 tick: 87174,
-                currentLiquidity: liquidity[1].amount,
-                feeGrowthGlobal0X128: 0,
-                feeGrowthGlobal1X128: 7607942642143955456943817214090051843 // 0.022357733993050518
+                fees: [
+                    uint256(0),
+                    7607942642143955456943817214090051843 // 0.022357733993050518
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq1.lowerTick, liq1.upperTick],
+                    liquidity: liq1.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq1.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount,
+                        liquidityNet: int128(liq1.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq1.upperTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount + liq2.amount,
+                        liquidityNet: -int128(liq1.amount - liq2.amount)
+                    })
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq2.lowerTick, liq2.upperTick],
+                    liquidity: liq2.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq2.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount + liq1.amount,
+                        liquidityNet: -int128(liq1.amount - liq2.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq2.upperTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount,
+                        liquidityNet: -int128(liq2.amount)
+                    })
+                ]
             })
         );
     }
@@ -287,28 +367,87 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -1.846400936777913635 ether,
-            9932.742771767366603035 ether
+        assertEq(amount0Delta, -1.846400936777913635 ether, "invalid ETH out");
+        assertEq(
+            amount1Delta,
+            9932.742771767366603035 ether,
+            "invalid USDC in"
         );
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        LiquidityRange memory liq1 = liquidity[0];
+        LiquidityRange memory liq2 = liquidity[1];
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        assertMany(
+            ExpectedPoolAndBalances({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq2.amount,
                 sqrtPriceX96: 6165559837476377838496291749888, // 6055.999999999999
                 tick: 87092,
-                currentLiquidity: liquidity[1].amount,
-                feeGrowthGlobal0X128: 0,
-                feeGrowthGlobal1X128: 7279681885732197095096592710711050900 // 0.021393062331153838
+                fees: [
+                    uint256(0),
+                    7279681885732197095096592710711050900 // 0.021393062331153838
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq1.lowerTick, liq1.upperTick],
+                    liquidity: liq1.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq1.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount,
+                        liquidityNet: int128(liq1.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq1.upperTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount,
+                        liquidityNet: -int128(liq1.amount)
+                    })
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq2.lowerTick, liq2.upperTick],
+                    liquidity: liq2.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq2.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount,
+                        liquidityNet: int128(liq2.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq2.upperTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount,
+                        liquidityNet: -int128(liq2.amount)
+                    })
+                ]
             })
         );
     }
@@ -349,28 +488,36 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            -0.006557492291469846 ether,
-            32.895984173313069971 ether
-        );
+        assertEq(amount0Delta, -0.006557492291469846 ether, "invalid ETH out");
+        assertEq(amount1Delta, 32.895984173313069971 ether, "invalid USDC in");
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
-
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        LiquidityRange memory liq = liquidity[0];
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq.amount,
                 sqrtPriceX96: sqrtP(5003),
                 tick: tick(5003),
-                currentLiquidity: liquidity[0].amount,
-                feeGrowthGlobal0X128: 0,
-                feeGrowthGlobal1X128: 21717341909394213709358341211545367 // 0.000063821531823423
+                fees: [
+                    uint256(0),
+                    21717341909394213709358341211545367 // 0.000063821531823423
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liq.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liq)
             })
         );
     }
@@ -415,28 +562,36 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            0.01337 ether,
-            -66.608848079558229698 ether
-        );
+        assertEq(amount0Delta, 0.01337 ether, "invalid ETH out");
+        assertEq(amount1Delta, -66.608848079558229698 ether, "invalid USDC in");
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
-
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        LiquidityRange memory liq = liquidity[0];
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq.amount,
                 sqrtPriceX96: 5598864267980327381293641469695, // 4993.909994249256
                 tick: 85164,
-                currentLiquidity: liquidity[0].amount,
-                feeGrowthGlobal0X128: 8826635488357160650248135250207, // 0.000000025939150383
-                feeGrowthGlobal1X128: 0
+                fees: [
+                    uint256(8826635488357160650248135250207), // 0.000000025939150383
+                    0
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liq.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liq)
             })
         );
     }
@@ -487,28 +642,51 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            0.01337 ether,
-            -66.629142854363394713 ether
-        );
+        assertEq(amount0Delta, 0.01337 ether, "invalid ETH out");
+        assertEq(amount1Delta, -66.629142854363394713 ether, "invalid USDC in");
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        LiquidityRange memory liq = liquidity[0];
+        uint128 liqAmount = liquidity[0].amount + liquidity[1].amount;
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liqAmount,
                 sqrtPriceX96: 5600570162809008817738050929469, // 4996.953605470648
                 tick: 85170,
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
-                feeGrowthGlobal0X128: 4413317744178580325124067625103, // 0.000000012969575192
-                feeGrowthGlobal1X128: 0
+                fees: [
+                    uint256(4413317744178580325124067625103), // 0.000000012969575192
+                    0
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liqAmount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq.lowerTick,
+                        initialized: true,
+                        liquidityGross: liqAmount,
+                        liquidityNet: int128(liqAmount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq.upperTick,
+                        initialized: true,
+                        liquidityGross: liqAmount,
+                        liquidityNet: -int128(liqAmount)
+                    })
+                ]
             })
         );
     }
@@ -555,28 +733,87 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            1.992510070712824953 ether,
-            -9052.445703934334276106 ether
+        assertEq(amount0Delta, 1.992510070712824953 ether, "invalid ETH out");
+        assertEq(
+            amount1Delta,
+            -9052.445703934334276106 ether,
+            "invalid USDC in"
         );
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        LiquidityRange memory liq1 = liquidity[0];
+        LiquidityRange memory liq2 = liquidity[1];
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        assertMany(
+            ExpectedPoolAndBalances({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq2.amount,
                 sqrtPriceX96: 5069364309721000022884193665024, // 4094
                 tick: 83176,
-                currentLiquidity: liquidity[1].amount,
-                feeGrowthGlobal0X128: 1522240169177611694234867497214043, // 0.000004473461798658
-                feeGrowthGlobal1X128: 0
+                fees: [
+                    uint256(1522240169177611694234867497214043), // 0.000004473461798658
+                    0
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq1.lowerTick, liq1.upperTick],
+                    liquidity: liq1.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq1.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount + liq2.amount,
+                        liquidityNet: int128(liq1.amount - liq2.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq1.upperTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount,
+                        liquidityNet: -int128(liq1.amount)
+                    })
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq2.lowerTick, liq2.upperTick],
+                    liquidity: liq2.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq2.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount,
+                        liquidityNet: int128(liq2.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq2.upperTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount + liq2.amount,
+                        liquidityNet: int128(liq1.amount - liq2.amount)
+                    })
+                ]
             })
         );
     }
@@ -623,28 +860,87 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            1.996627649722534946 ether,
-            -9282.886546310580739342 ether
+        assertEq(amount0Delta, 1.996627649722534946 ether, "invalid ETH out");
+        assertEq(
+            amount1Delta,
+            -9282.886546310580739342 ether,
+            "invalid USDC in"
         );
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
+        LiquidityRange memory liq1 = liquidity[0];
+        LiquidityRange memory liq2 = liquidity[1];
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        assertMany(
+            ExpectedPoolAndBalances({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq2.amount,
                 sqrtPriceX96: 5090370906297125436716365119488, // 4128.0
                 tick: 83259,
-                currentLiquidity: liquidity[1].amount,
-                feeGrowthGlobal0X128: 1456201564392000426097400539712801, // 0.000004279391781503
-                feeGrowthGlobal1X128: 0
+                fees: [
+                    uint256(1456201564392000426097400539712801), // 0.000004279391781503
+                    0
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq1.lowerTick, liq1.upperTick],
+                    liquidity: liq1.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq1.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount,
+                        liquidityNet: int128(liq1.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq1.upperTick,
+                        initialized: true,
+                        liquidityGross: liq1.amount,
+                        liquidityNet: -int128(liq1.amount)
+                    })
+                ]
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liq2.lowerTick, liq2.upperTick],
+                    liquidity: liq2.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liq2.lowerTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount,
+                        liquidityNet: int128(liq2.amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liq2.upperTick,
+                        initialized: true,
+                        liquidityGross: liq2.amount,
+                        liquidityNet: -int128(liq2.amount)
+                    })
+                ]
             })
         );
     }
@@ -685,28 +981,36 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 expectedAmount0Delta, int256 expectedAmount1Delta) = (
-            0.013172223319600129 ether,
-            -65.624123301724744142 ether
-        );
+        assertEq(amount0Delta, 0.013172223319600129 ether, "invalid ETH out");
+        assertEq(amount1Delta, -65.624123301724744142 ether, "invalid USDC in");
 
-        assertEq(amount0Delta, expectedAmount0Delta, "invalid ETH out");
-        assertEq(amount1Delta, expectedAmount1Delta, "invalid USDC in");
-
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        LiquidityRange memory liq = liquidity[0];
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(userBalance0Before - amount0Delta),
-                userBalance1: uint256(userBalance1Before - amount1Delta),
-                poolBalance0: uint256(int256(poolBalance0) + amount0Delta),
-                poolBalance1: uint256(int256(poolBalance1) + amount1Delta),
+                tokens: [weth, usdc],
+                liquidity: liq.amount,
                 sqrtPriceX96: sqrtP(4994),
                 tick: tick(4994),
-                currentLiquidity: liquidity[0].amount,
-                feeGrowthGlobal0X128: 8696066852157821093692702995967, // 0.000000025555443648
-                feeGrowthGlobal1X128: 0
+                fees: [
+                    uint256(8696066852157821093692702995967), // 0.000000025555443648
+                    0
+                ],
+                userBalances: [
+                    uint256(userBalance0Before - amount0Delta),
+                    uint256(userBalance1Before - amount1Delta)
+                ],
+                poolBalances: [
+                    uint256(int256(poolBalance0) + amount0Delta),
+                    uint256(int256(poolBalance1) + amount1Delta)
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liq.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liq)
             })
         );
     }
@@ -779,10 +1083,12 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         usdc.mint(address(this), usdcAmount);
         usdc.approve(address(this), usdcAmount);
 
-        int256 userBalance0Before = int256(weth.balanceOf(address(this)));
-        int256 userBalance1Before = int256(usdc.balanceOf(address(this)));
+        int256[] memory userBalances = new int256[](2);
+        userBalances[0] = int256(weth.balanceOf(address(this)));
+        userBalances[1] = int256(usdc.balanceOf(address(this)));
 
-        (int256 amount0Delta1, int256 amount1Delta1) = pool.swap(
+        int256[] memory amountsDelta1 = new int256[](2);
+        (amountsDelta1[0], amountsDelta1[1]) = pool.swap(
             address(this),
             true,
             ethAmount,
@@ -790,7 +1096,8 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        (int256 amount0Delta2, int256 amount1Delta2) = pool.swap(
+        int256[] memory amountsDelta2 = new int256[](2);
+        (amountsDelta2[0], amountsDelta2[1]) = pool.swap(
             address(this),
             false,
             usdcAmount,
@@ -798,28 +1105,45 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        LiquidityRange memory liq = liquidity[0];
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: uint256(
-                    userBalance0Before - amount0Delta1 - amount0Delta2
-                ),
-                userBalance1: uint256(
-                    userBalance1Before - amount1Delta1 - amount1Delta2
-                ),
-                poolBalance0: uint256(
-                    int256(poolBalance0) + amount0Delta1 + amount0Delta2
-                ),
-                poolBalance1: uint256(
-                    int256(poolBalance1) + amount1Delta1 + amount1Delta2
-                ),
+                tokens: [weth, usdc],
+                liquidity: liq.amount,
                 sqrtPriceX96: 5601673842247623244689987477875, // 4998.923254346182
                 tick: 85174,
-                currentLiquidity: liquidity[0].amount,
-                feeGrowthGlobal0X128: 8826635488357160650248135250207, // 0.000000025939150383
-                feeGrowthGlobal1X128: 36310018837669696018223443437652275 // 0.000106705555054829
+                fees: [
+                    uint256(8826635488357160650248135250207), // 0.000000025939150383
+                    36310018837669696018223443437652275 // 0.000106705555054829
+                ],
+                userBalances: [
+                    uint256(
+                        userBalances[0] - amountsDelta1[0] - amountsDelta2[0]
+                    ),
+                    uint256(
+                        userBalances[1] - amountsDelta1[1] - amountsDelta2[1]
+                    )
+                ],
+                poolBalances: [
+                    uint256(
+                        int256(poolBalance0) +
+                            amountsDelta1[0] +
+                            amountsDelta2[0]
+                    ),
+                    uint256(
+                        int256(poolBalance1) +
+                            amountsDelta1[1] +
+                            amountsDelta2[1]
+                    )
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [liq.lowerTick, liq.upperTick],
+                    liquidity: liq.amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liq)
             })
         );
     }
