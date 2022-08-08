@@ -100,20 +100,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: [
-                    ExpectedTickShort({
-                        tick: liquidity[0].lowerTick,
-                        initialized: true,
-                        liquidityGross: liquidity[0].amount,
-                        liquidityNet: int128(liquidity[0].amount)
-                    }),
-                    ExpectedTickShort({
-                        tick: liquidity[0].upperTick,
-                        initialized: true,
-                        liquidityGross: liquidity[0].amount,
-                        liquidityNet: -int128(liquidity[0].amount)
-                    })
-                ]
+                ticks: rangeToTicks(liquidity[0])
             })
         );
     }

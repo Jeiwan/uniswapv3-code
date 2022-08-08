@@ -70,4 +70,23 @@ abstract contract UniswapV3PoolUtils is Test, TestUtils {
         ranges[0] = range1;
         ranges[1] = range2;
     }
+
+    function rangeToTicks(LiquidityRange memory range)
+        internal
+        pure
+        returns (ExpectedTickShort[2] memory ticks)
+    {
+        ticks[0] = ExpectedTickShort({
+            tick: range.lowerTick,
+            initialized: true,
+            liquidityGross: range.amount,
+            liquidityNet: int128(range.amount)
+        });
+        ticks[1] = ExpectedTickShort({
+            tick: range.upperTick,
+            initialized: true,
+            liquidityGross: range.amount,
+            liquidityNet: -int128(range.amount)
+        });
+    }
 }
