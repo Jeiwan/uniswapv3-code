@@ -93,14 +93,11 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 userBalance1: 5000 ether - expectedAmount1,
                 poolBalance0: expectedAmount0,
                 poolBalance1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
                     liquidity: liquidity[0].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
                 }),
                 ticks: [
                     ExpectedTickShort({

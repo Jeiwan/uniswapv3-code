@@ -92,15 +92,10 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertPosition(
             ExpectedPosition({
                 pool: pool,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
-                    liquidity: liquidity[0].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
-                })
+                ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
+                liquidity: liquidity[0].amount,
+                feeGrowth: [uint256(0), 0],
+                tokensOwed: [uint128(0), 0]
             })
         );
     }

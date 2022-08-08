@@ -113,9 +113,7 @@ abstract contract Assertions is Test {
         uint256 poolBalance0;
         uint256 poolBalance1;
         // Position
-        int24 lowerTick;
-        int24 upperTick;
-        Position.Info position;
+        ExpectedPositionShort position;
         // Ticks
         ExpectedTickShort[2] ticks;
     }
@@ -142,9 +140,10 @@ abstract contract Assertions is Test {
         assertPosition(
             ExpectedPosition({
                 pool: expected.pool,
-                lowerTick: expected.lowerTick,
-                upperTick: expected.upperTick,
-                position: expected.position
+                ticks: expected.position.ticks,
+                liquidity: expected.position.liquidity,
+                feeGrowth: expected.position.feeGrowth,
+                tokensOwed: expected.position.tokensOwed
             })
         );
 
@@ -456,14 +455,22 @@ abstract contract Assertions is Test {
 
     struct ExpectedPosition {
         UniswapV3Pool pool;
-        int24 lowerTick;
-        int24 upperTick;
-        Position.Info position;
+        int24[2] ticks;
+        uint128 liquidity;
+        uint256[2] feeGrowth;
+        uint128[2] tokensOwed;
+    }
+
+    struct ExpectedPositionShort {
+        int24[2] ticks;
+        uint128 liquidity;
+        uint256[2] feeGrowth;
+        uint128[2] tokensOwed;
     }
 
     function assertPosition(ExpectedPosition memory params) public {
         bytes32 positionKey = keccak256(
-            abi.encodePacked(address(this), params.lowerTick, params.upperTick)
+            abi.encodePacked(address(this), params.ticks[0], params.ticks[1])
         );
         (
             uint128 liquidity,
@@ -473,29 +480,25 @@ abstract contract Assertions is Test {
             uint128 tokensOwed1
         ) = params.pool.positions(positionKey);
 
-        assertEq(
-            liquidity,
-            params.position.liquidity,
-            "incorrect position liquidity"
-        );
+        assertEq(liquidity, params.liquidity, "incorrect position liquidity");
         assertEq(
             feeGrowthInside0LastX128,
-            params.position.feeGrowthInside0LastX128,
+            params.feeGrowth[0],
             "incorrect position fee growth for token0"
         );
         assertEq(
             feeGrowthInside1LastX128,
-            params.position.feeGrowthInside1LastX128,
+            params.feeGrowth[1],
             "incorrect position fee growth for token1"
         );
         assertEq(
             tokensOwed0,
-            params.position.tokensOwed0,
+            params.tokensOwed[0],
             "incorrect position tokens owed for token0"
         );
         assertEq(
             tokensOwed1,
-            params.position.tokensOwed1,
+            params.tokensOwed[1],
             "incorrect position tokens owed for token1"
         );
     }
