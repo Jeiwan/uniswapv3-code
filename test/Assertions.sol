@@ -261,65 +261,6 @@ abstract contract Assertions is Test {
         );
     }
 
-    struct ExpectedStateAfterSwap {
-        UniswapV3Pool pool;
-        ERC20Mintable token0;
-        ERC20Mintable token1;
-        uint256 userBalance0;
-        uint256 userBalance1;
-        uint256 poolBalance0;
-        uint256 poolBalance1;
-        uint160 sqrtPriceX96;
-        int24 tick;
-        uint128 currentLiquidity;
-        uint256 feeGrowthGlobal0X128;
-        uint256 feeGrowthGlobal1X128;
-    }
-
-    function assertSwapState(ExpectedStateAfterSwap memory expected) internal {
-        assertEq(
-            expected.token0.balanceOf(address(this)),
-            uint256(expected.userBalance0),
-            "invalid user ETH balance"
-        );
-        assertEq(
-            expected.token1.balanceOf(address(this)),
-            uint256(expected.userBalance1),
-            "invalid user USDC balance"
-        );
-
-        assertEq(
-            expected.token0.balanceOf(address(expected.pool)),
-            uint256(expected.poolBalance0),
-            "invalid pool ETH balance"
-        );
-        assertEq(
-            expected.token1.balanceOf(address(expected.pool)),
-            uint256(expected.poolBalance1),
-            "invalid pool USDC balance"
-        );
-
-        (uint160 sqrtPriceX96, int24 currentTick) = expected.pool.slot0();
-        assertEq(sqrtPriceX96, expected.sqrtPriceX96, "invalid current sqrtP");
-        assertEq(currentTick, expected.tick, "invalid current tick");
-        assertEq(
-            expected.pool.liquidity(),
-            expected.currentLiquidity,
-            "invalid current liquidity"
-        );
-
-        assertEq(
-            expected.pool.feeGrowthGlobal0X128(),
-            expected.feeGrowthGlobal0X128,
-            "invalid fee growth for token0"
-        );
-        assertEq(
-            expected.pool.feeGrowthGlobal1X128(),
-            expected.feeGrowthGlobal1X128,
-            "invalid fee growth for token1"
-        );
-    }
-
     struct ExpectedPosition {
         UniswapV3Pool pool;
         int24[2] ticks;
