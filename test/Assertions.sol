@@ -93,6 +93,20 @@ abstract contract Assertions is Test {
         );
     }
 
+    function assertMany(
+        ExpectedPoolState memory expectedPoolState,
+        ExpectedBalances memory expectedBalances,
+        ExpectedPosition memory expectedPosition,
+        ExpectedTick memory expectedTick1,
+        ExpectedTick memory expectedTick2
+    ) internal {
+        assertPoolState(expectedPoolState);
+        assertBalances(expectedBalances);
+        assertPosition(expectedPosition);
+        assertTick(expectedTick1);
+        assertTick(expectedTick2);
+    }
+
     struct ExpectedStateAfterMint {
         UniswapV3Pool pool;
         ERC20Mintable token0;

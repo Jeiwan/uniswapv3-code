@@ -82,16 +82,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             "incorrect usdc deposited amount"
         );
 
-        assertPoolState(
+        assertMany(
             ExpectedPoolState({
                 pool: pool,
                 liquidity: liquidity[0].amount,
                 sqrtPriceX96: sqrtP(5000),
                 tick: tick(5000)
-            })
-        );
-
-        assertBalances(
+            }),
             ExpectedBalances({
                 pool: pool,
                 tokens: [weth, usdc],
@@ -99,10 +96,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 userBalance1: 5000 ether - expectedAmount1,
                 poolBalance0: expectedAmount0,
                 poolBalance1: expectedAmount1
-            })
-        );
-
-        assertPosition(
+            }),
             ExpectedPosition({
                 pool: pool,
                 lowerTick: liquidity[0].lowerTick,
@@ -114,48 +108,20 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                     tokensOwed0: 0,
                     tokensOwed1: 0
                 })
-            })
-        );
-
-        assertTick(
+            }),
             ExpectedTick({
                 pool: pool,
                 tick: liquidity[0].lowerTick,
                 initialized: true,
                 liquidityGross: liquidity[0].amount,
                 liquidityNet: int128(liquidity[0].amount)
-            })
-        );
-
-        assertTick(
+            }),
             ExpectedTick({
                 pool: pool,
                 tick: liquidity[0].upperTick,
                 initialized: true,
                 liquidityGross: liquidity[0].amount,
                 liquidityNet: -int128(liquidity[0].amount)
-            })
-        );
-
-        assertMintState(
-            ExpectedStateAfterMint({
-                pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: expectedAmount0,
-                amount1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
-                    liquidity: liquidity[0].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
-                }),
-                currentLiquidity: liquidity[0].amount,
-                sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
             })
         );
     }
