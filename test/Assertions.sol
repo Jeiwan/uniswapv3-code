@@ -34,7 +34,7 @@ abstract contract Assertions is Test {
         assertEq(
             expected.pool.feeGrowthGlobal1X128(),
             expected.fees[1],
-            "incorrect feeGrowthGlobal0X128"
+            "incorrect feeGrowthGlobal1X128"
         );
     }
 

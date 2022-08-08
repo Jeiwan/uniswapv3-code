@@ -46,7 +46,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
@@ -105,7 +105,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
@@ -164,7 +164,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
@@ -227,7 +227,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ),
                 transferInMintCallback: true,
                 transferInSwapCallback: true,
-                mintLiqudity: true
+                mintLiquidity: true
             })
         );
 
@@ -305,7 +305,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ),
                 transferInMintCallback: true,
                 transferInSwapCallback: true,
-                mintLiqudity: true
+                mintLiquidity: true
             })
         );
 
@@ -425,7 +425,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 mints: mintParams(mintParams(4545, 5500, 1 ether, 5000 ether)),
                 transferInMintCallback: false,
                 transferInSwapCallback: true,
-                mintLiqudity: false
+                mintLiquidity: false
             })
         );
 
@@ -493,7 +493,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
@@ -565,7 +565,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
@@ -623,6 +623,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testSwapBuyMultipool() public {
+        // Deploy WETH/USDC pool
         (
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
@@ -637,25 +638,31 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
         // Deploy WETH/UNI pool
-        weth.mint(address(this), 10 ether);
-        weth.approve(address(manager), 10 ether);
-        uni.mint(address(this), 100 ether);
-        uni.approve(address(manager), 100 ether);
-        UniswapV3Pool wethUNI = deployPool(
-            factory,
-            address(weth),
-            address(uni),
-            3000,
-            10
-        );
-        manager.mint(
-            mintParams(address(weth), address(uni), 7, 13, 10 ether, 100 ether)
-        );
+        (
+            UniswapV3Pool wethUNI,
+            IUniswapV3Manager.MintParams[] memory wethUNIMints,
+            uint256 wethUNIBalance0,
+            uint256 wethUNIBalance1
+        ) = setupPool(
+                PoolParamsFull({
+                    token0: weth,
+                    token1: uni,
+                    token0Balance: 10 ether,
+                    token1Balance: 100 ether,
+                    currentPrice: 10,
+                    mints: mintParams(
+                        mintParams(weth, uni, 7, 13, 10 ether, 100 ether)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiquidity: true
+                })
+            );
 
         uint256 swapAmount = 2.5 ether;
         uni.mint(address(this), swapAmount);
@@ -669,15 +676,12 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             bytes20(address(usdc))
         );
 
-        (
-            uint256 userBalance0Before,
-            uint256 userBalance1Before,
-            uint256 userBalance2Before
-        ) = (
-                weth.balanceOf(address(this)),
-                usdc.balanceOf(address(this)),
-                uni.balanceOf(address(this))
-            );
+        uint256[] memory userBalances = new uint256[](3);
+        (userBalances[0], userBalances[1], userBalances[2]) = (
+            weth.balanceOf(address(this)),
+            usdc.balanceOf(address(this)),
+            uni.balanceOf(address(this))
+        );
 
         uint256 amountOut = manager.swap(
             IUniswapV3Manager.SwapParams({
@@ -688,49 +692,60 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             })
         );
 
-        uint256 expectedAmountOut = 1223.599499987434636079 ether;
-        assertEq(amountOut, expectedAmountOut, "invalid USDC out");
+        assertEq(amountOut, 1223.599499987434636079 ether, "invalid USDC out");
 
-        // TODO: replace with assertMany, fix 'stack too deep'
-        assertSwapState(
-            ExpectedStateAfterSwap({
+        IUniswapV3Manager.MintParams memory mint = mints[0];
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                userBalance0: userBalance0Before,
-                userBalance1: userBalance1Before + expectedAmountOut,
-                poolBalance0: poolBalance0 + 0.248234183855004780 ether, // initial + 2.5 UNI sold for ETH
-                poolBalance1: poolBalance1 - expectedAmountOut,
+                tokens: [weth, usdc],
+                liquidity: liquidity(mint, 5000),
                 sqrtPriceX96: 5539583677789714904047360872750, // 4888.719128166855
                 tick: 84951,
-                currentLiquidity: liquidity(mints[0], 5000),
-                feeGrowthGlobal0X128: 163879779853250804931705964313699,
-                feeGrowthGlobal1X128: 0
+                fees: [
+                    uint256(163879779853250804931705964313699), // 0.000000481599388579
+                    0
+                ],
+                userBalances: [userBalances[0], userBalances[1] + amountOut],
+                poolBalances: [
+                    poolBalance0 + 0.248234183855004780 ether, // initial + 2.5 UNI sold for ETH
+                    poolBalance1 - amountOut
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [mint.lowerTick, mint.upperTick],
+                    liquidity: liquidity(mint, 5000),
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: mintParamsToTicks(mint, 5000)
             })
         );
 
-        assertEq(
-            uni.balanceOf(address(this)),
-            userBalance2Before - swapAmount,
-            "invalid user UNI balance"
-        );
-        assertEq(
-            uni.balanceOf(address(wethUNI)),
-            102.499932902940812596 ether, // 100 UNI minted + 2.5 UNI swapped
-            "invalid pool UNI balance"
-        );
-
-        (uint160 sqrtPriceX96, int24 currentTick) = wethUNI.slot0();
-        assertEq(
-            sqrtPriceX96,
-            251566706235579008314845847774, // 10.082010831439806
-            "invalid current sqrtP"
-        );
-        assertEq(currentTick, 23108, "invalid current tick");
-        assertEq(
-            pool.liquidity(),
-            1546311247949719370887,
-            "invalid current liquidity"
+        mint = wethUNIMints[0];
+        assertMany(
+            ExpectedMany({
+                pool: wethUNI,
+                tokens: [weth, uni],
+                liquidity: liquidity(mint, 10),
+                sqrtPriceX96: 251566706235579008314845847774, // 10.082010831439806
+                tick: 23108,
+                fees: [
+                    uint256(0),
+                    13250097234547358482322170106940574 // 0.000038938536117641
+                ],
+                userBalances: [userBalances[0], userBalances[2] - swapAmount],
+                poolBalances: [
+                    wethUNIBalance0 - 0.248234183855004780 ether,
+                    wethUNIBalance1 + swapAmount
+                ],
+                position: ExpectedPositionShort({
+                    ticks: [mint.lowerTick, mint.upperTick],
+                    liquidity: liquidity(mint, 10),
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: mintParamsToTicks(mint, 10)
+            })
         );
     }
 
@@ -749,7 +764,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     ),
                     transferInMintCallback: true,
                     transferInSwapCallback: true,
-                    mintLiqudity: true
+                    mintLiquidity: true
                 })
             );
 
@@ -823,7 +838,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 mints: mintParams(mintParams(4545, 5500, 1 ether, 5000 ether)),
                 transferInMintCallback: true,
                 transferInSwapCallback: true,
-                mintLiqudity: true
+                mintLiquidity: true
             })
         );
 
@@ -852,7 +867,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 mints: mintParams(mintParams(4545, 5500, 1 ether, 5000 ether)),
                 transferInMintCallback: true,
                 transferInSwapCallback: true,
-                mintLiqudity: true
+                mintLiquidity: true
             })
         );
 
@@ -881,7 +896,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 mints: mintParams(mintParams(4545, 5500, 1 ether, 5000 ether)),
                 transferInMintCallback: true,
                 transferInSwapCallback: false,
-                mintLiqudity: true
+                mintLiquidity: true
             })
         );
 
@@ -909,7 +924,37 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         IUniswapV3Manager.MintParams[] mints;
         bool transferInMintCallback;
         bool transferInSwapCallback;
-        bool mintLiqudity;
+        bool mintLiquidity;
+    }
+
+    struct PoolParamsFull {
+        ERC20Mintable token0;
+        ERC20Mintable token1;
+        uint256 token0Balance;
+        uint256 token1Balance;
+        uint256 currentPrice;
+        IUniswapV3Manager.MintParams[] mints;
+        bool transferInMintCallback;
+        bool transferInSwapCallback;
+        bool mintLiquidity;
+    }
+
+    function mintParams(
+        ERC20Mintable token0,
+        ERC20Mintable token1,
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint256 amount0,
+        uint256 amount1
+    ) internal pure returns (IUniswapV3Manager.MintParams memory params) {
+        params = mintParams(
+            address(token0),
+            address(token1),
+            lowerPrice,
+            upperPrice,
+            amount0,
+            amount1
+        );
     }
 
     function mintParams(
@@ -919,8 +964,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         uint256 amount1
     ) internal view returns (IUniswapV3Manager.MintParams memory params) {
         params = mintParams(
-            address(weth),
-            address(usdc),
+            weth,
+            usdc,
             lowerPrice,
             upperPrice,
             amount0,
@@ -990,28 +1035,29 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
-    function setupPool(PoolParams memory params)
+    function setupPool(PoolParamsFull memory params)
         internal
         returns (
+            UniswapV3Pool pool_,
             IUniswapV3Manager.MintParams[] memory mints_,
             uint256 poolBalance0,
             uint256 poolBalance1
         )
     {
-        weth.mint(address(this), params.wethBalance);
-        usdc.mint(address(this), params.usdcBalance);
+        params.token0.mint(address(this), params.token0Balance);
+        params.token1.mint(address(this), params.token1Balance);
 
-        pool = deployPool(
+        pool_ = deployPool(
             factory,
-            address(weth),
-            address(usdc),
+            address(params.token0),
+            address(params.token1),
             3000,
             params.currentPrice
         );
 
-        if (params.mintLiqudity) {
-            weth.approve(address(manager), params.wethBalance);
-            usdc.approve(address(manager), params.usdcBalance);
+        if (params.mintLiquidity) {
+            params.token0.approve(address(manager), params.token0Balance);
+            params.token1.approve(address(manager), params.token1Balance);
 
             uint256 poolBalance0Tmp;
             uint256 poolBalance1Tmp;
@@ -1027,5 +1073,28 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         transferInMintCallback = params.transferInMintCallback;
         transferInSwapCallback = params.transferInSwapCallback;
         mints_ = params.mints;
+    }
+
+    function setupPool(PoolParams memory params)
+        internal
+        returns (
+            IUniswapV3Manager.MintParams[] memory mints_,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        )
+    {
+        (pool, mints_, poolBalance0, poolBalance1) = setupPool(
+            PoolParamsFull({
+                token0: weth,
+                token1: usdc,
+                token0Balance: params.wethBalance,
+                token1Balance: params.usdcBalance,
+                currentPrice: params.currentPrice,
+                mints: params.mints,
+                transferInMintCallback: params.transferInMintCallback,
+                transferInSwapCallback: params.transferInSwapCallback,
+                mintLiquidity: params.mintLiquidity
+            })
+        );
     }
 }
