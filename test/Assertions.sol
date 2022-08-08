@@ -59,6 +59,40 @@ abstract contract Assertions is Test {
         );
     }
 
+    struct ExpectedTick {
+        UniswapV3Pool pool;
+        int24 tick;
+        bool initialized;
+        uint128 liquidityGross;
+        int128 liquidityNet;
+    }
+
+    function assertTick(ExpectedTick memory expected) internal {
+        (
+            bool initialized,
+            uint128 liquidityGross,
+            int128 liquidityNet,
+            ,
+
+        ) = expected.pool.ticks(expected.tick);
+        assertEq(initialized, expected.initialized);
+        assertEq(
+            liquidityGross,
+            expected.liquidityGross,
+            "incorrect lower tick gross liquidity"
+        );
+        assertEq(
+            liquidityNet,
+            expected.liquidityNet,
+            "incorrect lower tick net liquidity"
+        );
+
+        assertEq(
+            tickInBitMap(expected.pool, expected.tick),
+            expected.initialized
+        );
+    }
+
     struct ExpectedStateAfterMint {
         UniswapV3Pool pool;
         ERC20Mintable token0;

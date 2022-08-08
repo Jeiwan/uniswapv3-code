@@ -117,6 +117,26 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             })
         );
 
+        assertTick(
+            ExpectedTick({
+                pool: pool,
+                tick: liquidity[0].lowerTick,
+                initialized: true,
+                liquidityGross: liquidity[0].amount,
+                liquidityNet: int128(liquidity[0].amount)
+            })
+        );
+
+        assertTick(
+            ExpectedTick({
+                pool: pool,
+                tick: liquidity[0].upperTick,
+                initialized: true,
+                liquidityGross: liquidity[0].amount,
+                liquidityNet: -int128(liquidity[0].amount)
+            })
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,
