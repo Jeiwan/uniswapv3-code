@@ -13,8 +13,7 @@ abstract contract UniswapV3PoolUtils is Test, TestUtils {
     }
 
     struct TestCaseParams {
-        uint256 wethBalance;
-        uint256 usdcBalance;
+        uint256[2] balances;
         uint256 currentPrice;
         LiquidityRange[] liquidity;
         bool transferInMintCallback;

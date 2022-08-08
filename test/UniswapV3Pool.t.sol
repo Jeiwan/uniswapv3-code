@@ -55,8 +55,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             uint256 poolBalance1
         ) = setupTestCase(
                 TestCaseParams({
-                    wethBalance: 1 ether,
-                    usdcBalance: 5000 ether,
+                    balances: [uint256(1 ether), 5000 ether],
                     currentPrice: 5000,
                     liquidity: liquidityRanges(
                         liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
@@ -113,8 +112,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             uint256 poolBalance1
         ) = setupTestCase(
                 TestCaseParams({
-                    wethBalance: 1 ether,
-                    usdcBalance: 5000 ether,
+                    balances: [uint256(1 ether), 5000 ether],
                     currentPrice: 5000,
                     liquidity: liquidityRanges(
                         liquidityRange(4000, 4996, 1 ether, 5000 ether, 5000)
@@ -171,8 +169,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             uint256 poolBalance1
         ) = setupTestCase(
                 TestCaseParams({
-                    wethBalance: 10 ether,
-                    usdcBalance: 5000 ether,
+                    balances: [uint256(1 ether), 5000 ether],
                     currentPrice: 5000,
                     liquidity: liquidityRanges(
                         liquidityRange(5001, 6250, 1 ether, 5000 ether, 5000)
@@ -227,8 +224,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     function testMintOverlappingRanges() public {
         (LiquidityRange[] memory liquidity, , ) = setupTestCase(
             TestCaseParams({
-                wethBalance: 3 ether,
-                usdcBalance: 15000 ether,
+                balances: [uint256(3 ether), 15000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
                     liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000),
@@ -292,8 +288,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     function testBurn() public {
         (LiquidityRange[] memory liquidity, , ) = setupTestCase(
             TestCaseParams({
-                wethBalance: 1 ether,
-                usdcBalance: 5000 ether,
+                balances: [uint256(3 ether), 15000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
                     liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
@@ -344,8 +339,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     function testBurnPartially() public {
         (LiquidityRange[] memory liquidity, , ) = setupTestCase(
             TestCaseParams({
-                wethBalance: 1 ether,
-                usdcBalance: 5000 ether,
+                balances: [uint256(3 ether), 15000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
                     liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
@@ -417,8 +411,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     function testMintInsufficientTokenBalance() public {
         (LiquidityRange[] memory liquidity, , ) = setupTestCase(
             TestCaseParams({
-                wethBalance: 0,
-                usdcBalance: 0,
+                balances: [uint256(0), 0],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
                     liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
@@ -473,8 +466,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             uint256 poolBalance1
         )
     {
-        weth.mint(address(this), params.wethBalance);
-        usdc.mint(address(this), params.usdcBalance);
+        weth.mint(address(this), params.balances[0]);
+        usdc.mint(address(this), params.balances[1]);
 
         pool = deployPool(
             factory,
@@ -485,8 +478,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
 
         if (params.mintLiqudity) {
-            weth.approve(address(this), params.wethBalance);
-            usdc.approve(address(this), params.usdcBalance);
+            weth.approve(address(this), params.balances[0]);
+            usdc.approve(address(this), params.balances[1]);
 
             bytes memory extra = encodeExtra(
                 address(weth),
