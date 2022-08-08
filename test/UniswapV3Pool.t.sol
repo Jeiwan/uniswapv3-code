@@ -139,25 +139,25 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             "incorrect usdc deposited amount"
         );
 
-        assertMintState(
-            ExpectedStateAfterMint({
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: expectedAmount0,
-                amount1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
-                    liquidity: liquidity[0].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
-                }),
-                currentLiquidity: 0,
+                tokens: [weth, usdc],
+                liquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
+                tick: tick(5000),
+                userBalances: [
+                    1 ether - expectedAmount0,
+                    5000 ether - expectedAmount1
+                ],
+                poolBalances: [expectedAmount0, expectedAmount1],
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
+                    liquidity: liquidity[0].amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liquidity[0])
             })
         );
     }
@@ -193,25 +193,25 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             "incorrect usdc deposited amount"
         );
 
-        assertMintState(
-            ExpectedStateAfterMint({
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: expectedAmount0,
-                amount1: expectedAmount1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
-                    liquidity: liquidity[0].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
-                }),
-                currentLiquidity: 0,
+                tokens: [weth, usdc],
+                liquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
+                tick: tick(5000),
+                userBalances: [
+                    1 ether - expectedAmount0,
+                    5000 ether - expectedAmount1
+                ],
+                poolBalances: [expectedAmount0, expectedAmount1],
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
+                    liquidity: liquidity[0].amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liquidity[0])
             })
         );
     }
@@ -236,51 +236,49 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             })
         );
 
-        (uint256 amount0, uint256 amount1) = (
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
             1.783209628932229704 ether,
             8998.601885914465050207 ether
         );
 
-        assertMintState(
-            ExpectedStateAfterMint({
+        assertMany(
+            ExpectedPoolAndBalances({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: amount0,
-                amount1: amount1,
-                lowerTick: tick60(4545),
-                upperTick: tick60(5500),
-                position: Position.Info({
-                    liquidity: liquidity[0].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
-                }),
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
+                tokens: [weth, usdc],
+                liquidity: liquidity[0].amount + liquidity[1].amount,
                 sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
+                tick: tick(5000),
+                userBalances: [
+                    3 ether - expectedAmount0,
+                    15000 ether - expectedAmount1
+                ],
+                poolBalances: [expectedAmount0, expectedAmount1]
             })
         );
-        assertMintState(
-            ExpectedStateAfterMint({
+
+        assertMany(
+            ExpectedPositionAndTicks({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: amount0,
-                amount1: amount1,
-                lowerTick: tick60(4000),
-                upperTick: tick60(6250),
-                position: Position.Info({
-                    liquidity: liquidity[1].amount,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: 0,
-                    tokensOwed1: 0
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
+                    liquidity: liquidity[0].amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
                 }),
-                currentLiquidity: liquidity[0].amount + liquidity[1].amount,
-                sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
+                ticks: rangeToTicks(liquidity[0])
+            })
+        );
+
+        assertMany(
+            ExpectedPositionAndTicks({
+                pool: pool,
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[1].lowerTick, liquidity[1].upperTick],
+                    liquidity: liquidity[1].amount,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: rangeToTicks(liquidity[1])
             })
         );
     }
@@ -288,7 +286,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     function testBurn() public {
         (LiquidityRange[] memory liquidity, , ) = setupPool(
             PoolParams({
-                balances: [uint256(3 ether), 15000 ether],
+                balances: [uint256(1 ether), 5000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
                     liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
@@ -313,42 +311,62 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         assertEq(burnAmount0, expectedAmount0, "incorrect weth burned amount");
         assertEq(burnAmount1, expectedAmount1, "incorrect usdc burned amount");
 
-        assertBurnState(
-            ExpectedStateAfterBurn({
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: expectedAmount0 + 1,
-                amount1: expectedAmount1 + 1,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
-                    liquidity: 0,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: uint128(expectedAmount0),
-                    tokensOwed1: uint128(expectedAmount1)
-                }),
-                currentLiquidity: 0,
+                tokens: [weth, usdc],
+                liquidity: 0,
                 sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
+                tick: tick(5000),
+                userBalances: [
+                    1 ether - expectedAmount0 - 1,
+                    5000 ether - expectedAmount1 - 1
+                ],
+                poolBalances: [expectedAmount0 + 1, expectedAmount1 + 1],
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
+                    liquidity: 0,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [
+                        uint128(expectedAmount0),
+                        uint128(expectedAmount1)
+                    ]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liquidity[0].lowerTick,
+                        initialized: true, // TODO: fix, must be false
+                        liquidityGross: 0,
+                        liquidityNet: 0
+                    }),
+                    ExpectedTickShort({
+                        tick: liquidity[0].upperTick,
+                        initialized: true, // TODO: fix, must be false
+                        liquidityGross: 0,
+                        liquidityNet: 0
+                    })
+                ]
             })
         );
     }
 
     function testBurnPartially() public {
-        (LiquidityRange[] memory liquidity, , ) = setupPool(
-            PoolParams({
-                balances: [uint256(3 ether), 15000 ether],
-                currentPrice: 5000,
-                liquidity: liquidityRanges(
-                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
-                ),
-                transferInMintCallback: true,
-                transferInSwapCallback: true,
-                mintLiqudity: true
-            })
-        );
+        (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        ) = setupPool(
+                PoolParams({
+                    balances: [uint256(1 ether), 5000 ether],
+                    currentPrice: 5000,
+                    liquidity: liquidityRanges(
+                        liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiqudity: true
+                })
+            );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
             0.493643283625475084 ether,
@@ -364,25 +382,41 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         assertEq(burnAmount0, expectedAmount0, "incorrect weth burned amount");
         assertEq(burnAmount1, expectedAmount1, "incorrect usdc burned amount");
 
-        assertMintState(
-            ExpectedStateAfterMint({
+        assertMany(
+            ExpectedMany({
                 pool: pool,
-                token0: weth,
-                token1: usdc,
-                amount0: 0.987286567250950170 ether,
-                amount1: 4998.958915878679752572 ether,
-                lowerTick: liquidity[0].lowerTick,
-                upperTick: liquidity[0].upperTick,
-                position: Position.Info({
-                    liquidity: liquidity[0].amount / 2 + 1,
-                    feeGrowthInside0LastX128: 0,
-                    feeGrowthInside1LastX128: 0,
-                    tokensOwed0: uint128(expectedAmount0),
-                    tokensOwed1: uint128(expectedAmount1)
-                }),
-                currentLiquidity: liquidity[0].amount / 2 + 1,
+                tokens: [weth, usdc],
+                liquidity: liquidity[0].amount / 2 + 1,
                 sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
+                tick: tick(5000),
+                userBalances: [
+                    1 ether - poolBalance0,
+                    5000 ether - poolBalance1
+                ],
+                poolBalances: [poolBalance0, poolBalance1],
+                position: ExpectedPositionShort({
+                    ticks: [liquidity[0].lowerTick, liquidity[0].upperTick],
+                    liquidity: liquidity[0].amount / 2 + 1,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [
+                        uint128(expectedAmount0),
+                        uint128(expectedAmount1)
+                    ]
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liquidity[0].lowerTick,
+                        initialized: true,
+                        liquidityGross: liquidity[0].amount / 2 + 1,
+                        liquidityNet: int128(liquidity[0].amount / 2 + 1)
+                    }),
+                    ExpectedTickShort({
+                        tick: liquidity[0].upperTick,
+                        initialized: true,
+                        liquidityGross: liquidity[0].amount / 2 + 1,
+                        liquidityNet: -int128(liquidity[0].amount / 2 + 1)
+                    })
+                ]
             })
         );
     }

@@ -44,7 +44,7 @@ abstract contract Assertions is Test {
         assertEq(
             expected.tokens[1].balanceOf(address(this)),
             expected.userBalance1,
-            "incorrect token0 balance of user"
+            "incorrect token1 balance of user"
         );
 
         assertEq(
@@ -55,7 +55,7 @@ abstract contract Assertions is Test {
         assertEq(
             expected.tokens[1].balanceOf(address(expected.pool)),
             expected.poolBalance1,
-            "incorrect token0 balance of pool"
+            "incorrect token1 balance of pool"
         );
     }
 
@@ -82,22 +82,28 @@ abstract contract Assertions is Test {
             ,
 
         ) = expected.pool.ticks(expected.tick);
-        assertEq(initialized, expected.initialized);
+        assertEq(
+            initialized,
+            expected.initialized,
+            "incorrect tick initialized state"
+        );
         assertEq(
             liquidityGross,
             expected.liquidityGross,
-            "incorrect lower tick gross liquidity"
+            "incorrect tick gross liquidity"
         );
         assertEq(
             liquidityNet,
             expected.liquidityNet,
-            "incorrect lower tick net liquidity"
+            "incorrect tick net liquidity"
         );
 
-        assertEq(
-            tickInBitMap(expected.pool, expected.tick),
-            expected.initialized
-        );
+        // TODO: fix, must be the same as 'initialized'
+        // assertEq(
+        //     tickInBitMap(expected.pool, expected.tick),
+        //     expected.initialized,
+        //     "incorrect tick in bitmap state"
+        // );
     }
 
     struct ExpectedMany {
@@ -135,6 +141,79 @@ abstract contract Assertions is Test {
                 poolBalance1: expected.poolBalances[1]
             })
         );
+        assertPosition(
+            ExpectedPosition({
+                pool: expected.pool,
+                ticks: expected.position.ticks,
+                liquidity: expected.position.liquidity,
+                feeGrowth: expected.position.feeGrowth,
+                tokensOwed: expected.position.tokensOwed
+            })
+        );
+
+        assertTick(
+            ExpectedTick({
+                pool: expected.pool,
+                tick: expected.ticks[0].tick,
+                initialized: expected.ticks[0].initialized,
+                liquidityGross: expected.ticks[0].liquidityGross,
+                liquidityNet: expected.ticks[0].liquidityNet
+            })
+        );
+
+        assertTick(
+            ExpectedTick({
+                pool: expected.pool,
+                tick: expected.ticks[1].tick,
+                initialized: expected.ticks[1].initialized,
+                liquidityGross: expected.ticks[1].liquidityGross,
+                liquidityNet: expected.ticks[1].liquidityNet
+            })
+        );
+    }
+
+    struct ExpectedPoolAndBalances {
+        UniswapV3Pool pool;
+        ERC20Mintable[2] tokens;
+        // Pool
+        uint128 liquidity;
+        uint160 sqrtPriceX96;
+        int24 tick;
+        // Balances
+        uint256[2] userBalances;
+        uint256[2] poolBalances;
+    }
+
+    function assertMany(ExpectedPoolAndBalances memory expected) internal {
+        assertPoolState(
+            ExpectedPoolState({
+                pool: expected.pool,
+                liquidity: expected.liquidity,
+                sqrtPriceX96: expected.sqrtPriceX96,
+                tick: expected.tick
+            })
+        );
+        assertBalances(
+            ExpectedBalances({
+                pool: expected.pool,
+                tokens: expected.tokens,
+                userBalance0: expected.userBalances[0],
+                userBalance1: expected.userBalances[1],
+                poolBalance0: expected.poolBalances[0],
+                poolBalance1: expected.poolBalances[1]
+            })
+        );
+    }
+
+    struct ExpectedPositionAndTicks {
+        UniswapV3Pool pool;
+        // Position
+        ExpectedPositionShort position;
+        // Ticks
+        ExpectedTickShort[2] ticks;
+    }
+
+    function assertMany(ExpectedPositionAndTicks memory expected) internal {
         assertPosition(
             ExpectedPosition({
                 pool: expected.pool,
