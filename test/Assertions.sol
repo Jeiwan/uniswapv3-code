@@ -67,6 +67,13 @@ abstract contract Assertions is Test {
         int128 liquidityNet;
     }
 
+    struct ExpectedTickShort {
+        int24 tick;
+        bool initialized;
+        uint128 liquidityGross;
+        int128 liquidityNet;
+    }
+
     function assertTick(ExpectedTick memory expected) internal {
         (
             bool initialized,
@@ -93,18 +100,73 @@ abstract contract Assertions is Test {
         );
     }
 
-    function assertMany(
-        ExpectedPoolState memory expectedPoolState,
-        ExpectedBalances memory expectedBalances,
-        ExpectedPosition memory expectedPosition,
-        ExpectedTick memory expectedTick1,
-        ExpectedTick memory expectedTick2
-    ) internal {
-        assertPoolState(expectedPoolState);
-        assertBalances(expectedBalances);
-        assertPosition(expectedPosition);
-        assertTick(expectedTick1);
-        assertTick(expectedTick2);
+    struct ExpectedMany {
+        UniswapV3Pool pool;
+        ERC20Mintable[2] tokens;
+        // Pool
+        uint128 liquidity;
+        uint160 sqrtPriceX96;
+        int24 tick;
+        // Balances
+        uint256 userBalance0;
+        uint256 userBalance1;
+        uint256 poolBalance0;
+        uint256 poolBalance1;
+        // Position
+        int24 lowerTick;
+        int24 upperTick;
+        Position.Info position;
+        // Ticks
+        ExpectedTickShort[2] ticks;
+    }
+
+    function assertMany(ExpectedMany memory expected) internal {
+        assertPoolState(
+            ExpectedPoolState({
+                pool: expected.pool,
+                liquidity: expected.liquidity,
+                sqrtPriceX96: expected.sqrtPriceX96,
+                tick: expected.tick
+            })
+        );
+        assertBalances(
+            ExpectedBalances({
+                pool: expected.pool,
+                tokens: expected.tokens,
+                userBalance0: expected.userBalance0,
+                userBalance1: expected.userBalance1,
+                poolBalance0: expected.poolBalance0,
+                poolBalance1: expected.poolBalance1
+            })
+        );
+        assertPosition(
+            ExpectedPosition({
+                pool: expected.pool,
+                lowerTick: expected.lowerTick,
+                upperTick: expected.upperTick,
+                position: expected.position
+            })
+        );
+
+        assertTick(
+            ExpectedTick({
+                pool: expected.pool,
+                tick: expected.ticks[0].tick,
+                initialized: expected.ticks[0].initialized,
+                liquidityGross: expected.ticks[0].liquidityGross,
+                liquidityNet: expected.ticks[0].liquidityNet
+            })
+        );
+
+        assertTick(
+            ExpectedTick({
+                pool: expected.pool,
+                tick: expected.ticks[1].tick,
+                initialized: expected.ticks[1].initialized,
+                liquidityGross: expected.ticks[1].liquidityGross,
+                liquidityNet: expected.ticks[1].liquidityNet
+            })
+        );
     }
 
     struct ExpectedStateAfterMint {

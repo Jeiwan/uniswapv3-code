@@ -83,22 +83,16 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
 
         assertMany(
-            ExpectedPoolState({
-                pool: pool,
-                liquidity: liquidity[0].amount,
-                sqrtPriceX96: sqrtP(5000),
-                tick: tick(5000)
-            }),
-            ExpectedBalances({
+            ExpectedMany({
                 pool: pool,
                 tokens: [weth, usdc],
+                liquidity: liquidity[0].amount,
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000),
                 userBalance0: 1 ether - expectedAmount0,
                 userBalance1: 5000 ether - expectedAmount1,
                 poolBalance0: expectedAmount0,
-                poolBalance1: expectedAmount1
-            }),
-            ExpectedPosition({
-                pool: pool,
+                poolBalance1: expectedAmount1,
                 lowerTick: liquidity[0].lowerTick,
                 upperTick: liquidity[0].upperTick,
                 position: Position.Info({
@@ -107,21 +101,21 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                     feeGrowthInside1LastX128: 0,
                     tokensOwed0: 0,
                     tokensOwed1: 0
-                })
-            }),
-            ExpectedTick({
-                pool: pool,
-                tick: liquidity[0].lowerTick,
-                initialized: true,
-                liquidityGross: liquidity[0].amount,
-                liquidityNet: int128(liquidity[0].amount)
-            }),
-            ExpectedTick({
-                pool: pool,
-                tick: liquidity[0].upperTick,
-                initialized: true,
-                liquidityGross: liquidity[0].amount,
-                liquidityNet: -int128(liquidity[0].amount)
+                }),
+                ticks: [
+                    ExpectedTickShort({
+                        tick: liquidity[0].lowerTick,
+                        initialized: true,
+                        liquidityGross: liquidity[0].amount,
+                        liquidityNet: int128(liquidity[0].amount)
+                    }),
+                    ExpectedTickShort({
+                        tick: liquidity[0].upperTick,
+                        initialized: true,
+                        liquidityGross: liquidity[0].amount,
+                        liquidityNet: -int128(liquidity[0].amount)
+                    })
+                ]
             })
         );
     }
