@@ -82,6 +82,15 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             "incorrect usdc deposited amount"
         );
 
+        assertPoolState(
+            ExpectedPoolState({
+                pool: pool,
+                liquidity: liquidity[0].amount,
+                sqrtPriceX96: sqrtP(5000),
+                tick: tick(5000)
+            })
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,

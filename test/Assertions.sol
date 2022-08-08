@@ -8,6 +8,24 @@ import "../src/UniswapV3Pool.sol";
 import "./ERC20Mintable.sol";
 
 abstract contract Assertions is Test {
+    struct ExpectedPoolState {
+        UniswapV3Pool pool;
+        uint128 liquidity;
+        uint160 sqrtPriceX96;
+        int24 tick;
+    }
+
+    function assertPoolState(ExpectedPoolState memory expected) internal {
+        (uint160 sqrtPriceX96, int24 currentTick) = expected.pool.slot0();
+        assertEq(sqrtPriceX96, expected.sqrtPriceX96, "invalid current sqrtP");
+        assertEq(currentTick, expected.tick, "invalid current tick");
+        assertEq(
+            expected.pool.liquidity(),
+            expected.liquidity,
+            "invalid current liquidity"
+        );
+    }
+
     struct ExpectedStateAfterMint {
         UniswapV3Pool pool;
         ERC20Mintable token0;
