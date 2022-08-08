@@ -53,8 +53,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             LiquidityRange[] memory liquidity,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     balances: [uint256(1 ether), 5000 ether],
                     currentPrice: 5000,
                     liquidity: liquidityRanges(
@@ -110,8 +110,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             LiquidityRange[] memory liquidity,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     balances: [uint256(1 ether), 5000 ether],
                     currentPrice: 5000,
                     liquidity: liquidityRanges(
@@ -167,8 +167,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             LiquidityRange[] memory liquidity,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     balances: [uint256(1 ether), 5000 ether],
                     currentPrice: 5000,
                     liquidity: liquidityRanges(
@@ -222,8 +222,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     // 4000 ------|------ 6250
     //
     function testMintOverlappingRanges() public {
-        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
-            TestCaseParams({
+        (LiquidityRange[] memory liquidity, , ) = setupPool(
+            PoolParams({
                 balances: [uint256(3 ether), 15000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
@@ -286,8 +286,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testBurn() public {
-        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
-            TestCaseParams({
+        (LiquidityRange[] memory liquidity, , ) = setupPool(
+            PoolParams({
                 balances: [uint256(3 ether), 15000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
@@ -337,8 +337,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testBurnPartially() public {
-        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
-            TestCaseParams({
+        (LiquidityRange[] memory liquidity, , ) = setupPool(
+            PoolParams({
                 balances: [uint256(3 ether), 15000 ether],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
@@ -409,8 +409,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     }
 
     function testMintInsufficientTokenBalance() public {
-        (LiquidityRange[] memory liquidity, , ) = setupTestCase(
-            TestCaseParams({
+        (LiquidityRange[] memory liquidity, , ) = setupPool(
+            PoolParams({
                 balances: [uint256(0), 0],
                 currentPrice: 5000,
                 liquidity: liquidityRanges(
@@ -458,7 +458,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     // INTERNAL
     //
     ////////////////////////////////////////////////////////////////////////////
-    function setupTestCase(TestCaseParams memory params)
+    function setupPool(PoolParams memory params)
         internal
         returns (
             LiquidityRange[] memory liquidity,

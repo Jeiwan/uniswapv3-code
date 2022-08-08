@@ -36,8 +36,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 1 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -94,8 +94,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 1 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -152,8 +152,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 10 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -208,8 +208,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     // 4000 ------|------ 6250
     //
     function testMintOverlappingRanges() public {
-        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupTestCase(
-            TestCaseParams({
+        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupPool(
+            PoolParams({
                 wethBalance: 3 ether,
                 usdcBalance: 15000 ether,
                 currentPrice: 5000,
@@ -285,8 +285,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     // 4000 ------ ------ 6250
     //      5000-1 5000+1
     function testMintPartiallyOverlappingRanges() public {
-        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupTestCase(
-            TestCaseParams({
+        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupPool(
+            PoolParams({
                 wethBalance: 3 ether,
                 usdcBalance: 15000 ether,
                 currentPrice: 5000,
@@ -444,8 +444,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testMintInsufficientTokenBalance() public {
-        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupTestCase(
-            TestCaseParams({
+        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupPool(
+            PoolParams({
                 wethBalance: 0,
                 usdcBalance: 0,
                 currentPrice: 5000,
@@ -510,8 +510,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 1 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -570,8 +570,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 1 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -630,8 +630,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 1 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -741,8 +741,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             IUniswapV3Manager.MintParams[] memory mints,
             uint256 poolBalance0,
             uint256 poolBalance1
-        ) = setupTestCase(
-                TestCaseParams({
+        ) = setupPool(
+                PoolParams({
                     wethBalance: 1 ether,
                     usdcBalance: 5000 ether,
                     currentPrice: 5000,
@@ -805,8 +805,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testSwapBuyEthNotEnoughLiquidity() public {
-        setupTestCase(
-            TestCaseParams({
+        setupPool(
+            PoolParams({
                 wethBalance: 1 ether,
                 usdcBalance: 5000 ether,
                 currentPrice: 5000,
@@ -834,8 +834,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testSwapBuyUSDCNotEnoughLiquidity() public {
-        setupTestCase(
-            TestCaseParams({
+        setupPool(
+            PoolParams({
                 wethBalance: 1 ether,
                 usdcBalance: 5000 ether,
                 currentPrice: 5000,
@@ -863,8 +863,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     }
 
     function testSwapInsufficientInputAmount() public {
-        setupTestCase(
-            TestCaseParams({
+        setupPool(
+            PoolParams({
                 wethBalance: 1 ether,
                 usdcBalance: 5000 ether,
                 currentPrice: 5000,
@@ -892,7 +892,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
     // INTERNAL
     //
     ////////////////////////////////////////////////////////////////////////////
-    struct TestCaseParams {
+    struct PoolParams {
         uint256 wethBalance;
         uint256 usdcBalance;
         uint256 currentPrice;
@@ -960,7 +960,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
-    function setupTestCase(TestCaseParams memory params)
+    function setupPool(PoolParams memory params)
         internal
         returns (
             IUniswapV3Manager.MintParams[] memory mints_,
