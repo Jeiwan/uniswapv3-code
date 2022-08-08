@@ -91,6 +91,17 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             })
         );
 
+        assertBalances(
+            ExpectedBalances({
+                pool: pool,
+                tokens: [weth, usdc],
+                userBalance0: 1 ether - expectedAmount0,
+                userBalance1: 5000 ether - expectedAmount1,
+                poolBalance0: expectedAmount0,
+                poolBalance1: expectedAmount1
+            })
+        );
+
         assertMintState(
             ExpectedStateAfterMint({
                 pool: pool,

@@ -26,6 +26,39 @@ abstract contract Assertions is Test {
         );
     }
 
+    struct ExpectedBalances {
+        UniswapV3Pool pool;
+        ERC20Mintable[2] tokens;
+        uint256 userBalance0;
+        uint256 userBalance1;
+        uint256 poolBalance0;
+        uint256 poolBalance1;
+    }
+
+    function assertBalances(ExpectedBalances memory expected) internal {
+        assertEq(
+            expected.tokens[0].balanceOf(address(this)),
+            expected.userBalance0,
+            "incorrect token0 balance of user"
+        );
+        assertEq(
+            expected.tokens[1].balanceOf(address(this)),
+            expected.userBalance1,
+            "incorrect token0 balance of user"
+        );
+
+        assertEq(
+            expected.tokens[0].balanceOf(address(expected.pool)),
+            expected.poolBalance0,
+            "incorrect token0 balance of pool"
+        );
+        assertEq(
+            expected.tokens[1].balanceOf(address(expected.pool)),
+            expected.poolBalance1,
+            "incorrect token0 balance of pool"
+        );
+    }
+
     struct ExpectedStateAfterMint {
         UniswapV3Pool pool;
         ERC20Mintable token0;
