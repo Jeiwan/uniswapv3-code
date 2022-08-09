@@ -194,14 +194,14 @@ contract UniswapV3Pool is IUniswapV3Pool {
             );
         } else if (slot0_.tick < params.upperTick) {
             amount0 = Math.calcAmount0Delta(
-                TickMath.getSqrtRatioAtTick(slot0_.tick),
+                slot0_.sqrtPriceX96,
                 TickMath.getSqrtRatioAtTick(params.upperTick),
                 params.liquidityDelta
             );
 
             amount1 = Math.calcAmount1Delta(
-                TickMath.getSqrtRatioAtTick(slot0_.tick),
                 TickMath.getSqrtRatioAtTick(params.lowerTick),
+                slot0_.sqrtPriceX96,
                 params.liquidityDelta
             );
 
@@ -413,6 +413,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
         if (state.tick != slot0_.tick) {
             (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);
+        } else {
+            slot0.sqrtPriceX96 = state.sqrtPriceX96;
         }
 
         if (liquidity_ != state.liquidity) liquidity = state.liquidity;

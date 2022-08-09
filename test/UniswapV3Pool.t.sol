@@ -67,8 +67,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.987286567250950170 ether,
-            4998.958915878679752572 ether
+            0.987078348444137445 ether,
+            5000 ether
         );
 
         assertEq(
@@ -240,8 +240,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            1.783209628932229704 ether,
-            8998.601885914465050207 ether
+            1.782930003452677700 ether,
+            8999.999999999999999997 ether
         );
 
         assertMany(
@@ -302,8 +302,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.987286567250950169 ether,
-            4998.958915878679752571 ether
+            0.987078348444137444 ether,
+            4999.999999999999999999 ether
         );
 
         (uint256 burnAmount0, uint256 burnAmount1) = pool.burn(
@@ -374,8 +374,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.493643283625475084 ether,
-            2499.479457939339876284 ether
+            0.493539174222068722 ether,
+            2499.999999999999999997 ether
         );
 
         (uint256 burnAmount0, uint256 burnAmount1) = pool.burn(

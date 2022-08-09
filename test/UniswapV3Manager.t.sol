@@ -51,8 +51,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             );
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.987286567250950170 ether,
-            4998.958915878679752572 ether
+            0.987078348444137445 ether,
+            5000 ether
         );
 
         assertEq(
@@ -232,8 +232,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (uint256 amount0, uint256 amount1) = (
-            1.733464437577149733 ether,
-            8748.624200287228469107 ether
+            1.733189275014643934 ether,
+            8750.000000000000000000 ether
         );
 
         assertMany(
@@ -310,8 +310,8 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
 
         (uint256 amount0, uint256 amount1) = (
-            1.487286567250950170 ether,
-            8748.958915878679752566 ether
+            1.487078348444137445 ether,
+            8749.999999999999999994 ether
         );
 
         assertMany(
@@ -444,10 +444,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         usdc.approve(address(manager), amount1);
 
         vm.expectRevert(
-            encodeSlippageCheckFailed(
-                0.987286567250950170 ether,
-                4998.958915878679752572 ether
-            )
+            encodeSlippageCheckFailed(0.987078348444137445 ether, 5000 ether)
         );
         manager.mint(
             IUniswapV3Manager.MintParams({
