@@ -427,6 +427,88 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testCollect() public {
+        (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        ) = setupPool(
+                PoolParams({
+                    balances: [uint256(1 ether), 5000 ether],
+                    currentPrice: 5000,
+                    liquidity: liquidityRanges(
+                        liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiqudity: true
+                })
+            );
+        LiquidityRange memory liq = liquidity[0];
+
+        uint256 swapAmount = 42 ether; // 42 USDC
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
+
+        (int256 swapAmount0, int256 swapAmount1) = pool.swap(
+            address(this),
+            false,
+            swapAmount,
+            sqrtP(5004),
+            encodeExtra(address(weth), address(usdc), address(this))
+        );
+
+        pool.burn(liq.lowerTick, liq.upperTick, liq.amount);
+
+        bytes32 positionKey = keccak256(
+            abi.encodePacked(address(this), liq.lowerTick, liq.upperTick)
+        );
+
+        (, , , uint128 tokensOwed0, uint128 tokensOwed1) = pool.positions(
+            positionKey
+        );
+
+        assertEq(
+            tokensOwed0,
+            uint256(int256(poolBalance0) + swapAmount0 - 1),
+            "incorrect tokens owed for token0"
+        );
+        assertEq(
+            tokensOwed1,
+            uint256(int256(poolBalance1) + swapAmount1 - 2), // swap fee 0.003%
+            "incorrect tokens owed for token1"
+        );
+
+        (uint128 amountCollected0, uint128 amountCollected1) = pool.collect(
+            address(this),
+            liq.lowerTick,
+            liq.upperTick,
+            tokensOwed0,
+            tokensOwed1
+        );
+        assertEq(
+            amountCollected0,
+            tokensOwed0,
+            "incorrect collected amount for token 0"
+        );
+        assertEq(
+            amountCollected1,
+            tokensOwed1,
+            "incorrect collected amount for token 1"
+        );
+
+        assertEq(
+            weth.balanceOf(address(pool)),
+            1,
+            "incorrect pool balance of token0 after collect"
+        );
+        assertEq(
+            usdc.balanceOf(address(pool)),
+            2,
+            "incorrect pool balance of token1 after collect"
+        );
+    }
+
     function testMintInvalidTickRangeLower() public {
         pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
 
@@ -490,6 +572,33 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
 
             IERC20(extra.token0).transferFrom(extra.payer, msg.sender, amount0);
             IERC20(extra.token1).transferFrom(extra.payer, msg.sender, amount1);
+        }
+    }
+
+    function uniswapV3SwapCallback(
+        int256 amount0,
+        int256 amount1,
+        bytes calldata data
+    ) public {
+        IUniswapV3Pool.CallbackData memory cbData = abi.decode(
+            data,
+            (IUniswapV3Pool.CallbackData)
+        );
+
+        if (amount0 > 0) {
+            IERC20(cbData.token0).transferFrom(
+                cbData.payer,
+                msg.sender,
+                uint256(amount0)
+            );
+        }
+
+        if (amount1 > 0) {
+            IERC20(cbData.token1).transferFrom(
+                cbData.payer,
+                msg.sender,
+                uint256(amount1)
+            );
         }
     }
 
