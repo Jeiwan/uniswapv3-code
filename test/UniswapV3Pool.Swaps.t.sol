@@ -69,7 +69,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        assertEq(amount0Delta, -0.008371593947078468 ether, "invalid ETH out");
+        assertEq(amount0Delta, -0.008371593947078467 ether, "invalid ETH out");
         assertEq(amount1Delta, 42 ether, "invalid USDC in");
 
         LiquidityRange memory liq = liquidity[0];
@@ -149,7 +149,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        assertEq(amount0Delta, -0.008373196666644049 ether, "invalid ETH out");
+        assertEq(amount0Delta, -0.008373196666644048 ether, "invalid ETH out");
         assertEq(amount1Delta, 42 ether, "invalid USDC in");
 
         LiquidityRange memory liq = liquidity[0];
@@ -240,7 +240,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        assertEq(amount0Delta, -1.806151062659754716 ether, "invalid ETH out");
+        assertEq(amount0Delta, -1.806151062659754714 ether, "invalid ETH out");
         assertEq(
             amount1Delta,
             9938.146841864722991247 ether,
@@ -367,7 +367,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        assertEq(amount0Delta, -1.846400936777913635 ether, "invalid ETH out");
+        assertEq(amount0Delta, -1.846400936777913632 ether, "invalid ETH out");
         assertEq(
             amount1Delta,
             9932.742771767366603035 ether,
@@ -488,7 +488,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             extra
         );
 
-        assertEq(amount0Delta, -0.006557492291469846 ether, "invalid ETH out");
+        assertEq(amount0Delta, -0.006557492291469845 ether, "invalid ETH out");
         assertEq(amount1Delta, 32.895984173313069971 ether, "invalid USDC in");
 
         LiquidityRange memory liq = liquidity[0];
@@ -563,7 +563,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         assertEq(amount0Delta, 0.01337 ether, "invalid ETH out");
-        assertEq(amount1Delta, -66.608848079558229698 ether, "invalid USDC in");
+        assertEq(amount1Delta, -66.608848079558229697 ether, "invalid USDC in");
 
         LiquidityRange memory liq = liquidity[0];
         assertMany(
@@ -643,7 +643,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         assertEq(amount0Delta, 0.01337 ether, "invalid ETH out");
-        assertEq(amount1Delta, -66.629142854363394713 ether, "invalid USDC in");
+        assertEq(amount1Delta, -66.629142854363394712 ether, "invalid USDC in");
 
         LiquidityRange memory liq = liquidity[0];
         uint128 liqAmount = liquidity[0].amount + liquidity[1].amount;
@@ -736,7 +736,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertEq(amount0Delta, 1.992510070712824953 ether, "invalid ETH out");
         assertEq(
             amount1Delta,
-            -9052.445703934334276106 ether,
+            -9052.445703934334276104 ether,
             "invalid USDC in"
         );
 
@@ -863,7 +863,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertEq(amount0Delta, 1.996627649722534946 ether, "invalid ETH out");
         assertEq(
             amount1Delta,
-            -9282.886546310580739342 ether,
+            -9282.886546310580739340 ether,
             "invalid USDC in"
         );
 
@@ -982,7 +982,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         assertEq(amount0Delta, 0.013172223319600129 ether, "invalid ETH out");
-        assertEq(amount1Delta, -65.624123301724744142 ether, "invalid USDC in");
+        assertEq(amount1Delta, -65.624123301724744141 ether, "invalid USDC in");
 
         LiquidityRange memory liq = liquidity[0];
         assertMany(

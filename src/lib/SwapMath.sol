@@ -51,24 +51,41 @@ library SwapMath {
                 zeroForOne
             );
 
-        amountIn = Math.calcAmount0Delta(
-            sqrtPriceCurrentX96,
-            sqrtPriceNextX96,
-            liquidity,
-            true
-        );
-        amountOut = Math.calcAmount1Delta(
-            sqrtPriceCurrentX96,
-            sqrtPriceNextX96,
-            liquidity,
-            true
-        );
+        bool max = sqrtPriceNextX96 == sqrtPriceTargetX96;
 
-        if (!zeroForOne) {
-            (amountIn, amountOut) = (amountOut, amountIn);
+        if (zeroForOne) {
+            amountIn = max
+                ? amountIn
+                : Math.calcAmount0Delta(
+                    sqrtPriceCurrentX96,
+                    sqrtPriceNextX96,
+                    liquidity,
+                    true
+                );
+            amountOut = Math.calcAmount1Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceNextX96,
+                liquidity,
+                false
+            );
+        } else {
+            amountIn = max
+                ? amountIn
+                : Math.calcAmount1Delta(
+                    sqrtPriceCurrentX96,
+                    sqrtPriceNextX96,
+                    liquidity,
+                    true
+                );
+            amountOut = Math.calcAmount0Delta(
+                sqrtPriceCurrentX96,
+                sqrtPriceNextX96,
+                liquidity,
+                false
+            );
         }
 
-        if (sqrtPriceNextX96 != sqrtPriceTargetX96) {
+        if (!max) {
             feeAmount = amountRemaining - amountIn;
         } else {
             feeAmount = Math.mulDivRoundingUp(amountIn, fee, 1e6 - fee);

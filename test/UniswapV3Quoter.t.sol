@@ -91,7 +91,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 })
             );
 
-        assertEq(amountOut, 66.608848079558229698 ether, "invalid amountOut");
+        assertEq(amountOut, 66.608848079558229697 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
             5598864267980327381293641469695, // 4993.909994249256
@@ -112,7 +112,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
                 })
             );
 
-        assertEq(amountOut, 0.008371593947078468 ether, "invalid amountOut");
+        assertEq(amountOut, 0.008371593947078467 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96After,
             5604422590555458105735383351329, // 5003.830413717752
@@ -139,7 +139,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
             int24[] memory tickAfterList
         ) = quoter.quote(path, 3 ether);
 
-        assertEq(amountOut, 1463.863228593034640093 ether, "invalid amountOut");
+        assertEq(amountOut, 1463.863228593034635225 ether, "invalid amountOut");
         assertEq(
             sqrtPriceX96AfterList[0],
             251771757807685223741030010328, // 10.098453187753986
@@ -147,7 +147,7 @@ contract UniswapV3QuoterTest is Test, TestUtils {
         );
         assertEq(
             sqrtPriceX96AfterList[1],
-            5527273314166940201646773054671, // 4867.015316523305
+            5527273314166940201896143730186, // 4867.015316523305
             "invalid sqrtPriceX96After"
         );
         assertEq(tickAfterList[0], 23124, "invalid tickAFter");

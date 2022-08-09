@@ -516,7 +516,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             })
         );
 
-        uint256 expectedAmountOut = 0.008371593947078468 ether;
+        uint256 expectedAmountOut = 0.008371593947078467 ether;
 
         assertEq(amountOut, expectedAmountOut, "invalid ETH out");
 
@@ -588,7 +588,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             })
         );
 
-        uint256 expectedAmountOut = 66.608848079558229698 ether;
+        uint256 expectedAmountOut = 66.608848079558229697 ether;
 
         assertEq(amountOut, expectedAmountOut, "invalid ETH out");
 
@@ -692,7 +692,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             })
         );
 
-        assertEq(amountOut, 1223.599499987434636079 ether, "invalid USDC out");
+        assertEq(amountOut, 1223.599499987434631189 ether, "invalid USDC out");
 
         IUniswapV3Manager.MintParams memory mint = mints[0];
         assertMany(
@@ -700,7 +700,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 pool: pool,
                 tokens: [weth, usdc],
                 liquidity: liquidity(mint, 5000),
-                sqrtPriceX96: 5539583677789714904047360872750, // 4888.719128166855
+                sqrtPriceX96: 5539583677789714904297843583839, // 4888.719128166855
                 tick: 84951,
                 fees: [
                     uint256(163879779853250804931705964313699), // 0.000000481599388579
@@ -708,7 +708,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ],
                 userBalances: [userBalances[0], userBalances[1] + amountOut],
                 poolBalances: [
-                    poolBalance0 + 0.248234183855004780 ether, // initial + 2.5 UNI sold for ETH
+                    poolBalance0 + 0.248234183855004779 ether, // initial + 2.5 UNI sold for ETH
                     poolBalance1 - amountOut
                 ],
                 position: ExpectedPositionShort({
@@ -735,7 +735,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ],
                 userBalances: [userBalances[0], userBalances[2] - swapAmount],
                 poolBalances: [
-                    wethUNIBalance0 - 0.248234183855004780 ether,
+                    wethUNIBalance0 - 0.248234183855004779 ether,
                     wethUNIBalance1 + swapAmount
                 ],
                 position: ExpectedPositionShort({
