@@ -509,6 +509,62 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testCollectMoreThanAvailable() public {
+        (LiquidityRange[] memory liquidity, , ) = setupPool(
+            PoolParams({
+                balances: [uint256(1 ether), 5000 ether],
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
+        );
+        LiquidityRange memory liq = liquidity[0];
+
+        uint256 swapAmount = 42 ether; // 42 USDC
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
+
+        pool.swap(
+            address(this),
+            false,
+            swapAmount,
+            sqrtP(5004),
+            encodeExtra(address(weth), address(usdc), address(this))
+        );
+
+        pool.burn(liq.lowerTick, liq.upperTick, liq.amount);
+
+        bytes32 positionKey = keccak256(
+            abi.encodePacked(address(this), liq.lowerTick, liq.upperTick)
+        );
+
+        (, , , uint128 tokensOwed0, uint128 tokensOwed1) = pool.positions(
+            positionKey
+        );
+
+        (uint128 amountCollected0, uint128 amountCollected1) = pool.collect(
+            address(this),
+            liq.lowerTick,
+            liq.upperTick,
+            999_999_999 ether,
+            999_999_999 ether
+        );
+        assertEq(
+            amountCollected0,
+            tokensOwed0,
+            "incorrect collected amount for token 0"
+        );
+        assertEq(
+            amountCollected1,
+            tokensOwed1,
+            "incorrect collected amount for token 1"
+        );
+    }
+
     function testMintInvalidTickRangeLower() public {
         pool = deployPool(factory, address(weth), address(usdc), 3000, 1);
 
