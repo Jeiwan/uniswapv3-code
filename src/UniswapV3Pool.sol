@@ -51,6 +51,11 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint256 amount1
     );
 
+    event IncreaseObservationCardinalityNext(
+        uint16 observationCardinalityNextOld,
+        uint16 observationCardinalityNextNew
+    );
+
     event Mint(
         address sender,
         address indexed owner,
