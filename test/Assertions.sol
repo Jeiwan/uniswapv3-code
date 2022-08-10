@@ -17,7 +17,7 @@ abstract contract Assertions is Test {
     }
 
     function assertPoolState(ExpectedPoolState memory expected) internal {
-        (uint160 sqrtPriceX96, int24 currentTick) = expected.pool.slot0();
+        (uint160 sqrtPriceX96, int24 currentTick, , ) = expected.pool.slot0();
         assertEq(sqrtPriceX96, expected.sqrtPriceX96, "invalid current sqrtP");
         assertEq(currentTick, expected.tick, "invalid current tick");
         assertEq(

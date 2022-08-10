@@ -12,6 +12,7 @@ import "./interfaces/IUniswapV3SwapCallback.sol";
 import "./lib/FixedPoint128.sol";
 import "./lib/LiquidityMath.sol";
 import "./lib/Math.sol";
+import "./lib/Oracle.sol";
 import "./lib/Position.sol";
 import "./lib/SwapMath.sol";
 import "./lib/Tick.sol";
@@ -19,10 +20,11 @@ import "./lib/TickBitmap.sol";
 import "./lib/TickMath.sol";
 
 contract UniswapV3Pool is IUniswapV3Pool {
+    using Oracle for Oracle.Observation[65535];
+    using Position for Position.Info;
+    using Position for mapping(bytes32 => Position.Info);
     using Tick for mapping(int24 => Tick.Info);
     using TickBitmap for mapping(int16 => uint256);
-    using Position for mapping(bytes32 => Position.Info);
-    using Position for Position.Info;
 
     error AlreadyInitialized();
     error InsufficientInputAmount();
@@ -85,6 +87,10 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint160 sqrtPriceX96;
         // Current tick
         int24 tick;
+        // Most recent observation index
+        uint16 observationIndex;
+        // Maximum number of observations
+        uint16 observationCardinality;
     }
 
     struct SwapState {
@@ -114,6 +120,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
     mapping(int24 => Tick.Info) public ticks;
     mapping(int16 => uint256) public tickBitmap;
     mapping(bytes32 => Position.Info) public positions;
+    Oracle.Observation[65535] public observations;
 
     constructor() {
         (factory, token0, token1, tickSpacing, fee) = IUniswapV3PoolDeployer(
@@ -126,7 +133,14 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
         int24 tick = TickMath.getTickAtSqrtRatio(sqrtPriceX96);
 
-        slot0 = Slot0({sqrtPriceX96: sqrtPriceX96, tick: tick});
+        uint16 cardinality = observations.initialize(_blockTimestamp());
+
+        slot0 = Slot0({
+            sqrtPriceX96: sqrtPriceX96,
+            tick: tick,
+            observationIndex: 0,
+            observationCardinality: cardinality
+        });
     }
 
     struct ModifyPositionParams {
@@ -530,5 +544,9 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
     function balance1() internal returns (uint256 balance) {
         balance = IERC20(token1).balanceOf(address(this));
+    }
+
+    function _blockTimestamp() internal returns (uint32 timestamp) {
+        timestamp = uint32(block.timestamp);
     }
 }

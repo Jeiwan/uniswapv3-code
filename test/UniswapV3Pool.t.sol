@@ -30,13 +30,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             factory.createPool(address(weth), address(usdc), 3000)
         );
 
-        (uint160 sqrtPriceX96, int24 tick) = pool.slot0();
+        (uint160 sqrtPriceX96, int24 tick, , ) = pool.slot0();
         assertEq(sqrtPriceX96, 0, "invalid sqrtPriceX96");
         assertEq(tick, 0, "invalid tick");
 
         pool.initialize(sqrtP(31337));
 
-        (sqrtPriceX96, tick) = pool.slot0();
+        (sqrtPriceX96, tick, , ) = pool.slot0();
         assertEq(
             sqrtPriceX96,
             14025175117687921942002399182848,

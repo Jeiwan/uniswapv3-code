@@ -113,7 +113,7 @@ contract UniswapV3Quoter {
             ? uint256(-amount1Delta)
             : uint256(-amount0Delta);
 
-        (uint160 sqrtPriceX96After, int24 tickAfter) = IUniswapV3Pool(pool)
+        (uint160 sqrtPriceX96After, int24 tickAfter, , ) = IUniswapV3Pool(pool)
             .slot0();
 
         assembly {
