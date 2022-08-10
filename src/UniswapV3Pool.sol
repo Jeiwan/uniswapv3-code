@@ -574,6 +574,24 @@ contract UniswapV3Pool is IUniswapV3Pool {
             );
     }
 
+    function increaseObservationCardinalityNext(
+        uint16 observationCardinalityNext
+    ) public {
+        uint16 observationCardinalityNextOld = slot0.observationCardinalityNext;
+        uint16 observationCardinalityNextNew = observations.grow(
+            observationCardinalityNextOld,
+            observationCardinalityNext
+        );
+
+        if (observationCardinalityNextNew != observationCardinalityNextOld) {
+            slot0.observationCardinalityNext = observationCardinalityNextNew;
+            emit IncreaseObservationCardinalityNext(
+                observationCardinalityNextOld,
+                observationCardinalityNextNew
+            );
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // INTERNAL

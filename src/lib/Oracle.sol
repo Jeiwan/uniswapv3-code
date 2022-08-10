@@ -44,6 +44,20 @@ library Oracle {
         self[indexUpdated] = transform(last, timestamp, tick);
     }
 
+    function grow(
+        Observation[65535] storage self,
+        uint16 current,
+        uint16 next
+    ) internal returns (uint16) {
+        if (next <= current) return current;
+
+        for (uint16 i = current; i < next; i++) {
+            self[i].timestamp = 1;
+        }
+
+        return next;
+    }
+
     function transform(
         Observation memory last,
         uint32 timestamp,
