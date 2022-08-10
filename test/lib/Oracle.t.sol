@@ -172,11 +172,7 @@ contract OracleTest is Test {
     }
 
     function grow(uint16 next) internal {
-        for (uint16 i = cardinality; i < next; i++) {
-            oracle[i].timestamp = 1;
-        }
-
-        cardinalityNext = next;
+        cardinalityNext = oracle.grow(cardinality, next);
     }
 
     function write(int24 tick_) internal {
