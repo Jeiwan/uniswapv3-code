@@ -475,7 +475,18 @@ contract UniswapV3Pool is IUniswapV3Pool {
         }
 
         if (state.tick != slot0_.tick) {
-            (slot0.sqrtPriceX96, slot0.tick) = (state.sqrtPriceX96, state.tick);
+            uint16 observationIndex = observations.write(
+                slot0_.observationIndex,
+                _blockTimestamp(),
+                slot0_.tick,
+                slot0_.observationCardinality
+            );
+
+            (slot0.sqrtPriceX96, slot0.tick, slot0.observationIndex) = (
+                state.sqrtPriceX96,
+                state.tick,
+                observationIndex
+            );
         } else {
             slot0.sqrtPriceX96 = state.sqrtPriceX96;
         }
