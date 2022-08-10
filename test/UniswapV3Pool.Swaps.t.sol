@@ -1247,6 +1247,80 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         pool.swap(address(this), false, 42 ether, sqrtP(5004), "");
     }
 
+    function testObservations() public {
+        setupPool(
+            PoolParams({
+                balances: [uint256(1 ether), 5000 ether],
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
+        );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
+            })
+        );
+
+        uint256 swapAmount = 100 ether; // 100 USDC
+        usdc.mint(address(this), swapAmount * 10);
+        usdc.approve(address(this), swapAmount * 10);
+
+        uint256 swapAmount2 = 1 ether; // 1 WETH
+        weth.mint(address(this), swapAmount2 * 10);
+        weth.approve(address(this), swapAmount2 * 10);
+
+        (, int24 tickBeforeSwap, , ) = pool.slot0();
+        int56 tickCumulative = tickBeforeSwap * 0;
+        pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: tickCumulative,
+                initialized: true
+            })
+        );
+
+        vm.warp(7);
+        (, tickBeforeSwap, , ) = pool.slot0();
+        tickCumulative += tickBeforeSwap * (7 - 1);
+        pool.swap(address(this), true, swapAmount2, sqrtP(4000), extra);
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 7,
+                tickCumulative: tickCumulative,
+                initialized: true
+            })
+        );
+
+        vm.warp(20);
+        (, tickBeforeSwap, , ) = pool.slot0();
+        tickCumulative += tickBeforeSwap * (20 - 7);
+        pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 20,
+                tickCumulative: tickCumulative,
+                initialized: true
+            })
+        );
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // CALLBACKS
