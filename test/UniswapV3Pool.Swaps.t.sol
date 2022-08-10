@@ -1321,6 +1321,50 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testObserve() public {
+        setupPool(
+            PoolParams({
+                balances: [uint256(1 ether), 5000 ether],
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
+        );
+
+        uint32[] memory secondsAgos;
+        pool.increaseObservationCardinalityNext(3);
+
+        uint256 swapAmount = 100 ether; // 100 USDC
+        usdc.mint(address(this), swapAmount * 10);
+        usdc.approve(address(this), swapAmount * 10);
+
+        uint256 swapAmount2 = 1 ether; // 1 WETH
+        weth.mint(address(this), swapAmount2 * 10);
+        weth.approve(address(this), swapAmount2 * 10);
+
+        pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
+
+        vm.warp(7);
+        pool.swap(address(this), true, swapAmount2, sqrtP(4000), extra);
+
+        vm.warp(20);
+        pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
+
+        secondsAgos = new uint32[](3);
+        secondsAgos[0] = 0;
+        secondsAgos[1] = 13;
+        secondsAgos[2] = 19;
+
+        int56[] memory tickCumulatives = pool.observe(secondsAgos);
+        assertEq(tickCumulatives[0], 1607077);
+        assertEq(tickCumulatives[1], 511164);
+        assertEq(tickCumulatives[2], 0);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // CALLBACKS
