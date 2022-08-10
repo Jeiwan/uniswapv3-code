@@ -40,7 +40,7 @@ library Oracle {
             cardinalityUpdated = cardinality;
         }
 
-        indexUpdated = (index + 1) % cardinality;
+        indexUpdated = (index + 1) % cardinalityUpdated;
         self[indexUpdated] = transform(last, timestamp, tick);
     }
 
