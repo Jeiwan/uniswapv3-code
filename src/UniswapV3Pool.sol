@@ -91,6 +91,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint16 observationIndex;
         // Maximum number of observations
         uint16 observationCardinality;
+        // Next macimum number of observations
+        uint16 observationCardinalityNext;
     }
 
     struct SwapState {
@@ -133,13 +135,16 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
         int24 tick = TickMath.getTickAtSqrtRatio(sqrtPriceX96);
 
-        uint16 cardinality = observations.initialize(_blockTimestamp());
+        (uint16 cardinality, uint16 cardinalityNext) = observations.initialize(
+            _blockTimestamp()
+        );
 
         slot0 = Slot0({
             sqrtPriceX96: sqrtPriceX96,
             tick: tick,
             observationIndex: 0,
-            observationCardinality: cardinality
+            observationCardinality: cardinality,
+            observationCardinalityNext: cardinalityNext
         });
     }
 
@@ -475,17 +480,27 @@ contract UniswapV3Pool is IUniswapV3Pool {
         }
 
         if (state.tick != slot0_.tick) {
-            uint16 observationIndex = observations.write(
-                slot0_.observationIndex,
-                _blockTimestamp(),
-                slot0_.tick,
-                slot0_.observationCardinality
-            );
+            (
+                uint16 observationIndex,
+                uint16 observationCardinality
+            ) = observations.write(
+                    slot0_.observationIndex,
+                    _blockTimestamp(),
+                    slot0_.tick,
+                    slot0_.observationCardinality,
+                    slot0_.observationCardinalityNext
+                );
 
-            (slot0.sqrtPriceX96, slot0.tick, slot0.observationIndex) = (
+            (
+                slot0.sqrtPriceX96,
+                slot0.tick,
+                slot0.observationIndex,
+                slot0.observationCardinality
+            ) = (
                 state.sqrtPriceX96,
                 state.tick,
-                observationIndex
+                observationIndex,
+                observationCardinality
             );
         } else {
             slot0.sqrtPriceX96 = state.sqrtPriceX96;
@@ -542,6 +557,21 @@ contract UniswapV3Pool is IUniswapV3Pool {
             state.liquidity,
             slot0.tick
         );
+    }
+
+    function observe(uint32[] calldata secondsAgos)
+        public
+        view
+        returns (int56[] memory tickCumulatives)
+    {
+        return
+            observations.observe(
+                _blockTimestamp(),
+                secondsAgos,
+                slot0.tick,
+                slot0.observationIndex,
+                slot0.observationCardinality
+            );
     }
 
     ////////////////////////////////////////////////////////////////////////////

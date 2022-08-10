@@ -1279,7 +1279,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         weth.mint(address(this), swapAmount2 * 10);
         weth.approve(address(this), swapAmount2 * 10);
 
-        (, int24 tickBeforeSwap, , ) = pool.slot0();
+        (, int24 tickBeforeSwap, , , ) = pool.slot0();
         int56 tickCumulative = tickBeforeSwap * 0;
         pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
         assertObservation(
@@ -1293,7 +1293,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         vm.warp(7);
-        (, tickBeforeSwap, , ) = pool.slot0();
+        (, tickBeforeSwap, , , ) = pool.slot0();
         tickCumulative += tickBeforeSwap * (7 - 1);
         pool.swap(address(this), true, swapAmount2, sqrtP(4000), extra);
         assertObservation(
@@ -1307,7 +1307,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         );
 
         vm.warp(20);
-        (, tickBeforeSwap, , ) = pool.slot0();
+        (, tickBeforeSwap, , , ) = pool.slot0();
         tickCumulative += tickBeforeSwap * (20 - 7);
         pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
         assertObservation(

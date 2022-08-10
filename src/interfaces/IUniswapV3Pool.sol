@@ -15,7 +15,8 @@ interface IUniswapV3Pool {
             uint160 sqrtPriceX96,
             int24 tick,
             uint16 observationIndex,
-            uint16 observationCardinality
+            uint16 observationCardinality,
+            uint16 observationCardinalityNext
         );
 
     function factory() external view returns (address);
