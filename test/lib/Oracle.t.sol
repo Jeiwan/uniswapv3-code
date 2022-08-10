@@ -72,6 +72,60 @@ contract OracleTest is Test {
         assertEq(tickCumulative, -10);
     }
 
+    function testObserveSingleTwoObservationsReverseOrder() public {
+        // exact
+        initialize(5, -5);
+        grow(2);
+
+        vm.warp(9);
+        write(1);
+
+        vm.warp(12);
+        write(-5);
+
+        int56 tickCumulative = observeSingle(0);
+        assertEq(tickCumulative, -17);
+
+        // counterfactual
+        vm.warp(19);
+        tickCumulative = observeSingle(0);
+        assertEq(tickCumulative, -52);
+
+        // exactly on first observation
+        tickCumulative = observeSingle(10);
+        assertEq(tickCumulative, -20);
+
+        // between first and second
+        tickCumulative = observeSingle(9);
+        assertEq(tickCumulative, -19);
+    }
+
+    function testObserve() public {
+        initialize(5, 2);
+        grow(4);
+
+        vm.warp(18);
+        write(6);
+
+        vm.warp(23);
+
+        uint32[] memory secondsAgos = new uint32[](6);
+        secondsAgos[0] = 0;
+        secondsAgos[1] = 3;
+        secondsAgos[2] = 8;
+        secondsAgos[3] = 13;
+        secondsAgos[4] = 15;
+        secondsAgos[5] = 18;
+
+        int56[] memory tickCumulatives = observe(secondsAgos);
+        assertEq(tickCumulatives[0], 56);
+        assertEq(tickCumulatives[1], 38);
+        assertEq(tickCumulatives[2], 20);
+        assertEq(tickCumulatives[3], 10);
+        assertEq(tickCumulatives[4], 6);
+        assertEq(tickCumulatives[5], 0);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // INTERNAL
@@ -97,6 +151,20 @@ contract OracleTest is Test {
         tickCumulative = oracle.observeSingle(
             blockTimestamp(),
             secondsAgo,
+            tick,
+            index,
+            cardinality
+        );
+    }
+
+    function observe(uint32[] memory secondsAgos)
+        internal
+        view
+        returns (int56[] memory tickCumulatives)
+    {
+        tickCumulatives = oracle.observe(
+            blockTimestamp(),
+            secondsAgos,
             tick,
             index,
             cardinality
