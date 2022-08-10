@@ -557,7 +557,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
         balance = IERC20(token1).balanceOf(address(this));
     }
 
-    function _blockTimestamp() internal returns (uint32 timestamp) {
+    function _blockTimestamp() internal view returns (uint32 timestamp) {
         timestamp = uint32(block.timestamp);
     }
 }
