@@ -30,19 +30,29 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             factory.createPool(address(weth), address(usdc), 3000)
         );
 
-        (uint160 sqrtPriceX96, int24 tick, , ) = pool.slot0();
+        (
+            uint160 sqrtPriceX96,
+            int24 tick,
+            uint16 observationIndex,
+            uint16 observationCardinality
+        ) = pool.slot0();
         assertEq(sqrtPriceX96, 0, "invalid sqrtPriceX96");
         assertEq(tick, 0, "invalid tick");
+        assertEq(observationIndex, 0, "invalid observation index");
+        assertEq(observationCardinality, 0, "invalid observation cardinality");
 
         pool.initialize(sqrtP(31337));
 
-        (sqrtPriceX96, tick, , ) = pool.slot0();
+        (sqrtPriceX96, tick, observationIndex, observationCardinality) = pool
+            .slot0();
         assertEq(
             sqrtPriceX96,
             14025175117687921942002399182848,
             "invalid sqrtPriceX96"
         );
         assertEq(tick, 103530, "invalid tick");
+        assertEq(observationIndex, 0, "invalid observation index");
+        assertEq(observationCardinality, 1, "invalid observation cardinality");
 
         vm.expectRevert(encodeError("AlreadyInitialized()"));
         pool.initialize(sqrtP(42));

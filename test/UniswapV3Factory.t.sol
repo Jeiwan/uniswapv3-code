@@ -47,9 +47,16 @@ contract UniswapV3FactoryTest is Test, TestUtils {
         assertEq(pool.tickSpacing(), 10, "invalid tick spacing");
         assertEq(pool.fee(), 500, "invalid fee");
 
-        (uint160 sqrtPriceX96, int24 tick, , ) = pool.slot0();
+        (
+            uint160 sqrtPriceX96,
+            int24 tick,
+            uint16 observationIndex,
+            uint16 observationCardinality
+        ) = pool.slot0();
         assertEq(sqrtPriceX96, 0, "invalid sqrtPriceX96");
         assertEq(tick, 0, "invalid tick");
+        assertEq(observationIndex, 0, "invalid observation index");
+        assertEq(observationCardinality, 0, "invalid observation cardinality");
     }
 
     function testCreatePoolIdenticalTokens() public {
