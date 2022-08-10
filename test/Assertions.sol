@@ -118,6 +118,45 @@ abstract contract Assertions is Test {
         // );
     }
 
+    struct ExpectedObservation {
+        UniswapV3Pool pool;
+        uint16 index;
+        uint32 timestamp;
+        int56 tickCumulative;
+        bool initialized;
+    }
+
+    struct ExpectedObservationShort {
+        uint16 index;
+        uint32 timestamp;
+        int56 tickCumulative;
+        bool initialized;
+    }
+
+    function assertObservation(ExpectedObservation memory expected) internal {
+        (uint32 timestamp, int56 tickCumulative, bool initialized) = expected
+            .pool
+            .observations(expected.index);
+
+        assertEq(
+            timestamp,
+            expected.timestamp,
+            "incorrect observation timestamp"
+        );
+
+        assertEq(
+            tickCumulative,
+            expected.tickCumulative,
+            "incorrect observation cumulative tick"
+        );
+
+        assertEq(
+            initialized,
+            expected.initialized,
+            "incorrect observation initialization state"
+        );
+    }
+
     struct ExpectedMany {
         UniswapV3Pool pool;
         ERC20Mintable[2] tokens;
@@ -133,6 +172,8 @@ abstract contract Assertions is Test {
         ExpectedPositionShort position;
         // Ticks
         ExpectedTickShort[2] ticks;
+        // Observation
+        ExpectedObservationShort observation;
     }
 
     function assertMany(ExpectedMany memory expected) internal {
@@ -182,6 +223,16 @@ abstract contract Assertions is Test {
                 initialized: expected.ticks[1].initialized,
                 liquidityGross: expected.ticks[1].liquidityGross,
                 liquidityNet: expected.ticks[1].liquidityNet
+            })
+        );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: expected.pool,
+                index: expected.observation.index,
+                timestamp: expected.observation.timestamp,
+                tickCumulative: expected.observation.tickCumulative,
+                initialized: expected.observation.initialized
             })
         );
     }

@@ -98,7 +98,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liq)
+                ticks: rangeToTicks(liq),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -193,7 +199,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                         liquidityGross: liqAmount,
                         liquidityNet: -int128(liqAmount)
                     })
-                ]
+                ],
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -323,6 +335,16 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 ]
             })
         );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
+            })
+        );
     }
 
     //  Partially overlapping price ranges
@@ -450,6 +472,16 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 ]
             })
         );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
+            })
+        );
     }
 
     // Slippage protection doesn't cause a failure but interrupts early.
@@ -517,7 +549,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liq)
+                ticks: rangeToTicks(liq),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -591,7 +629,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liq)
+                ticks: rangeToTicks(liq),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -686,7 +730,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                         liquidityGross: liqAmount,
                         liquidityNet: -int128(liqAmount)
                     })
-                ]
+                ],
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -816,6 +866,16 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 ]
             })
         );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
+            })
+        );
     }
 
     //  Partially overlapping price ranges
@@ -943,6 +1003,16 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                 ]
             })
         );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
+            })
+        );
     }
 
     // Slippage protection doesn't cause a failure but interrupts early.
@@ -1010,7 +1080,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liq)
+                ticks: rangeToTicks(liq),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -1143,7 +1219,13 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liq)
+                ticks: rangeToTicks(liq),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }

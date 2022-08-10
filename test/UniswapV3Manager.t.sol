@@ -85,7 +85,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mints[0], 5000)
+                ticks: mintParamsToTicks(mints[0], 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -144,7 +150,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mints[0], 5000)
+                ticks: mintParamsToTicks(mints[0], 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -200,7 +212,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mints[0], 5000)
+                ticks: mintParamsToTicks(mints[0], 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -273,6 +291,16 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     tokensOwed: [uint128(0), 0]
                 }),
                 ticks: mintParamsToTicks(mints[1], 5000)
+            })
+        );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
             })
         );
     }
@@ -350,6 +378,16 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     tokensOwed: [uint128(0), 0]
                 }),
                 ticks: mintParamsToTicks(mints[1], 5000)
+            })
+        );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
             })
         );
     }
@@ -542,7 +580,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mints[0], 5000)
+                ticks: mintParamsToTicks(mints[0], 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -614,7 +658,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mints[0], 5000)
+                ticks: mintParamsToTicks(mints[0], 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -714,7 +764,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mint, 5000)
+                ticks: mintParamsToTicks(mint, 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
 
@@ -741,7 +797,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mint, 10)
+                ticks: mintParamsToTicks(mint, 10),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -821,7 +883,13 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: mintParamsToTicks(mints[0], 5000)
+                ticks: mintParamsToTicks(mints[0], 5000),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }

@@ -111,7 +111,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liquidity[0])
+                ticks: rangeToTicks(liquidity[0]),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -169,7 +175,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liquidity[0])
+                ticks: rangeToTicks(liquidity[0]),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -224,7 +236,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                     feeGrowth: [uint256(0), 0],
                     tokensOwed: [uint128(0), 0]
                 }),
-                ticks: rangeToTicks(liquidity[0])
+                ticks: rangeToTicks(liquidity[0]),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -295,6 +313,16 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 ticks: rangeToTicks(liquidity[1])
             })
         );
+
+        assertObservation(
+            ExpectedObservation({
+                pool: pool,
+                index: 0,
+                timestamp: 1,
+                tickCumulative: 0,
+                initialized: true
+            })
+        );
     }
 
     function testBurn() public {
@@ -360,7 +388,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                         liquidityGross: 0,
                         liquidityNet: 0
                     })
-                ]
+                ],
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
@@ -432,7 +466,13 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                         liquidityGross: liquidity[0].amount / 2 + 1,
                         liquidityNet: -int128(liquidity[0].amount / 2 + 1)
                     })
-                ]
+                ],
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
             })
         );
     }
