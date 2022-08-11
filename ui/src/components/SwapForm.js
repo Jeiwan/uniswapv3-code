@@ -101,7 +101,7 @@ const SwapForm = ({ setPairs }) => {
       })[0];
       const path_ = [
         config.wethAddress,
-        pair_.tickSpacing,
+        pair_.fee,
         pair_.token0.address === config.wethAddress ? pair_.token1.address : pair_.token0.address
       ];
 
@@ -136,7 +136,7 @@ const SwapForm = ({ setPairs }) => {
               address: event.args.token1,
               symbol: config.tokens[event.args.token1].symbol
             },
-            tickSpacing: event.args.tickSpacing,
+            fee: event.args.fee,
             address: event.args.pool
           }
         });

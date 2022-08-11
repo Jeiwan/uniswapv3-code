@@ -8,8 +8,8 @@ class PathFinder {
     pairs.forEach((pair) => {
       this.graph.addNode(pair.token0.address);
       this.graph.addNode(pair.token1.address);
-      this.graph.addLink(pair.token0.address, pair.token1.address, pair.tickSpacing);
-      this.graph.addLink(pair.token1.address, pair.token0.address, pair.tickSpacing);
+      this.graph.addLink(pair.token0.address, pair.token1.address, pair.fee);
+      this.graph.addLink(pair.token1.address, pair.token0.address, pair.fee);
     });
 
     this.finder = path.aStar(this.graph);

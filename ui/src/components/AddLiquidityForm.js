@@ -62,7 +62,7 @@ const AmountInput = ({ amount, disabled, setAmount, token }) => {
   );
 }
 
-const AddLiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
+const AddLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -119,9 +119,9 @@ const AddLiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
     const mintParams = {
       tokenA: token0.address,
       tokenB: token1.address,
-      tickSpacing: tickSpacing,
-      lowerTick: nearestUsableTick(lowerTick, tickSpacing),
-      upperTick: nearestUsableTick(upperTick, tickSpacing),
+      fee: fee,
+      lowerTick: nearestUsableTick(lowerTick, fee),
+      upperTick: nearestUsableTick(upperTick, fee),
       amount0Desired, amount1Desired, amount0Min, amount1Min
     }
 
