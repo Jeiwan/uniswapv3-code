@@ -62,7 +62,7 @@ const AmountInput = ({ amount, disabled, setAmount, token }) => {
   );
 }
 
-const LiquidityForm = ({ pair, toggle }) => {
+const LiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -80,12 +80,12 @@ const LiquidityForm = ({ pair, toggle }) => {
 
   useEffect(() => {
     setToken0(new ethers.Contract(
-      pair.token0.address,
+      token0Info.address,
       config.ABIs.ERC20,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
     setToken1(new ethers.Contract(
-      pair.token1.address,
+      token1Info.address,
       config.ABIs.ERC20,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
@@ -94,7 +94,7 @@ const LiquidityForm = ({ pair, toggle }) => {
       config.ABIs.Manager,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
-  }, [pair]);
+  }, [token0Info, token1Info]);
 
   /**
    * Adds liquidity to a pool. Asks user to allow spending of tokens.
@@ -117,11 +117,11 @@ const LiquidityForm = ({ pair, toggle }) => {
     const upperTick = priceToTick(upperPrice);
 
     const mintParams = {
-      tokenA: pair.token0.address,
-      tokenB: pair.token1.address,
-      tickSpacing: pair.tickSpacing,
-      lowerTick: nearestUsableTick(lowerTick, pair.tickSpacing),
-      upperTick: nearestUsableTick(upperTick, pair.tickSpacing),
+      tokenA: token0.address,
+      tokenB: token1.address,
+      tickSpacing: tickSpacing,
+      lowerTick: nearestUsableTick(lowerTick, tickSpacing),
+      upperTick: nearestUsableTick(upperTick, tickSpacing),
       amount0Desired, amount1Desired, amount0Min, amount1Min
     }
 
@@ -198,12 +198,12 @@ const LiquidityForm = ({ pair, toggle }) => {
           amount={amount0}
           disabled={!enabled || loading}
           setAmount={setAmount0}
-          token={pair.token0} />
+          token={token0Info} />
         <AmountInput
           amount={amount1}
           disabled={!enabled || loading}
           setAmount={setAmount1}
-          token={pair.token1} />
+          token={token1Info} />
         <button className="addLiquidity" disabled={!enabled || loading} onClick={addLiquidity}>Add liquidity</button>
       </form>
     </section>
