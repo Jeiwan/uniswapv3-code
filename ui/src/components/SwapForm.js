@@ -71,7 +71,7 @@ const SwapForm = ({ setPairs }) => {
   const [manager, setManager] = useState();
   const [quoter, setQuoter] = useState();
   const [loading, setLoading] = useState(false);
-  const [managingLiquidity, setManagingLiquidity] = useState(false);
+  const [addingLiquidity, setAddingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
   const [tokens, setTokens] = useState();
   const [path, setPath] = useState();
@@ -221,7 +221,7 @@ const SwapForm = ({ setPairs }) => {
   }
 
   const toggleLiquidityForm = () => {
-    if (!managingLiquidity) {
+    if (!addingLiquidity) {
       if (path.length > 3) {
         const token0 = tokens.filter(t => t.address === path[0])[0];
         const token1 = tokens.filter(t => t.address === path[path.length - 1])[0];
@@ -230,7 +230,7 @@ const SwapForm = ({ setPairs }) => {
       }
     }
 
-    setManagingLiquidity(!managingLiquidity);
+    setAddingLiquidity(!addingLiquidity);
   }
 
   /**
@@ -281,7 +281,7 @@ const SwapForm = ({ setPairs }) => {
 
   return (
     <section className="SwapContainer">
-      {managingLiquidity &&
+      {addingLiquidity &&
         <AddLiquidityForm
           toggle={toggleLiquidityForm}
           token0Info={tokens.filter(t => t.address === path[0])[0]}
