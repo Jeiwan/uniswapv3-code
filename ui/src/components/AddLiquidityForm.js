@@ -1,7 +1,7 @@
 import './LiquidityForm.css';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { uint256Max } from '../lib/constants';
+import { uint256Max, feeToSpacing } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
 import { TickMath, encodeSqrtRatioX96, nearestUsableTick } from '@uniswap/v3-sdk';
 import config from "../config.js";
@@ -120,8 +120,8 @@ const AddLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
       tokenA: token0.address,
       tokenB: token1.address,
       fee: fee,
-      lowerTick: nearestUsableTick(lowerTick, fee),
-      upperTick: nearestUsableTick(upperTick, fee),
+      lowerTick: nearestUsableTick(lowerTick, feeToSpacing[fee]),
+      upperTick: nearestUsableTick(upperTick, feeToSpacing[fee]),
       amount0Desired, amount1Desired, amount0Min, amount1Min
     }
 
