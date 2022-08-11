@@ -220,7 +220,18 @@ const SwapForm = ({ setPairs }) => {
     }
   }
 
-  const toggleLiquidityForm = () => setManagingLiquidity(!managingLiquidity);
+  const toggleLiquidityForm = () => {
+    if (!managingLiquidity) {
+      if (path.length > 3) {
+        const token0 = tokens.filter(t => t.address === path[0])[0];
+        const token1 = tokens.filter(t => t.address === path[path.length - 1])[0];
+        alert(`Cannot add liquidity: ${token0.symbol}/${token1.symbol} pair doesn't exist!`);
+        return false;
+      }
+    }
+
+    setManagingLiquidity(!managingLiquidity);
+  }
 
   /**
    * Set currently selected pair based on selected tokens.
@@ -270,7 +281,11 @@ const SwapForm = ({ setPairs }) => {
 
   return (
     <section className="SwapContainer">
-      {managingLiquidity && <LiquidityForm pair={path} toggle={toggleLiquidityForm} />}
+      {managingLiquidity &&
+        <LiquidityForm
+          toggle={toggleLiquidityForm}
+          token0Info={tokens.filter(t => t.address === path[0])[0]}
+          token1Info={tokens.filter(t => t.address === path[2])[0]} />}
       <header>
         <h1>Swap tokens</h1>
         <button disabled={!enabled || loading} onClick={toggleLiquidityForm}>Add liquidity</button>
