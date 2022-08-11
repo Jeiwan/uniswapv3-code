@@ -2,6 +2,15 @@
 pragma solidity ^0.8.14;
 
 interface IUniswapV3Manager {
+    struct GetPositionParams {
+        address tokenA;
+        address tokenB;
+        uint24 fee;
+        address owner;
+        int24 lowerTick;
+        int24 upperTick;
+    }
+
     struct MintParams {
         address tokenA;
         address tokenB;
