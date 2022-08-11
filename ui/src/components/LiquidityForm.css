@@ -25,11 +25,14 @@
   @apply border border-purple-400 rounded px-4 py-2 bg-slate-50 text-xl w-full;
 }
 
-.LiquidityForm button.addLiquidity {
+.LiquidityForm button.addLiquidity,
+.LiquidityForm button.removeLiquidity {
   @apply w-full rounded-xl py-4 bg-slate-100 text-xl mt-3;
 }
 
-.LiquidityForm button.addLiquidity:hover {
+
+.LiquidityForm button.addLiquidity:hover,
+.LiquidityForm button.removeLiquidity:hover {
   @apply bg-pink-100;
 }
 

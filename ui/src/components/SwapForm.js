@@ -6,6 +6,7 @@ import { MetaMaskContext } from '../contexts/MetaMask';
 import config from "../config.js";
 import debounce from '../lib/debounce';
 import AddLiquidityForm from './AddLiquidityForm';
+import RemoveLiquidityForm from './RemoveLiquidityForm';
 import PathFinder from '../lib/pathFinder';
 
 const pairsToTokens = (pairs) => {
@@ -72,6 +73,7 @@ const SwapForm = ({ setPairs }) => {
   const [quoter, setQuoter] = useState();
   const [loading, setLoading] = useState(false);
   const [addingLiquidity, setAddingLiquidity] = useState(false);
+  const [removingLiquidity, setRemovingLiquidity] = useState(false);
   const [slippage, setSlippage] = useState(0.1);
   const [tokens, setTokens] = useState();
   const [path, setPath] = useState();
@@ -220,7 +222,7 @@ const SwapForm = ({ setPairs }) => {
     }
   }
 
-  const toggleLiquidityForm = () => {
+  const toggleAddLiquidityForm = () => {
     if (!addingLiquidity) {
       if (path.length > 3) {
         const token0 = tokens.filter(t => t.address === path[0])[0];
@@ -231,6 +233,19 @@ const SwapForm = ({ setPairs }) => {
     }
 
     setAddingLiquidity(!addingLiquidity);
+  }
+
+  const toggleRemoveLiquidityForm = () => {
+    if (!removingLiquidity) {
+      if (path.length > 3) {
+        const token0 = tokens.filter(t => t.address === path[0])[0];
+        const token1 = tokens.filter(t => t.address === path[path.length - 1])[0];
+        alert(`Cannot add liquidity: ${token0.symbol}/${token1.symbol} pair doesn't exist!`);
+        return false;
+      }
+    }
+
+    setRemovingLiquidity(!removingLiquidity);
   }
 
   /**
@@ -283,12 +298,20 @@ const SwapForm = ({ setPairs }) => {
     <section className="SwapContainer">
       {addingLiquidity &&
         <AddLiquidityForm
-          toggle={toggleLiquidityForm}
+          toggle={toggleAddLiquidityForm}
           token0Info={tokens.filter(t => t.address === path[0])[0]}
-          token1Info={tokens.filter(t => t.address === path[2])[0]} />}
+          token1Info={tokens.filter(t => t.address === path[2])[0]}
+          fee={path[1]} />}
+      {removingLiquidity &&
+        <RemoveLiquidityForm
+          toggle={toggleRemoveLiquidityForm}
+          token0Info={tokens.filter(t => t.address === path[0])[0]}
+          token1Info={tokens.filter(t => t.address === path[2])[0]}
+          fee={path[1]} />}
       <header>
         <h1>Swap tokens</h1>
-        <button disabled={!enabled || loading} onClick={toggleLiquidityForm}>Add liquidity</button>
+        <button disabled={!enabled || loading} onClick={toggleAddLiquidityForm}>Add liquidity</button>
+        <button disabled={!enabled || loading} onClick={toggleRemoveLiquidityForm}>Remove liquidity</button>
       </header>
       {path ?
         <form className="SwapForm">
