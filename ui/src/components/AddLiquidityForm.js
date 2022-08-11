@@ -62,7 +62,7 @@ const AmountInput = ({ amount, disabled, setAmount, token }) => {
   );
 }
 
-const LiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
+const AddLiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
@@ -210,4 +210,4 @@ const LiquidityForm = ({ toggle, token0Info, token1Info, tickSpacing }) => {
   );
 };
 
-export default LiquidityForm;
+export default AddLiquidityForm;

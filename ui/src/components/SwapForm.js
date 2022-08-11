@@ -5,7 +5,7 @@ import { uint256Max } from '../lib/constants';
 import { MetaMaskContext } from '../contexts/MetaMask';
 import config from "../config.js";
 import debounce from '../lib/debounce';
-import LiquidityForm from './LiquidityForm';
+import AddLiquidityForm from './AddLiquidityForm';
 import PathFinder from '../lib/pathFinder';
 
 const pairsToTokens = (pairs) => {
@@ -282,7 +282,7 @@ const SwapForm = ({ setPairs }) => {
   return (
     <section className="SwapContainer">
       {managingLiquidity &&
-        <LiquidityForm
+        <AddLiquidityForm
           toggle={toggleLiquidityForm}
           token0Info={tokens.filter(t => t.address === path[0])[0]}
           token1Info={tokens.filter(t => t.address === path[2])[0]} />}
