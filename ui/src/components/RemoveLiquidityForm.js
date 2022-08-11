@@ -6,6 +6,7 @@ import { MetaMaskContext } from '../contexts/MetaMask';
 import { TickMath, encodeSqrtRatioX96, nearestUsableTick } from '@uniswap/v3-sdk';
 import debounce from '../lib/debounce';
 import config from "../config.js";
+import computePoolAddress from '../lib/computePoolAddress';
 
 const priceToSqrtP = (price) => encodeSqrtRatioX96(price, 1);
 const priceToTick = (price) => TickMath.getTickAtSqrtRatio(priceToSqrtP(price));
@@ -47,11 +48,11 @@ const RemoveLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
   const metamaskContext = useContext(MetaMaskContext);
   const enabled = metamaskContext.status === 'connected';
   const account = metamaskContext.account;
-  const poolInterface = new ethers.utils.Interface(config.ABIs.Pool);
 
   const [token0, setToken0] = useState();
   const [token1, setToken1] = useState();
   const [manager, setManager] = useState();
+  const [pool, setPool] = useState();
   const [lowerPrice, setLowerPrice] = useState("0");
   const [upperPrice, setUpperPrice] = useState("0");
   const [availableAmount, setAvailableAmount] = useState("0");
@@ -74,11 +75,29 @@ const RemoveLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
       config.ABIs.Manager,
       new ethers.providers.Web3Provider(window.ethereum).getSigner()
     ));
-  }, [token0Info, token1Info]);
+    setPool(new ethers.Contract(
+      computePoolAddress(config.factoryAddress, token0Info.address, token1Info.address, fee),
+      config.ABIs.Pool,
+      new ethers.providers.Web3Provider(window.ethereum).getSigner()
+    ));
+  }, [token0Info, token1Info, fee]);
 
   const removeLiquidity = (e) => {
     e.preventDefault();
 
+    if (!token0 || !token1) {
+      return;
+    }
+
+    setLoading(true);
+
+    const lowerTick = nearestUsableTick(priceToTick(lowerPrice), feeToSpacing[fee]);
+    const upperTick = nearestUsableTick(priceToTick(upperPrice), feeToSpacing[fee]);
+
+    pool.burn(lowerTick, upperTick, amount)
+      .then(tx => tx.wait())
+      .then(console.log)
+      .catch(err => console.error(err));
   }
 
   /**
@@ -96,8 +115,6 @@ const RemoveLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
       lowerTick: nearestUsableTick(lowerTick, feeToSpacing[fee]),
       upperTick: nearestUsableTick(upperTick, feeToSpacing[fee]),
     }
-
-    console.log(params);
 
     manager.getPosition(params)
       .then(position => setAvailableAmount(position.liquidity.toString()))
