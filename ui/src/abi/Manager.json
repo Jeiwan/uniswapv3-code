@@ -82,7 +82,7 @@
           },
           {
             "internalType": "uint24",
-            "name": "tickSpacing",
+            "name": "fee",
             "type": "uint24"
           },
           {
@@ -194,7 +194,7 @@
           },
           {
             "internalType": "uint24",
-            "name": "tickSpacing",
+            "name": "fee",
             "type": "uint24"
           },
           {

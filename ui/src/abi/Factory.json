@@ -6,17 +6,7 @@
   },
   {
     "inputs": [],
-    "name": "NotOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "PoolAlreadyExists",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenXCannotBeZero",
     "type": "error"
   },
   {
@@ -27,6 +17,11 @@
   {
     "inputs": [],
     "name": "UnsupportedTickSpacing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddressNotAllowed",
     "type": "error"
   },
   {
@@ -47,7 +42,7 @@
       {
         "indexed": true,
         "internalType": "uint24",
-        "name": "tickSpacing",
+        "name": "fee",
         "type": "uint24"
       },
       {
@@ -74,7 +69,7 @@
       },
       {
         "internalType": "uint24",
-        "name": "tickSpacing",
+        "name": "fee",
         "type": "uint24"
       }
     ],
@@ -87,19 +82,6 @@
       }
     ],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -124,6 +106,11 @@
       {
         "internalType": "uint24",
         "name": "tickSpacing",
+        "type": "uint24"
+      },
+      {
+        "internalType": "uint24",
+        "name": "fee",
         "type": "uint24"
       }
     ],
@@ -170,9 +157,9 @@
     "name": "tickSpacings",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "uint24",
         "name": "",
-        "type": "bool"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
