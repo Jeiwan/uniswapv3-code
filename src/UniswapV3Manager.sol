@@ -21,6 +21,42 @@ contract UniswapV3Manager is IUniswapV3Manager {
         factory = factory_;
     }
 
+    function getPosition(GetPositionParams calldata params)
+        public
+        view
+        returns (
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        )
+    {
+        address poolAddress = PoolAddress.computeAddress(
+            factory,
+            params.tokenA,
+            params.tokenB,
+            params.fee
+        );
+        IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
+
+        (
+            liquidity,
+            feeGrowthInside0LastX128,
+            feeGrowthInside1LastX128,
+            tokensOwed0,
+            tokensOwed1
+        ) = pool.positions(
+            keccak256(
+                abi.encodePacked(
+                    params.owner,
+                    params.lowerTick,
+                    params.upperTick
+                )
+            )
+        );
+    }
+
     function mint(MintParams calldata params)
         public
         returns (uint256 amount0, uint256 amount1)

@@ -977,6 +977,47 @@ contract UniswapV3ManagerTest is Test, TestUtils {
         );
     }
 
+    function testGetPosition() public {
+        (IUniswapV3Manager.MintParams[] memory mints, , ) = setupPool(
+            PoolParams({
+                wethBalance: 1 ether,
+                usdcBalance: 5000 ether,
+                currentPrice: 5000,
+                mints: mintParams(mintParams(4545, 5500, 1 ether, 5000 ether)),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiquidity: true
+            })
+        );
+
+        (
+            uint128 liquidity_,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        ) = manager.getPosition(
+                IUniswapV3Manager.GetPositionParams({
+                    tokenA: address(weth),
+                    tokenB: address(usdc),
+                    fee: 3000,
+                    owner: address(this),
+                    lowerTick: mints[0].lowerTick,
+                    upperTick: mints[0].upperTick
+                })
+            );
+
+        assertPosition(
+            ExpectedPosition({
+                pool: pool,
+                ticks: [mints[0].lowerTick, mints[0].upperTick],
+                liquidity: liquidity_,
+                feeGrowth: [feeGrowthInside0LastX128, feeGrowthInside1LastX128],
+                tokensOwed: [tokensOwed0, tokensOwed1]
+            })
+        );
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // INTERNAL

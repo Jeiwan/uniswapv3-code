@@ -29,6 +29,17 @@ interface IUniswapV3Pool {
 
     function fee() external view returns (uint24);
 
+    function positions(bytes32 key)
+        external
+        view
+        returns (
+            uint128 liquidity,
+            uint256 feeGrowthInside0LastX128,
+            uint256 feeGrowthInside1LastX128,
+            uint128 tokensOwed0,
+            uint128 tokensOwed1
+        );
+
     function mint(
         address owner,
         int24 lowerTick,
