@@ -32,13 +32,7 @@ contract UniswapV3Manager is IUniswapV3Manager {
             uint128 tokensOwed1
         )
     {
-        address poolAddress = PoolAddress.computeAddress(
-            factory,
-            params.tokenA,
-            params.tokenB,
-            params.fee
-        );
-        IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
+        IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
         (
             liquidity,
@@ -61,13 +55,7 @@ contract UniswapV3Manager is IUniswapV3Manager {
         public
         returns (uint256 amount0, uint256 amount1)
     {
-        address poolAddress = PoolAddress.computeAddress(
-            factory,
-            params.tokenA,
-            params.tokenB,
-            params.fee
-        );
-        IUniswapV3Pool pool = IUniswapV3Pool(poolAddress);
+        IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
         (uint160 sqrtPriceX96, , , , ) = pool.slot0();
         uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(
@@ -188,13 +176,13 @@ contract UniswapV3Manager is IUniswapV3Manager {
     function getPool(
         address token0,
         address token1,
-        uint24 tickSpacing
+        uint24 fee
     ) internal view returns (IUniswapV3Pool pool) {
         (token0, token1) = token0 < token1
             ? (token0, token1)
             : (token1, token0);
         pool = IUniswapV3Pool(
-            PoolAddress.computeAddress(factory, token0, token1, tickSpacing)
+            PoolAddress.computeAddress(factory, token0, token1, fee)
         );
     }
 
