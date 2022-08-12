@@ -40,6 +40,7 @@ const renderCollect = (args) => {
   return (
     <span>
       <strong>Collect</strong>
+      [amount0: {renderAmount(args.amount0)}, amount1: {renderAmount(args.amount1)}]
     </span>
   );
 }
