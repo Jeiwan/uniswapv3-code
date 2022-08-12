@@ -96,7 +96,18 @@ const RemoveLiquidityForm = ({ toggle, token0Info, token1Info, fee }) => {
 
     pool.burn(lowerTick, upperTick, amount)
       .then(tx => tx.wait())
-      .then(console.log)
+      .then(receipt => {
+        if (!receipt.events[0] || receipt.events[0].event !== "Burn") {
+          throw Error("Missing Burn event after burning!");
+        }
+
+        const amount0Burned = receipt.events[0].args.amount0;
+        const amount1Burned = receipt.events[0].args.amount1;
+
+        return pool.collect(account, lowerTick, upperTick, amount0Burned, amount1Burned)
+      })
+      .then(tx => tx.wait())
+      .then(() => toggle())
       .catch(err => console.error(err));
   }
 
