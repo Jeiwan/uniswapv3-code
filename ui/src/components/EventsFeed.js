@@ -36,7 +36,6 @@ const renderBurn = (args) => {
 }
 
 const renderCollect = (args) => {
-  console.log(args);
   return (
     <span>
       <strong>Collect</strong>
