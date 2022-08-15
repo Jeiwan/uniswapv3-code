@@ -1363,6 +1363,52 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertEq(tickCumulatives[0], 1607077);
         assertEq(tickCumulatives[1], 511164);
         assertEq(tickCumulatives[2], 0);
+
+        assertEq(
+            uint32(uint56(tickCumulatives[0] - tickCumulatives[1])) /
+                (secondsAgos[1] - secondsAgos[0]),
+            84301
+        );
+        assertEq(
+            uint32(uint56(tickCumulatives[1] - tickCumulatives[2])) /
+                (secondsAgos[2] - secondsAgos[1]),
+            85194
+        );
+
+        secondsAgos = new uint32[](5);
+        secondsAgos[0] = 0;
+        secondsAgos[1] = 5;
+        secondsAgos[2] = 10;
+        secondsAgos[3] = 15;
+        secondsAgos[4] = 19;
+
+        tickCumulatives = pool.observe(secondsAgos);
+        assertEq(tickCumulatives[0], 1607077);
+        assertEq(tickCumulatives[1], 1185572);
+        assertEq(tickCumulatives[2], 764067);
+        assertEq(tickCumulatives[3], 340776);
+        assertEq(tickCumulatives[4], 0);
+
+        assertEq(
+            uint32(uint56(tickCumulatives[0] - tickCumulatives[1])) /
+                (secondsAgos[1] - secondsAgos[0]),
+            84301
+        );
+        assertEq(
+            uint32(uint56(tickCumulatives[1] - tickCumulatives[2])) /
+                (secondsAgos[2] - secondsAgos[1]),
+            84301
+        );
+        assertEq(
+            uint32(uint56(tickCumulatives[2] - tickCumulatives[3])) /
+                (secondsAgos[3] - secondsAgos[2]),
+            84658
+        );
+        assertEq(
+            uint32(uint56(tickCumulatives[3] - tickCumulatives[4])) /
+                (secondsAgos[4] - secondsAgos[3]),
+            85194
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////
