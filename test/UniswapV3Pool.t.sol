@@ -575,6 +575,84 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testCollectAfterZeroBurn() public {
+        (
+            LiquidityRange[] memory liquidity,
+            uint256 poolBalance0,
+            uint256 poolBalance1
+        ) = setupPool(
+                PoolParams({
+                    balances: [uint256(1 ether), 5000 ether],
+                    currentPrice: 5000,
+                    liquidity: liquidityRanges(
+                        liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                    ),
+                    transferInMintCallback: true,
+                    transferInSwapCallback: true,
+                    mintLiqudity: true
+                })
+            );
+        LiquidityRange memory liq = liquidity[0];
+
+        uint256 swapAmount = 42 ether; // 42 USDC
+        usdc.mint(address(this), swapAmount);
+        usdc.approve(address(this), swapAmount);
+
+        (int256 swapAmount0, int256 swapAmount1) = pool.swap(
+            address(this),
+            false,
+            swapAmount,
+            sqrtP(5004),
+            encodeExtra(address(weth), address(usdc), address(this))
+        );
+
+        pool.burn(liq.lowerTick, liq.upperTick, 0);
+
+        bytes32 positionKey = keccak256(
+            abi.encodePacked(address(this), liq.lowerTick, liq.upperTick)
+        );
+
+        (, , , uint128 tokensOwed0, uint128 tokensOwed1) = pool.positions(
+            positionKey
+        );
+
+        assertEq(tokensOwed0, 0, "incorrect tokens owed for token0");
+        assertEq(
+            tokensOwed1,
+            uint256((swapAmount1 * 3000) / 1e6) - 1, // - 0.03% - rounding
+            "incorrect tokens owed for token1"
+        );
+
+        (uint128 amountCollected0, uint128 amountCollected1) = pool.collect(
+            address(this),
+            liq.lowerTick,
+            liq.upperTick,
+            tokensOwed0,
+            tokensOwed1
+        );
+        assertEq(
+            amountCollected0,
+            tokensOwed0,
+            "incorrect collected amount for token 0"
+        );
+        assertEq(
+            amountCollected1,
+            tokensOwed1,
+            "incorrect collected amount for token 1"
+        );
+
+        assertEq(
+            weth.balanceOf(address(pool)),
+            poolBalance0 - uint256(-swapAmount0) - amountCollected0,
+            "incorrect pool balance of token0 after collect"
+        );
+        assertEq(
+            usdc.balanceOf(address(pool)),
+            poolBalance1 + uint256(swapAmount1) - amountCollected1,
+            "incorrect pool balance of token1 after collect"
+        );
+    }
+
     function testCollectMoreThanAvailable() public {
         (LiquidityRange[] memory liquidity, , ) = setupPool(
             PoolParams({
