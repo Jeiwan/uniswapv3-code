@@ -8,7 +8,7 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
     error PoolAlreadyExists();
     error ZeroAddressNotAllowed();
     error TokensMustBeDifferent();
-    error UnsupportedTickSpacing();
+    error UnsupportedFee();
 
     event PoolCreated(
         address indexed token0,
@@ -34,7 +34,7 @@ contract UniswapV3Factory is IUniswapV3PoolDeployer {
         uint24 fee
     ) public returns (address pool) {
         if (tokenX == tokenY) revert TokensMustBeDifferent();
-        if (fees[fee] == 0) revert UnsupportedTickSpacing();
+        if (fees[fee] == 0) revert UnsupportedFee();
 
         (tokenX, tokenY) = tokenX < tokenY
             ? (tokenX, tokenY)

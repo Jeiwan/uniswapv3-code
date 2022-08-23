@@ -65,6 +65,11 @@ contract UniswapV3FactoryTest is Test, TestUtils {
         );
     }
 
+    function testCreatePoolUnsupportedFee() public {
+        vm.expectRevert(encodeError("UnsupportedFee()"));
+        factory.createPool(address(weth), address(usdc), 300);
+    }
+
     function testCreatePoolIdenticalTokens() public {
         vm.expectRevert(encodeError("TokensMustBeDifferent()"));
         factory.createPool(address(weth), address(weth), 500);
