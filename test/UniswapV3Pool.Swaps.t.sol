@@ -1354,15 +1354,17 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         vm.warp(20);
         pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
 
-        secondsAgos = new uint32[](3);
+        secondsAgos = new uint32[](4);
         secondsAgos[0] = 0;
         secondsAgos[1] = 13;
-        secondsAgos[2] = 19;
+        secondsAgos[2] = 18;
+        secondsAgos[3] = 19;
 
         int56[] memory tickCumulatives = pool.observe(secondsAgos);
         assertEq(tickCumulatives[0], 1607077);
         assertEq(tickCumulatives[1], 511164);
-        assertEq(tickCumulatives[2], 0);
+        assertEq(tickCumulatives[2], 85194);
+        assertEq(tickCumulatives[3], 0);
 
         assertEq(
             uint32(uint56(tickCumulatives[0] - tickCumulatives[1])) /
@@ -1372,6 +1374,11 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         assertEq(
             uint32(uint56(tickCumulatives[1] - tickCumulatives[2])) /
                 (secondsAgos[2] - secondsAgos[1]),
+            85194
+        );
+        assertEq(
+            uint32(uint56(tickCumulatives[2] - tickCumulatives[3])) /
+                (secondsAgos[3] - secondsAgos[2]),
             85194
         );
 
