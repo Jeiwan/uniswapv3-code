@@ -96,7 +96,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint16 observationIndex;
         // Maximum number of observations
         uint16 observationCardinality;
-        // Next macimum number of observations
+        // Next maximum number of observations
         uint16 observationCardinalityNext;
     }
 
