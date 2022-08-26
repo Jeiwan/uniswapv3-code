@@ -1346,6 +1346,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         weth.mint(address(this), swapAmount2 * 10);
         weth.approve(address(this), swapAmount2 * 10);
 
+        vm.warp(2);
         pool.swap(address(this), false, swapAmount, sqrtP(6000), extra);
 
         vm.warp(7);
@@ -1357,14 +1358,14 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         secondsAgos = new uint32[](4);
         secondsAgos[0] = 0;
         secondsAgos[1] = 13;
-        secondsAgos[2] = 18;
-        secondsAgos[3] = 19;
+        secondsAgos[2] = 17;
+        secondsAgos[3] = 18;
 
         int56[] memory tickCumulatives = pool.observe(secondsAgos);
-        assertEq(tickCumulatives[0], 1607077);
-        assertEq(tickCumulatives[1], 511164);
-        assertEq(tickCumulatives[2], 85194);
-        assertEq(tickCumulatives[3], 0);
+        assertEq(tickCumulatives[0], 1607059);
+        assertEq(tickCumulatives[1], 511146);
+        assertEq(tickCumulatives[2], 170370);
+        assertEq(tickCumulatives[3], 85176);
 
         assertEq(
             uint32(uint56(tickCumulatives[0] - tickCumulatives[1])) /
@@ -1387,14 +1388,14 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
         secondsAgos[1] = 5;
         secondsAgos[2] = 10;
         secondsAgos[3] = 15;
-        secondsAgos[4] = 19;
+        secondsAgos[4] = 18;
 
         tickCumulatives = pool.observe(secondsAgos);
-        assertEq(tickCumulatives[0], 1607077);
-        assertEq(tickCumulatives[1], 1185572);
-        assertEq(tickCumulatives[2], 764067);
-        assertEq(tickCumulatives[3], 340776);
-        assertEq(tickCumulatives[4], 0);
+        assertEq(tickCumulatives[0], 1607059);
+        assertEq(tickCumulatives[1], 1185554);
+        assertEq(tickCumulatives[2], 764049);
+        assertEq(tickCumulatives[3], 340758);
+        assertEq(tickCumulatives[4], 85176);
 
         assertEq(
             uint32(uint56(tickCumulatives[0] - tickCumulatives[1])) /
