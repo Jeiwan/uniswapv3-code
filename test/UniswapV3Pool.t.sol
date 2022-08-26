@@ -63,8 +63,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         (uint256 poolBalance0, uint256 poolBalance1) = setupTestCase(params);
 
         (uint256 expectedAmount0, uint256 expectedAmount1) = (
-            0.987286567250950170 ether,
-            4998.958915878679752572 ether
+            0.987078348444137445 ether,
+            5000 ether
         );
 
         assertEq(
@@ -211,8 +211,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         setupTestCase(params);
 
         (uint256 amount0, uint256 amount1) = (
-            2.727944798412770988 ether,
-            13746.049925900422866812 ether
+            2.727580415500848720 ether,
+            13747.871823112733299810 ether
         );
 
         assertMintState(
