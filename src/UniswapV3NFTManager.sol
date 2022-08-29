@@ -6,6 +6,7 @@ import "solmate/tokens/ERC721.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV3Pool.sol";
 import "./lib/LiquidityMath.sol";
+import "./lib/NFTRenderer.sol";
 import "./lib/PoolAddress.sol";
 import "./lib/TickMath.sol";
 
@@ -45,11 +46,27 @@ contract UniswapV3NFTManager is ERC721 {
         factory = factoryAddress;
     }
 
-    function tokenURI(
-        uint256 /* id */
-    ) public pure override returns (string memory) {
-        // TODO: implement
-        return "";
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        TokenPosition memory tokenPosition = positions[tokenId];
+        if (tokenPosition.pool == address(0x00)) revert WrongToken();
+
+        IUniswapV3Pool pool = IUniswapV3Pool(tokenPosition.pool);
+
+        return
+            NFTRenderer.render(
+                NFTRenderer.RenderParams({
+                    pool: tokenPosition.pool,
+                    owner: address(this),
+                    lowerTick: tokenPosition.lowerTick,
+                    upperTick: tokenPosition.upperTick,
+                    fee: pool.fee()
+                })
+            );
     }
 
     struct MintParams {
