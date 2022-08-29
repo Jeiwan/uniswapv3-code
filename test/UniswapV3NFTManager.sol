@@ -115,6 +115,111 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         );
     }
 
+    function testAddLiquidity() public {
+        UniswapV3NFTManager.MintParams memory mintParams = UniswapV3NFTManager
+            .MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(usdc),
+                fee: FEE,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
+                amount0Desired: 1 ether,
+                amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            });
+        uint256 tokenId = nft.mint(mintParams);
+
+        UniswapV3NFTManager.AddLiquidityParams
+            memory addParams = UniswapV3NFTManager.AddLiquidityParams({
+                tokenId: tokenId,
+                amount0Desired: 0.5 ether,
+                amount1Desired: 2500 ether,
+                amount0Min: 0.4 ether,
+                amount1Min: 2000 ether
+            });
+
+        (
+            uint128 liquidityAdded,
+            uint256 amount0Added,
+            uint256 amount1Added
+        ) = nft.addLiquidity(addParams);
+
+        assertEq(tokenId, 0, "invalid token id");
+        assertEq(
+            liquidityAdded,
+            liquidity(addParams, INIT_PRICE),
+            "invalid added liquidity"
+        );
+        assertEq(
+            amount0Added,
+            0.493539174222068723 ether,
+            "invalid added token0 amount"
+        );
+        assertEq(
+            amount1Added,
+            2499.999999999999999998 ether,
+            "invalid added token1 amount"
+        );
+
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            1.480617522666206168 ether,
+            7499.999999999999999998 ether
+        );
+
+        assertMany(
+            ExpectedMany({
+                pool: wethUSDC,
+                tokens: [weth, usdc],
+                liquidity: liquidity(mintParams, INIT_PRICE) +
+                    liquidity(addParams, INIT_PRICE),
+                sqrtPriceX96: sqrtP(INIT_PRICE),
+                tick: tick(INIT_PRICE),
+                fees: [uint256(0), 0],
+                userBalances: [
+                    USER_WETH_BALANCE - expectedAmount0,
+                    USER_USDC_BALANCE - expectedAmount1
+                ],
+                poolBalances: [expectedAmount0, expectedAmount1],
+                position: ExpectedPositionShort({
+                    owner: address(nft),
+                    ticks: [mintParams.lowerTick, mintParams.upperTick],
+                    liquidity: liquidity(mintParams, INIT_PRICE) +
+                        liquidity(addParams, INIT_PRICE),
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: mintAndAddParamsToTicks(
+                    mintParams,
+                    addParams,
+                    INIT_PRICE
+                ),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
+            })
+        );
+
+        assertNFTs(
+            ExpectedNFTs({
+                nft: nft,
+                owner: address(this),
+                tokens: nfts(
+                    ExpectedNFT({
+                        id: tokenId,
+                        pool: address(wethUSDC),
+                        lowerTick: mintParams.lowerTick,
+                        upperTick: mintParams.upperTick
+                    })
+                )
+            })
+        );
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // INTERNAL
@@ -140,6 +245,29 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         });
     }
 
+    function mintAndAddParamsToTicks(
+        UniswapV3NFTManager.MintParams memory mint,
+        UniswapV3NFTManager.AddLiquidityParams memory add,
+        uint256 currentPrice
+    ) internal view returns (ExpectedTickShort[2] memory ticks) {
+        uint128 liqMint = liquidity(mint, currentPrice);
+        uint128 liqAdd = liquidity(add, currentPrice);
+        uint128 liq = liqMint + liqAdd;
+
+        ticks[0] = ExpectedTickShort({
+            tick: mint.lowerTick,
+            initialized: true,
+            liquidityGross: liq,
+            liquidityNet: int128(liq)
+        });
+        ticks[1] = ExpectedTickShort({
+            tick: mint.upperTick,
+            initialized: true,
+            liquidityGross: liq,
+            liquidityNet: -int128(liq)
+        });
+    }
+
     function liquidity(
         UniswapV3NFTManager.MintParams memory params,
         uint256 currentPrice
@@ -148,6 +276,21 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
             sqrtP(currentPrice),
             sqrtP60FromTick(params.lowerTick),
             sqrtP60FromTick(params.upperTick),
+            params.amount0Desired,
+            params.amount1Desired
+        );
+    }
+
+    function liquidity(
+        UniswapV3NFTManager.AddLiquidityParams memory params,
+        uint256 currentPrice
+    ) internal view returns (uint128 liquidity_) {
+        (, int24 lowerTick, int24 upperTick) = nft.positions(params.tokenId);
+
+        liquidity_ = LiquidityMath.getLiquidityForAmounts(
+            sqrtP(currentPrice),
+            sqrtP60FromTick(lowerTick),
+            sqrtP60FromTick(upperTick),
             params.amount0Desired,
             params.amount1Desired
         );
