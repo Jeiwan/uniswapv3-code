@@ -48,6 +48,12 @@ interface IUniswapV3Pool {
         bytes calldata data
     ) external returns (uint256 amount0, uint256 amount1);
 
+    function burn(
+        int24 lowerTick,
+        int24 upperTick,
+        uint128 amount
+    ) external returns (uint256 amount0, uint256 amount1);
+
     function swap(
         address recipient,
         bool zeroForOne,

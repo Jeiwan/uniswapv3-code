@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.14;
 
 import "solmate/tokens/ERC721.sol";
@@ -11,20 +11,21 @@ import "./lib/TickMath.sol";
 
 contract UniswapV3NFTManager is ERC721 {
     error NotAuthorized();
+    error NotEnoughLiquidity();
     error SlippageCheckFailed(uint256 amount0, uint256 amount1);
+    error WrongToken();
 
-    struct Position {
+    struct TokenPosition {
         address pool;
         int24 lowerTick;
         int24 upperTick;
-        uint128 liquidity;
     }
 
     uint256 public totalSupply;
 
     address public immutable factory;
 
-    mapping(uint256 => Position) public positions;
+    mapping(uint256 => TokenPosition) public positions;
 
     modifier isApprovedOrOwner(uint256 tokenId) {
         address owner = ownerOf(tokenId);
@@ -59,26 +60,99 @@ contract UniswapV3NFTManager is ERC721 {
     function mint(MintParams calldata params) public returns (uint256 tokenId) {
         IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
-        (uint160 sqrtPriceX96, , , , ) = pool.slot0();
-        uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(
-            params.lowerTick
-        );
-        uint160 sqrtPriceUpperX96 = TickMath.getSqrtRatioAtTick(
-            params.upperTick
+        _addLiquidity(
+            pool,
+            params.lowerTick,
+            params.upperTick,
+            params.amount0Desired,
+            params.amount1Desired,
+            params.amount0Min,
+            params.amount1Min
         );
 
-        uint128 liquidity = LiquidityMath.getLiquidityForAmounts(
+        tokenId = totalSupply++;
+        _mint(params.recipient, tokenId);
+
+        positions[tokenId] = TokenPosition({
+            pool: address(pool),
+            lowerTick: params.lowerTick,
+            upperTick: params.upperTick
+        });
+    }
+
+    struct AddLiquidityParams {
+        uint256 tokenId;
+        uint256 amount0Desired;
+        uint256 amount1Desired;
+        uint256 amount0Min;
+        uint256 amount1Min;
+    }
+
+    function addLiquidity(AddLiquidityParams calldata params)
+        public
+        returns (
+            uint128 liquidity,
+            uint256 amount0,
+            uint256 amount1
+        )
+    {
+        TokenPosition memory tokenPosition = positions[params.tokenId];
+        if (tokenPosition.pool == address(0x00)) revert WrongToken();
+
+        (liquidity, amount0, amount1) = _addLiquidity(
+            IUniswapV3Pool(tokenPosition.pool),
+            tokenPosition.lowerTick,
+            tokenPosition.upperTick,
+            params.amount0Desired,
+            params.amount1Desired,
+            params.amount0Min,
+            params.amount1Min
+        );
+    }
+
+    // function removeLiquidity()
+
+    // function collect()
+
+    // function burn()
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // INTERNAL
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    function _addLiquidity(
+        IUniswapV3Pool pool,
+        int24 lowerTick,
+        int24 upperTick,
+        uint256 amount0Desired,
+        uint256 amount1Desired,
+        uint256 amount0Min,
+        uint256 amount1Min
+    )
+        internal
+        returns (
+            uint128 liquidity,
+            uint256 amount0,
+            uint256 amount1
+        )
+    {
+        (uint160 sqrtPriceX96, , , , ) = pool.slot0();
+        uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(lowerTick);
+        uint160 sqrtPriceUpperX96 = TickMath.getSqrtRatioAtTick(upperTick);
+
+        liquidity = LiquidityMath.getLiquidityForAmounts(
             sqrtPriceX96,
             sqrtPriceLowerX96,
             sqrtPriceUpperX96,
-            params.amount0Desired,
-            params.amount1Desired
+            amount0Desired,
+            amount1Desired
         );
 
-        (uint256 amount0, uint256 amount1) = pool.mint(
+        (amount0, amount1) = pool.mint(
             address(this),
-            params.lowerTick,
-            params.upperTick,
+            lowerTick,
+            upperTick,
             liquidity,
             abi.encode(
                 IUniswapV3Pool.CallbackData({
@@ -89,25 +163,10 @@ contract UniswapV3NFTManager is ERC721 {
             )
         );
 
-        if (amount0 < params.amount0Min || amount1 < params.amount1Min)
+        if (amount0 < amount0Min || amount1 < amount1Min)
             revert SlippageCheckFailed(amount0, amount1);
-
-        tokenId = totalSupply++;
-        _mint(params.recipient, tokenId);
-
-        positions[tokenId] = Position({
-            pool: address(pool),
-            lowerTick: params.lowerTick,
-            upperTick: params.upperTick,
-            liquidity: liquidity
-        });
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // INTERNAL
-    //
-    ////////////////////////////////////////////////////////////////////////////
     function getPool(
         address token0,
         address token1,
