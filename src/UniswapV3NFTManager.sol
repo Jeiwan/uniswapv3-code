@@ -110,7 +110,33 @@ contract UniswapV3NFTManager is ERC721 {
         );
     }
 
-    // function removeLiquidity()
+    struct RemoveLiquidityParams {
+        uint256 tokenId;
+        uint128 liquidity;
+    }
+
+    // TODO: add slippage check
+    function removeLiquidity(RemoveLiquidityParams memory params)
+        public
+        isApprovedOrOwner(params.tokenId)
+        returns (uint256 amount0, uint256 amount1)
+    {
+        TokenPosition memory tokenPosition = positions[params.tokenId];
+        if (tokenPosition.pool == address(0x00)) revert WrongToken();
+
+        IUniswapV3Pool pool = IUniswapV3Pool(tokenPosition.pool);
+
+        (uint128 availableLiquidity, , , , ) = pool.positions(
+            positionKey(tokenPosition)
+        );
+        if (params.liquidity > availableLiquidity) revert NotEnoughLiquidity();
+
+        (amount0, amount1) = pool.burn(
+            tokenPosition.lowerTick,
+            tokenPosition.upperTick,
+            params.liquidity
+        );
+    }
 
     // function collect()
 
@@ -177,6 +203,19 @@ contract UniswapV3NFTManager is ERC721 {
             : (token1, token0);
         pool = IUniswapV3Pool(
             PoolAddress.computeAddress(factory, token0, token1, fee)
+        );
+    }
+
+    function positionKey(TokenPosition memory position)
+        internal
+        returns (bytes32 key)
+    {
+        key = keccak256(
+            abi.encodePacked(
+                address(this),
+                position.lowerTick,
+                position.upperTick
+            )
         );
     }
 
