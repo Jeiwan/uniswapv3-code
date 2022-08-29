@@ -4,6 +4,7 @@ pragma solidity ^0.8.14;
 import "forge-std/Test.sol";
 
 import "../src/UniswapV3Pool.sol";
+import "../src/UniswapV3NFTManager.sol";
 
 import "./ERC20Mintable.sol";
 
@@ -199,6 +200,7 @@ abstract contract Assertions is Test {
         assertPosition(
             ExpectedPosition({
                 pool: expected.pool,
+                owner: expected.position.owner,
                 ticks: expected.position.ticks,
                 liquidity: expected.position.liquidity,
                 feeGrowth: expected.position.feeGrowth,
@@ -284,6 +286,7 @@ abstract contract Assertions is Test {
         assertPosition(
             ExpectedPosition({
                 pool: expected.pool,
+                owner: expected.position.owner,
                 ticks: expected.position.ticks,
                 liquidity: expected.position.liquidity,
                 feeGrowth: expected.position.feeGrowth,
@@ -314,6 +317,7 @@ abstract contract Assertions is Test {
 
     struct ExpectedPosition {
         UniswapV3Pool pool;
+        address owner;
         int24[2] ticks;
         uint128 liquidity;
         uint256[2] feeGrowth;
@@ -321,6 +325,7 @@ abstract contract Assertions is Test {
     }
 
     struct ExpectedPositionShort {
+        address owner;
         int24[2] ticks;
         uint128 liquidity;
         uint256[2] feeGrowth;
@@ -329,7 +334,7 @@ abstract contract Assertions is Test {
 
     function assertPosition(ExpectedPosition memory params) public {
         bytes32 positionKey = keccak256(
-            abi.encodePacked(address(this), params.ticks[0], params.ticks[1])
+            abi.encodePacked(params.owner, params.ticks[0], params.ticks[1])
         );
         (
             uint128 liquidity,
@@ -360,6 +365,53 @@ abstract contract Assertions is Test {
             params.tokensOwed[1],
             "incorrect position tokens owed for token1"
         );
+    }
+
+    struct ExpectedNFTs {
+        UniswapV3NFTManager nft;
+        address owner;
+        ExpectedNFT[] tokens;
+    }
+
+    struct ExpectedNFT {
+        uint256 id;
+        address pool;
+        int24 lowerTick;
+        int24 upperTick;
+    }
+
+    function assertNFTs(ExpectedNFTs memory expected) internal {
+        assertEq(
+            expected.nft.balanceOf(address(expected.owner)),
+            expected.tokens.length,
+            "invalid NFT balance"
+        );
+
+        for (uint256 i = 0; i < expected.tokens.length; ++i) {
+            ExpectedNFT memory token = expected.tokens[i];
+
+            assertEq(
+                expected.nft.ownerOf(token.id),
+                expected.owner,
+                "invalid NFT owner"
+            );
+
+            (address pool, int24 lowerTick, int24 upperTick) = expected
+                .nft
+                .positions(token.id);
+
+            assertEq(token.pool, pool, "invalid NFT position pool");
+            assertEq(
+                token.lowerTick,
+                lowerTick,
+                "invalid NFT position lower tick"
+            );
+            assertEq(
+                token.upperTick,
+                upperTick,
+                "invalid NFT position upper tick"
+            );
+        }
     }
 
     function tickInBitMap(UniswapV3Pool pool, int24 tick_)

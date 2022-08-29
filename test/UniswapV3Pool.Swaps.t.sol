@@ -93,6 +93,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     uint256(int256(poolBalance1) + amount1Delta)
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liq.amount,
                     feeGrowth: [uint256(0), 0],
@@ -181,6 +182,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     uint256(int256(poolBalance1) + amount1Delta)
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liqAmount,
                     feeGrowth: [uint256(0), 0],
@@ -288,6 +290,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq1.lowerTick, liq1.upperTick],
                     liquidity: liq1.amount,
                     feeGrowth: [uint256(0), 0],
@@ -314,6 +317,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq2.lowerTick, liq2.upperTick],
                     liquidity: liq2.amount,
                     feeGrowth: [uint256(0), 0],
@@ -425,6 +429,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq1.lowerTick, liq1.upperTick],
                     liquidity: liq1.amount,
                     feeGrowth: [uint256(0), 0],
@@ -451,6 +456,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq2.lowerTick, liq2.upperTick],
                     liquidity: liq2.amount,
                     feeGrowth: [uint256(0), 0],
@@ -544,6 +550,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     uint256(int256(poolBalance1) + amount1Delta)
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liq.amount,
                     feeGrowth: [uint256(0), 0],
@@ -624,6 +631,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     uint256(int256(poolBalance1) + amount1Delta)
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liq.amount,
                     feeGrowth: [uint256(0), 0],
@@ -712,6 +720,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     uint256(int256(poolBalance1) + amount1Delta)
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liqAmount,
                     feeGrowth: [uint256(0), 0],
@@ -819,6 +828,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq1.lowerTick, liq1.upperTick],
                     liquidity: liq1.amount,
                     feeGrowth: [uint256(0), 0],
@@ -845,6 +855,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq2.lowerTick, liq2.upperTick],
                     liquidity: liq2.amount,
                     feeGrowth: [uint256(0), 0],
@@ -956,6 +967,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq1.lowerTick, liq1.upperTick],
                     liquidity: liq1.amount,
                     feeGrowth: [uint256(0), 0],
@@ -982,6 +994,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq2.lowerTick, liq2.upperTick],
                     liquidity: liq2.amount,
                     feeGrowth: [uint256(0), 0],
@@ -1075,6 +1088,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     uint256(int256(poolBalance1) + amount1Delta)
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liq.amount,
                     feeGrowth: [uint256(0), 0],
@@ -1214,6 +1228,7 @@ contract UniswapV3PoolSwapsTest is Test, UniswapV3PoolUtils {
                     )
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [liq.lowerTick, liq.upperTick],
                     liquidity: liq.amount,
                     feeGrowth: [uint256(0), 0],

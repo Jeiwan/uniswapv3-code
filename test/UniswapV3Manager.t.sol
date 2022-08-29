@@ -80,6 +80,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ],
                 poolBalances: [expectedAmount0, expectedAmount1],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -145,6 +146,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ],
                 poolBalances: [expectedAmount0, expectedAmount1],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -207,6 +209,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                 ],
                 poolBalances: [expectedAmount0, expectedAmount1],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -272,6 +275,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -285,6 +289,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[1].lowerTick, mints[1].upperTick],
                     liquidity: liquidity(mints[1], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -359,6 +364,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -372,6 +378,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
             ExpectedPositionAndTicks({
                 pool: pool,
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[1].lowerTick, mints[1].upperTick],
                     liquidity: liquidity(mints[1], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -575,6 +582,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     poolBalance1 + swapAmount
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -653,6 +661,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     poolBalance1 - amountOut
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -759,6 +768,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     poolBalance1 - amountOut
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mint.lowerTick, mint.upperTick],
                     liquidity: liquidity(mint, 5000),
                     feeGrowth: [uint256(0), 0],
@@ -792,6 +802,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     wethUNIBalance1 + swapAmount
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mint.lowerTick, mint.upperTick],
                     liquidity: liquidity(mint, 10),
                     feeGrowth: [uint256(0), 0],
@@ -878,6 +889,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
                     poolBalance1 + usdcAmount - amountOut1
                 ],
                 position: ExpectedPositionShort({
+                    owner: address(this),
                     ticks: [mints[0].lowerTick, mints[0].upperTick],
                     liquidity: liquidity(mints[0], 5000),
                     feeGrowth: [uint256(0), 0],
@@ -1009,6 +1021,7 @@ contract UniswapV3ManagerTest is Test, TestUtils {
 
         assertPosition(
             ExpectedPosition({
+                owner: address(this),
                 pool: pool,
                 ticks: [mints[0].lowerTick, mints[0].upperTick],
                 liquidity: liquidity_,
