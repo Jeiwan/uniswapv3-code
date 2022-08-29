@@ -320,6 +320,114 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         );
     }
 
+    function testCollect() public {
+        UniswapV3NFTManager.MintParams memory mintParams = UniswapV3NFTManager
+            .MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(usdc),
+                fee: FEE,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
+                amount0Desired: 1 ether,
+                amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            });
+        uint256 tokenId = nft.mint(mintParams);
+
+        assertEq(nft.ownerOf(tokenId), address(this), "WOOT");
+
+        UniswapV3NFTManager.RemoveLiquidityParams
+            memory removeParams = UniswapV3NFTManager.RemoveLiquidityParams({
+                tokenId: tokenId,
+                liquidity: liquidity(mintParams, INIT_PRICE) / 2
+            });
+
+        (uint256 amount0Removed, uint256 amount1Removed) = nft.removeLiquidity(
+            removeParams
+        );
+
+        (uint128 amount0Collected, uint128 amount1Collected) = nft.collect(
+            UniswapV3NFTManager.CollectParams({
+                tokenId: tokenId,
+                amount0: uint128(amount0Removed),
+                amount1: uint128(amount1Removed)
+            })
+        );
+
+        assertEq(tokenId, 0, "invalid token id");
+        assertEq(
+            amount0Collected,
+            0.493539174222068722 ether,
+            "invalid removed token0 amount"
+        );
+        assertEq(
+            amount1Collected,
+            2499.999999999999999997 ether,
+            "invalid removed token1 amount"
+        );
+
+        (uint256 expectedAmount0, uint256 expectedAmount1) = (
+            0.987078348444137445 ether,
+            5000 ether
+        );
+
+        assertMany(
+            ExpectedMany({
+                pool: wethUSDC,
+                tokens: [weth, usdc],
+                liquidity: liquidity(mintParams, INIT_PRICE) -
+                    removeParams.liquidity,
+                sqrtPriceX96: sqrtP(INIT_PRICE),
+                tick: tick(INIT_PRICE),
+                fees: [uint256(0), 0],
+                userBalances: [
+                    USER_WETH_BALANCE - expectedAmount0 + amount0Collected,
+                    USER_USDC_BALANCE - expectedAmount1 + amount1Collected
+                ],
+                poolBalances: [
+                    expectedAmount0 - amount0Collected,
+                    expectedAmount1 - amount1Collected
+                ],
+                position: ExpectedPositionShort({
+                    owner: address(nft),
+                    ticks: [mintParams.lowerTick, mintParams.upperTick],
+                    liquidity: liquidity(mintParams, INIT_PRICE) -
+                        removeParams.liquidity,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: mintAndRemoveParamsToTicks(
+                    mintParams,
+                    removeParams,
+                    INIT_PRICE
+                ),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
+            })
+        );
+
+        assertNFTs(
+            ExpectedNFTs({
+                nft: nft,
+                owner: address(this),
+                tokens: nfts(
+                    ExpectedNFT({
+                        id: tokenId,
+                        pool: address(wethUSDC),
+                        lowerTick: mintParams.lowerTick,
+                        upperTick: mintParams.upperTick
+                    })
+                )
+            })
+        );
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // INTERNAL
