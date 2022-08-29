@@ -12,6 +12,7 @@ import "./lib/TickMath.sol";
 contract UniswapV3NFTManager is ERC721 {
     error NotAuthorized();
     error NotEnoughLiquidity();
+    error PositionNotCleared();
     error SlippageCheckFailed(uint256 amount0, uint256 amount1);
     error WrongToken();
 
@@ -163,7 +164,20 @@ contract UniswapV3NFTManager is ERC721 {
         );
     }
 
-    // function burn()
+    function burn(uint256 tokenId) public isApprovedOrOwner(tokenId) {
+        TokenPosition memory tokenPosition = positions[tokenId];
+        if (tokenPosition.pool == address(0x00)) revert WrongToken();
+
+        IUniswapV3Pool pool = IUniswapV3Pool(tokenPosition.pool);
+        (uint128 liquidity, , , uint128 tokensOwed0, uint128 tokensOwed1) = pool
+            .positions(positionKey(tokenPosition));
+
+        if (liquidity > 0 || tokensOwed0 > 0 || tokensOwed1 > 0)
+            revert PositionNotCleared();
+
+        delete positions[tokenId];
+        _burn(tokenId);
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     //
