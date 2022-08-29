@@ -67,13 +67,15 @@ contract UniswapV3NFTManager is ERC721 {
         IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
         _addLiquidity(
-            pool,
-            params.lowerTick,
-            params.upperTick,
-            params.amount0Desired,
-            params.amount1Desired,
-            params.amount0Min,
-            params.amount1Min
+            AddLiquidityInternalParams({
+                pool: pool,
+                lowerTick: params.lowerTick,
+                upperTick: params.upperTick,
+                amount0Desired: params.amount0Desired,
+                amount1Desired: params.amount1Desired,
+                amount0Min: params.amount0Min,
+                amount1Min: params.amount1Min
+            })
         );
 
         tokenId = totalSupply++;
@@ -106,13 +108,15 @@ contract UniswapV3NFTManager is ERC721 {
         if (tokenPosition.pool == address(0x00)) revert WrongToken();
 
         (liquidity, amount0, amount1) = _addLiquidity(
-            IUniswapV3Pool(tokenPosition.pool),
-            tokenPosition.lowerTick,
-            tokenPosition.upperTick,
-            params.amount0Desired,
-            params.amount1Desired,
-            params.amount0Min,
-            params.amount1Min
+            AddLiquidityInternalParams({
+                pool: IUniswapV3Pool(tokenPosition.pool),
+                lowerTick: tokenPosition.lowerTick,
+                upperTick: tokenPosition.upperTick,
+                amount0Desired: params.amount0Desired,
+                amount1Desired: params.amount1Desired,
+                amount0Min: params.amount0Min,
+                amount1Min: params.amount1Min
+            })
         );
     }
 
@@ -208,15 +212,17 @@ contract UniswapV3NFTManager is ERC721 {
     // INTERNAL
     //
     ////////////////////////////////////////////////////////////////////////////
-    function _addLiquidity(
-        IUniswapV3Pool pool,
-        int24 lowerTick,
-        int24 upperTick,
-        uint256 amount0Desired,
-        uint256 amount1Desired,
-        uint256 amount0Min,
-        uint256 amount1Min
-    )
+    struct AddLiquidityInternalParams {
+        IUniswapV3Pool pool;
+        int24 lowerTick;
+        int24 upperTick;
+        uint256 amount0Desired;
+        uint256 amount1Desired;
+        uint256 amount0Min;
+        uint256 amount1Min;
+    }
+
+    function _addLiquidity(AddLiquidityInternalParams memory params)
         internal
         returns (
             uint128 liquidity,
@@ -224,33 +230,31 @@ contract UniswapV3NFTManager is ERC721 {
             uint256 amount1
         )
     {
-        (uint160 sqrtPriceX96, , , , ) = pool.slot0();
-        uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(lowerTick);
-        uint160 sqrtPriceUpperX96 = TickMath.getSqrtRatioAtTick(upperTick);
+        (uint160 sqrtPriceX96, , , , ) = params.pool.slot0();
 
         liquidity = LiquidityMath.getLiquidityForAmounts(
             sqrtPriceX96,
-            sqrtPriceLowerX96,
-            sqrtPriceUpperX96,
-            amount0Desired,
-            amount1Desired
+            TickMath.getSqrtRatioAtTick(params.lowerTick),
+            TickMath.getSqrtRatioAtTick(params.upperTick),
+            params.amount0Desired,
+            params.amount1Desired
         );
 
-        (amount0, amount1) = pool.mint(
+        (amount0, amount1) = params.pool.mint(
             address(this),
-            lowerTick,
-            upperTick,
+            params.lowerTick,
+            params.upperTick,
             liquidity,
             abi.encode(
                 IUniswapV3Pool.CallbackData({
-                    token0: pool.token0(),
-                    token1: pool.token1(),
+                    token0: params.pool.token0(),
+                    token1: params.pool.token1(),
                     payer: msg.sender
                 })
             )
         );
 
-        if (amount0 < amount0Min || amount1 < amount1Min)
+        if (amount0 < params.amount0Min || amount1 < params.amount1Min)
             revert SlippageCheckFailed(amount0, amount1);
     }
 
