@@ -31,8 +31,8 @@ contract UniswapV3NFTManager is ERC721 {
     modifier isApprovedOrOwner(uint256 tokenId) {
         address owner = ownerOf(tokenId);
         if (
-            msg.sender != owner ||
-            !isApprovedForAll[owner][msg.sender] ||
+            msg.sender != owner &&
+            !isApprovedForAll[owner][msg.sender] &&
             getApproved[tokenId] != msg.sender
         ) revert NotAuthorized();
 
