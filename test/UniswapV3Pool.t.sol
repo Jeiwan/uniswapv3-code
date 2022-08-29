@@ -580,6 +580,19 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             2,
             "incorrect pool balance of token1 after collect"
         );
+
+        (, , , tokensOwed0, tokensOwed1) = pool.positions(positionKey);
+
+        assertEq(
+            tokensOwed0,
+            0,
+            "incorrect owed amount for token 0 after collect"
+        );
+        assertEq(
+            tokensOwed1,
+            0,
+            "incorrect owed amount for token 1 after collect"
+        );
     }
 
     function testCollectAfterZeroBurn() public {
