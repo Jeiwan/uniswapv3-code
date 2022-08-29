@@ -45,6 +45,11 @@ contract UniswapV3NFTManager is ERC721 {
         factory = factoryAddress;
     }
 
+    function tokenURI(uint256 id) public view override returns (string memory) {
+        // TODO: implement
+        return "";
+    }
+
     struct MintParams {
         address recipient;
         address tokenA;
