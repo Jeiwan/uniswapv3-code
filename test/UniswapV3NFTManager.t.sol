@@ -498,6 +498,25 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         nft.ownerOf(tokenId);
     }
 
+    function testTokenURI() public {
+        uint256 tokenId = nft.mint(
+            UniswapV3NFTManager.MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(usdc),
+                fee: FEE,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
+                amount0Desired: 1 ether,
+                amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
+
+        assertTokenURI(nft.tokenURI(tokenId), "tokenuri", "invalid token URI");
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // INTERNAL

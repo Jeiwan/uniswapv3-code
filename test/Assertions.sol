@@ -414,6 +414,20 @@ abstract contract Assertions is Test {
         }
     }
 
+    function assertTokenURI(
+        string memory actual,
+        string memory expectedFixture,
+        string memory errMessage
+    ) internal {
+        string[] memory cmd = new string[](2);
+        cmd[0] = "cat";
+        cmd[1] = string.concat("./test/fixtures/", expectedFixture);
+
+        bytes memory expected = vm.ffi(cmd);
+
+        assertEq(actual, string(expected), errMessage);
+    }
+
     function tickInBitMap(UniswapV3Pool pool, int24 tick_)
         internal
         view
