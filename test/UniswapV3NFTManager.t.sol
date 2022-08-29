@@ -236,8 +236,6 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
             });
         uint256 tokenId = nft.mint(mintParams);
 
-        assertEq(nft.ownerOf(tokenId), address(this), "WOOT");
-
         UniswapV3NFTManager.RemoveLiquidityParams
             memory removeParams = UniswapV3NFTManager.RemoveLiquidityParams({
                 tokenId: tokenId,
@@ -336,8 +334,6 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
             });
         uint256 tokenId = nft.mint(mintParams);
 
-        assertEq(nft.ownerOf(tokenId), address(this), "WOOT");
-
         UniswapV3NFTManager.RemoveLiquidityParams
             memory removeParams = UniswapV3NFTManager.RemoveLiquidityParams({
                 tokenId: tokenId,
@@ -426,6 +422,80 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
                 )
             })
         );
+    }
+
+    function testBurn() public {
+        UniswapV3NFTManager.MintParams memory mintParams = UniswapV3NFTManager
+            .MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(usdc),
+                fee: FEE,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
+                amount0Desired: 1 ether,
+                amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            });
+        uint256 tokenId = nft.mint(mintParams);
+
+        UniswapV3NFTManager.RemoveLiquidityParams
+            memory removeParams = UniswapV3NFTManager.RemoveLiquidityParams({
+                tokenId: tokenId,
+                liquidity: liquidity(mintParams, INIT_PRICE)
+            });
+        (uint256 amount0Removed, uint256 amount1Removed) = nft.removeLiquidity(
+            removeParams
+        );
+
+        nft.collect(
+            UniswapV3NFTManager.CollectParams({
+                tokenId: tokenId,
+                amount0: uint128(amount0Removed),
+                amount1: uint128(amount1Removed)
+            })
+        );
+
+        nft.burn(tokenId);
+
+        assertEq(tokenId, 0, "invalid token id");
+
+        assertMany(
+            ExpectedMany({
+                pool: wethUSDC,
+                tokens: [weth, usdc],
+                liquidity: 0,
+                sqrtPriceX96: sqrtP(INIT_PRICE),
+                tick: tick(INIT_PRICE),
+                fees: [uint256(0), 0],
+                userBalances: [USER_WETH_BALANCE - 1, USER_USDC_BALANCE - 1],
+                poolBalances: [uint256(1), 1],
+                position: ExpectedPositionShort({
+                    owner: address(nft),
+                    ticks: [mintParams.lowerTick, mintParams.upperTick],
+                    liquidity: 0,
+                    feeGrowth: [uint256(0), 0],
+                    tokensOwed: [uint128(0), 0]
+                }),
+                ticks: mintAndRemoveParamsToTicks(
+                    mintParams,
+                    removeParams,
+                    INIT_PRICE
+                ),
+                observation: ExpectedObservationShort({
+                    index: 0,
+                    timestamp: 1,
+                    tickCumulative: 0,
+                    initialized: true
+                })
+            })
+        );
+
+        assertEq(nft.balanceOf(address(this)), 0);
+
+        vm.expectRevert("NOT_MINTED");
+        nft.ownerOf(tokenId);
     }
 
     ////////////////////////////////////////////////////////////////////////////
