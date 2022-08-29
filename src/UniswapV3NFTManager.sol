@@ -45,7 +45,9 @@ contract UniswapV3NFTManager is ERC721 {
         factory = factoryAddress;
     }
 
-    function tokenURI(uint256 id) public view override returns (string memory) {
+    function tokenURI(
+        uint256 /* id */
+    ) public pure override returns (string memory) {
         // TODO: implement
         return "";
     }
@@ -273,6 +275,7 @@ contract UniswapV3NFTManager is ERC721 {
 
     function positionKey(TokenPosition memory position)
         internal
+        view
         returns (bytes32 key)
     {
         key = keccak256(
