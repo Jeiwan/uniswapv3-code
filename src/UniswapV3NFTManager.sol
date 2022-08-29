@@ -138,7 +138,30 @@ contract UniswapV3NFTManager is ERC721 {
         );
     }
 
-    // function collect()
+    struct CollectParams {
+        uint256 tokenId;
+        uint128 amount0;
+        uint128 amount1;
+    }
+
+    function collect(CollectParams memory params)
+        public
+        isApprovedOrOwner(params.tokenId)
+        returns (uint128 amount0, uint128 amount1)
+    {
+        TokenPosition memory tokenPosition = positions[params.tokenId];
+        if (tokenPosition.pool == address(0x00)) revert WrongToken();
+
+        IUniswapV3Pool pool = IUniswapV3Pool(tokenPosition.pool);
+
+        (amount0, amount1) = pool.collect(
+            msg.sender,
+            tokenPosition.lowerTick,
+            tokenPosition.upperTick,
+            params.amount0,
+            params.amount1
+        );
+    }
 
     // function burn()
 
