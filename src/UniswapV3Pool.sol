@@ -4,6 +4,7 @@ pragma solidity ^0.8.14;
 import "prb-math/PRBMath.sol";
 
 import "./interfaces/IERC20.sol";
+import "./interfaces/IUniswapV3FlashCallback.sol";
 import "./interfaces/IUniswapV3MintCallback.sol";
 import "./interfaces/IUniswapV3Pool.sol";
 import "./interfaces/IUniswapV3PoolDeployer.sol";
@@ -50,6 +51,8 @@ contract UniswapV3Pool is IUniswapV3Pool {
         uint256 amount0,
         uint256 amount1
     );
+
+    event Flash(address indexed recipient, uint256 amount0, uint256 amount1);
 
     event IncreaseObservationCardinalityNext(
         uint16 observationCardinalityNextOld,
@@ -562,6 +565,25 @@ contract UniswapV3Pool is IUniswapV3Pool {
             state.liquidity,
             slot0.tick
         );
+    }
+
+    function flash(
+        uint256 amount0,
+        uint256 amount1,
+        bytes calldata data
+    ) public {
+        uint256 balance0Before = IERC20(token0).balanceOf(address(this));
+        uint256 balance1Before = IERC20(token1).balanceOf(address(this));
+
+        if (amount0 > 0) IERC20(token0).transfer(msg.sender, amount0);
+        if (amount1 > 0) IERC20(token1).transfer(msg.sender, amount1);
+
+        IUniswapV3FlashCallback(msg.sender).uniswapV3FlashCallback(data);
+
+        require(IERC20(token0).balanceOf(address(this)) >= balance0Before);
+        require(IERC20(token1).balanceOf(address(this)) >= balance1Before);
+
+        emit Flash(msg.sender, amount0, amount1);
     }
 
     function observe(uint32[] calldata secondsAgos)
