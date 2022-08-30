@@ -1,14 +1,12 @@
 const config = {
   wethAddress: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
   factoryAddress: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
-  managerAddress: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
-  nftAddress: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
+  nftAddress: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
   quoterAddress: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
   ABIs: {
     'ERC20': require('./abi/ERC20.json'),
     'Factory': require('./abi/Factory.json'),
     'Manager': require('./abi/Manager.json'),
-    'NFTManager': require('./abi/NFTManager.json'),
     'Pool': require('./abi/Pool.json'),
     'Quoter': require('./abi/Quoter.json')
   }

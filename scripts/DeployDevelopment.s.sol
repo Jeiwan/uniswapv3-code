@@ -7,7 +7,6 @@ import "forge-std/Script.sol";
 import "../src/lib/FixedPoint96.sol";
 import "../src/lib/Math.sol";
 import "../src/UniswapV3Factory.sol";
-import "../src/UniswapV3Manager.sol";
 import "../src/UniswapV3NFTManager.sol";
 import "../src/UniswapV3Pool.sol";
 import "../src/UniswapV3Quoter.sol";
@@ -43,7 +42,6 @@ contract DeployDevelopment is Script, TestUtils {
         ERC20Mintable usdt = new ERC20Mintable("USD Token", "USDT", 18);
 
         UniswapV3Factory factory = new UniswapV3Factory();
-        UniswapV3Manager manager = new UniswapV3Manager(address(factory));
         UniswapV3NFTManager nft = new UniswapV3NFTManager(address(factory));
         UniswapV3Quoter quoter = new UniswapV3Quoter(address(factory));
 
@@ -144,7 +142,6 @@ contract DeployDevelopment is Script, TestUtils {
         console.log("WBTC address", address(wbtc));
 
         console.log("Factory address", address(factory));
-        console.log("Manager address", address(manager));
         console.log("NFT address", address(nft));
         console.log("Quoter address", address(quoter));
 

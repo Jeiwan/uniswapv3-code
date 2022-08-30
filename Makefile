@@ -5,7 +5,6 @@ deploy:
 
 update-abis:
 	forge inspect UniswapV3Factory abi > ui/src/abi/Factory.json
-	forge inspect UniswapV3Manager abi > ui/src/abi/Manager.json
 	forge inspect UniswapV3NFTManager abi > ui/src/abi/NFTManager.json
 	forge inspect UniswapV3Pool abi > ui/src/abi/Pool.json
 	forge inspect UniswapV3Quoter abi > ui/src/abi/Quoter.json
