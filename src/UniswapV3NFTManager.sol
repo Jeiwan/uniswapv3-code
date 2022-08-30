@@ -24,6 +24,7 @@ contract UniswapV3NFTManager is ERC721 {
     }
 
     uint256 public totalSupply;
+    uint256 private nextTokenId;
 
     address public immutable factory;
 
@@ -97,8 +98,9 @@ contract UniswapV3NFTManager is ERC721 {
             })
         );
 
-        tokenId = totalSupply++;
+        tokenId = nextTokenId++;
         _mint(params.recipient, tokenId);
+        totalSupply++;
 
         positions[tokenId] = TokenPosition({
             pool: address(pool),
@@ -205,6 +207,7 @@ contract UniswapV3NFTManager is ERC721 {
 
         delete positions[tokenId];
         _burn(tokenId);
+        totalSupply--;
     }
 
     ////////////////////////////////////////////////////////////////////////////

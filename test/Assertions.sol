@@ -386,6 +386,11 @@ abstract contract Assertions is Test {
             expected.tokens.length,
             "invalid NFT balance"
         );
+        assertEq(
+            expected.nft.totalSupply(),
+            expected.tokens.length,
+            "invalid NFT total supply"
+        );
 
         for (uint256 i = 0; i < expected.tokens.length; ++i) {
             ExpectedNFT memory token = expected.tokens[i];

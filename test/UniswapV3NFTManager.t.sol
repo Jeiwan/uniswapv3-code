@@ -493,6 +493,7 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         );
 
         assertEq(nft.balanceOf(address(this)), 0);
+        assertEq(nft.totalSupply(), 0);
 
         vm.expectRevert("NOT_MINTED");
         nft.ownerOf(tokenId);
