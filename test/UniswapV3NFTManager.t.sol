@@ -11,15 +11,19 @@ import "../src/UniswapV3NFTManager.sol";
 
 contract UniswapV3NFTManagerTest is Test, TestUtils {
     uint24 constant FEE = 3000;
+    uint24 constant STABLE_FEE = 500;
     uint256 constant INIT_PRICE = 5000;
+    uint256 constant STABLE_PRICE = 1;
     uint256 constant USER_WETH_BALANCE = 1_000 ether;
     uint256 constant USER_USDC_BALANCE = 1_000_000 ether;
+    uint256 constant USER_DAI_BALANCE = 1_000_000 ether;
 
     ERC20Mintable weth;
     ERC20Mintable usdc;
-    ERC20Mintable uni;
+    ERC20Mintable dai;
     UniswapV3Factory factory;
     UniswapV3Pool wethUSDC;
+    UniswapV3Pool usdcDAI;
     UniswapV3NFTManager nft;
 
     bytes extra;
@@ -27,6 +31,7 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
     function setUp() public {
         usdc = new ERC20Mintable("USDC", "USDC", 18);
         weth = new ERC20Mintable("Ether", "ETH", 18);
+        dai = new ERC20Mintable("DAI", "DAI", 18);
 
         factory = new UniswapV3Factory();
         nft = new UniswapV3NFTManager(address(factory));
@@ -37,11 +42,20 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
             FEE,
             INIT_PRICE
         );
+        usdcDAI = deployPool(
+            factory,
+            address(usdc),
+            address(dai),
+            STABLE_FEE,
+            STABLE_PRICE
+        );
 
         weth.mint(address(this), USER_WETH_BALANCE);
         usdc.mint(address(this), USER_USDC_BALANCE);
+        dai.mint(address(this), USER_DAI_BALANCE);
         weth.approve(address(nft), type(uint256).max);
         usdc.approve(address(nft), type(uint256).max);
+        dai.approve(address(nft), type(uint256).max);
 
         extra = encodeExtra(address(weth), address(usdc), address(this));
     }
@@ -133,13 +147,13 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         uint256 tokenId1 = nft.mint(
             UniswapV3NFTManager.MintParams({
                 recipient: address(this),
-                tokenA: address(weth),
-                tokenB: address(usdc),
-                fee: FEE,
-                lowerTick: tick60(5500),
-                upperTick: tick60(6250),
-                amount0Desired: 1 ether,
-                amount1Desired: 5000 ether,
+                tokenA: address(usdc),
+                tokenB: address(dai),
+                fee: STABLE_FEE,
+                lowerTick: -520, // 0.95
+                upperTick: 490, // 1.05
+                amount0Desired: 100_000 ether,
+                amount1Desired: 100_000 ether,
                 amount0Min: 0,
                 amount1Min: 0
             })
@@ -161,9 +175,9 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
                     }),
                     ExpectedNFT({
                         id: tokenId1,
-                        pool: address(wethUSDC),
-                        lowerTick: tick60(5500),
-                        upperTick: tick60(6250)
+                        pool: address(usdcDAI),
+                        lowerTick: -520,
+                        upperTick: 490
                     })
                 )
             })

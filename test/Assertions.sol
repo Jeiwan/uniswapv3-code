@@ -405,15 +405,15 @@ abstract contract Assertions is Test {
                 .nft
                 .positions(token.id);
 
-            assertEq(token.pool, pool, "invalid NFT position pool");
+            assertEq(pool, token.pool, "invalid NFT position pool");
             assertEq(
-                token.lowerTick,
                 lowerTick,
+                token.lowerTick,
                 "invalid NFT position lower tick"
             );
             assertEq(
-                token.upperTick,
                 upperTick,
+                token.upperTick,
                 "invalid NFT position upper tick"
             );
         }
