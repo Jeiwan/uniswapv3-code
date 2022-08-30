@@ -343,8 +343,8 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             (uint256, uint256)
         );
 
-        if (amount0 > 0) token0.transfer(msg.sender, amount0);
-        if (amount1 > 0) token1.transfer(msg.sender, amount1);
+        if (amount0 > 0) weth.transfer(msg.sender, amount0);
+        if (amount1 > 0) usdc.transfer(msg.sender, amount1);
 
         flashCallbackCalled = true;
     }
