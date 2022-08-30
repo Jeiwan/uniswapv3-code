@@ -24,14 +24,24 @@ library NFTRenderer {
         IUniswapV3Pool pool = IUniswapV3Pool(params.pool);
         IERC20 token0 = IERC20(pool.token0());
         IERC20 token1 = IERC20(pool.token1());
+        string memory symbol0 = token0.symbol();
+        string memory symbol1 = token1.symbol();
 
-        string memory dataURI = string.concat(
+        string memory description = renderDescription(
+            symbol0,
+            symbol1,
+            params.fee,
+            params.lowerTick,
+            params.upperTick
+        );
+
+        string memory image = string.concat(
             "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'>",
             "<style>.tokens { font: bold 10px sans-serif; }",
             ".fee { font: normal 9px sans-serif; }",
             ".tick { font: normal 6px sans-serif; }</style>",
             renderBackground(params.owner, params.lowerTick, params.upperTick),
-            renderTop(token0.symbol(), token1.symbol(), params.fee),
+            renderTop(symbol0, symbol1, params.fee),
             renderBottom(params.lowerTick, params.upperTick),
             "</svg>"
         );
@@ -39,7 +49,19 @@ library NFTRenderer {
         return
             string.concat(
                 "data:application/json;base64,",
-                Base64.encode(bytes(dataURI))
+                Base64.encode(
+                    bytes(
+                        string.concat(
+                            '{"name":"Uniswap V3 Position",',
+                            '"description":"',
+                            description,
+                            '",',
+                            '"image":"data:image/svg+xml;base64,',
+                            Base64.encode(bytes(image)),
+                            '"}'
+                        )
+                    )
+                )
             );
     }
 
@@ -99,6 +121,26 @@ library NFTRenderer {
             "<text x=13 y=120 dy=10 class='tick' fill='#fff'>Upper tick: ",
             tickToText(upperTick),
             "</text>"
+        );
+    }
+
+    function renderDescription(
+        string memory symbol0,
+        string memory symbol1,
+        uint24 fee,
+        int24 lowerTick,
+        int24 upperTick
+    ) internal pure returns (string memory description) {
+        description = string.concat(
+            symbol0,
+            "/",
+            symbol1,
+            " ",
+            feeToText(fee),
+            ", Lower tick: ",
+            tickToText(lowerTick),
+            ", Upper text: ",
+            tickToText(upperTick)
         );
     }
 
