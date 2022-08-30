@@ -17,6 +17,20 @@ contract UniswapV3NFTManager is ERC721 {
     error SlippageCheckFailed(uint256 amount0, uint256 amount1);
     error WrongToken();
 
+    event AddLiquidity(
+        uint256 indexed tokenId,
+        uint128 liquidity,
+        uint256 amount0,
+        uint256 amount1
+    );
+
+    event RemoveLiquidity(
+        uint256 indexed tokenId,
+        uint128 liquidity,
+        uint256 amount0,
+        uint256 amount1
+    );
+
     struct TokenPosition {
         address pool;
         int24 lowerTick;
@@ -86,7 +100,7 @@ contract UniswapV3NFTManager is ERC721 {
     function mint(MintParams calldata params) public returns (uint256 tokenId) {
         IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
-        _addLiquidity(
+        (uint128 liquidity, uint256 amount0, uint256 amount1) = _addLiquidity(
             AddLiquidityInternalParams({
                 pool: pool,
                 lowerTick: params.lowerTick,
@@ -109,6 +123,8 @@ contract UniswapV3NFTManager is ERC721 {
         });
 
         positions[tokenId] = tokenPosition;
+
+        emit AddLiquidity(tokenId, liquidity, amount0, amount1);
     }
 
     struct AddLiquidityParams {
@@ -141,6 +157,8 @@ contract UniswapV3NFTManager is ERC721 {
                 amount1Min: params.amount1Min
             })
         );
+
+        emit AddLiquidity(params.tokenId, liquidity, amount0, amount1);
     }
 
     struct RemoveLiquidityParams {
@@ -168,6 +186,13 @@ contract UniswapV3NFTManager is ERC721 {
             tokenPosition.lowerTick,
             tokenPosition.upperTick,
             params.liquidity
+        );
+
+        emit RemoveLiquidity(
+            params.tokenId,
+            params.liquidity,
+            amount0,
+            amount1
         );
     }
 
