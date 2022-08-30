@@ -115,6 +115,61 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         );
     }
 
+    function testMintMultiple() public {
+        uint256 tokenId0 = nft.mint(
+            UniswapV3NFTManager.MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(usdc),
+                fee: FEE,
+                lowerTick: tick60(4545),
+                upperTick: tick60(5500),
+                amount0Desired: 1 ether,
+                amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
+        uint256 tokenId1 = nft.mint(
+            UniswapV3NFTManager.MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(usdc),
+                fee: FEE,
+                lowerTick: tick60(5500),
+                upperTick: tick60(6250),
+                amount0Desired: 1 ether,
+                amount1Desired: 5000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
+
+        assertEq(tokenId0, 0, "invalid token id");
+        assertEq(tokenId1, 1, "invalid token id");
+
+        assertNFTs(
+            ExpectedNFTs({
+                nft: nft,
+                owner: address(this),
+                tokens: nfts(
+                    ExpectedNFT({
+                        id: tokenId0,
+                        pool: address(wethUSDC),
+                        lowerTick: tick60(4545),
+                        upperTick: tick60(5500)
+                    }),
+                    ExpectedNFT({
+                        id: tokenId1,
+                        pool: address(wethUSDC),
+                        lowerTick: tick60(5500),
+                        upperTick: tick60(6250)
+                    })
+                )
+            })
+        );
+    }
+
     function testAddLiquidity() public {
         UniswapV3NFTManager.MintParams memory mintParams = UniswapV3NFTManager
             .MintParams({
@@ -623,5 +678,15 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
     {
         nfts_ = new ExpectedNFT[](1);
         nfts_[0] = nft_;
+    }
+
+    function nfts(ExpectedNFT memory nft0, ExpectedNFT memory nft1)
+        internal
+        pure
+        returns (ExpectedNFT[] memory nfts_)
+    {
+        nfts_ = new ExpectedNFT[](2);
+        nfts_[0] = nft0;
+        nfts_[1] = nft1;
     }
 }
