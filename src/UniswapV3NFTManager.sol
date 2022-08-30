@@ -29,7 +29,6 @@ contract UniswapV3NFTManager is ERC721 {
     address public immutable factory;
 
     mapping(uint256 => TokenPosition) public positions;
-    mapping(bytes32 => bool) public activePositions;
 
     modifier isApprovedOrOwner(uint256 tokenId) {
         address owner = ownerOf(tokenId);
@@ -110,7 +109,6 @@ contract UniswapV3NFTManager is ERC721 {
         });
 
         positions[tokenId] = tokenPosition;
-        activePositions[positionKey(tokenPosition)] = true;
     }
 
     struct AddLiquidityParams {
@@ -210,7 +208,6 @@ contract UniswapV3NFTManager is ERC721 {
             revert PositionNotCleared();
 
         delete positions[tokenId];
-        delete activePositions[positionKey(tokenPosition)];
         _burn(tokenId);
         totalSupply--;
     }

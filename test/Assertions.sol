@@ -416,13 +416,6 @@ abstract contract Assertions is Test {
                 token.upperTick,
                 "invalid NFT position upper tick"
             );
-
-            assertTrue(
-                expected.nft.activePositions(
-                    keccak256(abi.encodePacked(pool, lowerTick, upperTick))
-                ),
-                "NFT position is not active"
-            );
         }
     }
 

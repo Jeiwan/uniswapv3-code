@@ -563,17 +563,6 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
 
         assertEq(nft.balanceOf(address(this)), 0);
         assertEq(nft.totalSupply(), 0);
-        assertFalse(
-            nft.activePositions(
-                keccak256(
-                    abi.encodePacked(
-                        address(wethUSDC),
-                        tick60(4545),
-                        tick60(5500)
-                    )
-                )
-            )
-        );
 
         vm.expectRevert("NOT_MINTED");
         nft.ownerOf(tokenId);
