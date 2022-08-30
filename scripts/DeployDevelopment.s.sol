@@ -4,10 +4,11 @@ pragma solidity ^0.8.14;
 import "forge-std/console.sol";
 import "forge-std/Script.sol";
 
+import "../src/interfaces/IUniswapV3Manager.sol";
 import "../src/lib/FixedPoint96.sol";
 import "../src/lib/Math.sol";
 import "../src/UniswapV3Factory.sol";
-import "../src/UniswapV3NFTManager.sol";
+import "../src/UniswapV3Manager.sol";
 import "../src/UniswapV3Pool.sol";
 import "../src/UniswapV3Quoter.sol";
 import "../test/ERC20Mintable.sol";
@@ -42,7 +43,7 @@ contract DeployDevelopment is Script, TestUtils {
         ERC20Mintable usdt = new ERC20Mintable("USD Token", "USDT", 18);
 
         UniswapV3Factory factory = new UniswapV3Factory();
-        UniswapV3NFTManager nft = new UniswapV3NFTManager(address(factory));
+        UniswapV3Manager manager = new UniswapV3Manager(address(factory));
         UniswapV3Quoter quoter = new UniswapV3Quoter(address(factory));
 
         UniswapV3Pool wethUsdc = deployPool(
@@ -83,14 +84,14 @@ contract DeployDevelopment is Script, TestUtils {
         wbtc.mint(msg.sender, balances.wbtc);
         weth.mint(msg.sender, balances.weth);
 
-        uni.approve(address(nft), 100 ether);
-        usdc.approve(address(nft), 1_005_000 ether);
-        usdt.approve(address(nft), 1_200_000 ether);
-        wbtc.approve(address(nft), 10 ether);
-        weth.approve(address(nft), 11 ether);
+        uni.approve(address(manager), 100 ether);
+        usdc.approve(address(manager), 1_005_000 ether);
+        usdt.approve(address(manager), 1_200_000 ether);
+        wbtc.approve(address(manager), 10 ether);
+        weth.approve(address(manager), 11 ether);
 
-        nft.mint(
-            nftMintParams(
+        manager.mint(
+            mintParams(
                 address(weth),
                 address(usdc),
                 4545,
@@ -99,19 +100,12 @@ contract DeployDevelopment is Script, TestUtils {
                 5000 ether
             )
         );
-        nft.mint(
-            nftMintParams(
-                address(weth),
-                address(uni),
-                7,
-                13,
-                10 ether,
-                100 ether
-            )
+        manager.mint(
+            mintParams(address(weth), address(uni), 7, 13, 10 ether, 100 ether)
         );
 
-        nft.mint(
-            nftMintParams(
+        manager.mint(
+            mintParams(
                 address(wbtc),
                 address(usdt),
                 19400,
@@ -120,8 +114,8 @@ contract DeployDevelopment is Script, TestUtils {
                 200_000 ether
             )
         );
-        nft.mint(
-            nftMintParams(
+        manager.mint(
+            mintParams(
                 address(usdt),
                 address(usdc),
                 uint160(77222060634363714391462903808), //  0.95, int(math.sqrt(0.95) * 2**96)
@@ -142,7 +136,7 @@ contract DeployDevelopment is Script, TestUtils {
         console.log("WBTC address", address(wbtc));
 
         console.log("Factory address", address(factory));
-        console.log("NFT address", address(nft));
+        console.log("Manager address", address(manager));
         console.log("Quoter address", address(quoter));
 
         console.log("USDT/USDC address", address(usdtUSDC));
