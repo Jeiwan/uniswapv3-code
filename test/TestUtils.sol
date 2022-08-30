@@ -8,6 +8,7 @@ import "../src/interfaces/IUniswapV3Pool.sol";
 import "../src/interfaces/IUniswapV3Manager.sol";
 import "../src/lib/FixedPoint96.sol";
 import "../src/UniswapV3Factory.sol";
+import "../src/UniswapV3NFTManager.sol";
 import "../src/UniswapV3Pool.sol";
 
 import "./ERC20Mintable.sol";
@@ -157,6 +158,51 @@ abstract contract TestUtils is Test, Assertions {
         uint24 fee
     ) internal view returns (IUniswapV3Manager.MintParams memory params) {
         params = IUniswapV3Manager.MintParams({
+            tokenA: tokenA,
+            tokenB: tokenB,
+            fee: fee,
+            lowerTick: sqrtPToNearestTick(lowerSqrtP, tickSpacings[fee]),
+            upperTick: sqrtPToNearestTick(upperSqrtP, tickSpacings[fee]),
+            amount0Desired: amount0,
+            amount1Desired: amount1,
+            amount0Min: 0,
+            amount1Min: 0
+        });
+    }
+
+    function nftMintParams(
+        address tokenA,
+        address tokenB,
+        uint256 lowerPrice,
+        uint256 upperPrice,
+        uint256 amount0,
+        uint256 amount1
+    ) internal view returns (UniswapV3NFTManager.MintParams memory params) {
+        params = UniswapV3NFTManager.MintParams({
+            recipient: msg.sender,
+            tokenA: tokenA,
+            tokenB: tokenB,
+            fee: 3000,
+            lowerTick: tick60(lowerPrice),
+            upperTick: tick60(upperPrice),
+            amount0Desired: amount0,
+            amount1Desired: amount1,
+            amount0Min: 0,
+            amount1Min: 0
+        });
+    }
+
+    function nftMintParams(
+        address tokenA,
+        address tokenB,
+        uint160 lowerSqrtP,
+        uint160 upperSqrtP,
+        uint256 amount0,
+        uint256 amount1,
+        uint24 fee
+    ) internal view returns (UniswapV3NFTManager.MintParams memory params) {
+        params = UniswapV3NFTManager.MintParams({
+            recipient: msg.sender,
             tokenA: tokenA,
             tokenB: tokenB,
             fee: fee,
