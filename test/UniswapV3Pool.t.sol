@@ -18,6 +18,7 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
     UniswapV3Pool pool;
 
     bool transferInMintCallback = true;
+    bool flashCallbackCalled = false;
 
     function setUp() public {
         usdc = new ERC20Mintable("USDC", "USDC", 18);
@@ -863,6 +864,29 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         );
     }
 
+    function testFlash() public {
+        setupPool(
+            PoolParams({
+                balances: [uint256(1 ether), 5000 ether],
+                currentPrice: 5000,
+                liquidity: liquidityRanges(
+                    liquidityRange(4545, 5500, 1 ether, 5000 ether, 5000)
+                ),
+                transferInMintCallback: true,
+                transferInSwapCallback: true,
+                mintLiqudity: true
+            })
+        );
+
+        pool.flash(
+            0.1 ether,
+            1000 ether,
+            abi.encodePacked(uint256(0.1 ether), uint256(1000 ether))
+        );
+
+        assertTrue(flashCallbackCalled, "flash callback wasn't called");
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //
     // CALLBACKS
@@ -909,6 +933,18 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
                 uint256(amount1)
             );
         }
+    }
+
+    function uniswapV3FlashCallback(bytes calldata data) public {
+        (uint256 amount0, uint256 amount1) = abi.decode(
+            data,
+            (uint256, uint256)
+        );
+
+        if (amount0 > 0) weth.transfer(msg.sender, amount0);
+        if (amount1 > 0) usdc.transfer(msg.sender, amount1);
+
+        flashCallbackCalled = true;
     }
 
     ////////////////////////////////////////////////////////////////////////////
