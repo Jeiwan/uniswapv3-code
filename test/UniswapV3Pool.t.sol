@@ -878,6 +878,9 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
             })
         );
 
+        // flash loan fee, 3 USDC
+        usdc.mint(address(this), 3 ether);
+
         pool.flash(
             0.1 ether,
             1000 ether,
@@ -935,14 +938,18 @@ contract UniswapV3PoolTest is Test, UniswapV3PoolUtils {
         }
     }
 
-    function uniswapV3FlashCallback(bytes calldata data) public {
+    function uniswapV3FlashCallback(
+        uint256 fee0,
+        uint256 fee1,
+        bytes calldata data
+    ) public {
         (uint256 amount0, uint256 amount1) = abi.decode(
             data,
             (uint256, uint256)
         );
 
-        if (amount0 > 0) weth.transfer(msg.sender, amount0);
-        if (amount1 > 0) usdc.transfer(msg.sender, amount1);
+        if (amount0 > 0) weth.transfer(msg.sender, amount0 + fee0);
+        if (amount1 > 0) usdc.transfer(msg.sender, amount1 + fee1);
 
         flashCallbackCalled = true;
     }
