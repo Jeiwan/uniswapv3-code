@@ -29,6 +29,7 @@ contract UniswapV3NFTManager is ERC721 {
     address public immutable factory;
 
     mapping(uint256 => TokenPosition) public positions;
+    mapping(bytes32 => bool) public activePositions;
 
     modifier isApprovedOrOwner(uint256 tokenId) {
         address owner = ownerOf(tokenId);
@@ -102,11 +103,14 @@ contract UniswapV3NFTManager is ERC721 {
         _mint(params.recipient, tokenId);
         totalSupply++;
 
-        positions[tokenId] = TokenPosition({
+        TokenPosition memory tokenPosition = TokenPosition({
             pool: address(pool),
             lowerTick: params.lowerTick,
             upperTick: params.upperTick
         });
+
+        positions[tokenId] = tokenPosition;
+        activePositions[positionKey(tokenPosition)] = true;
     }
 
     struct AddLiquidityParams {
@@ -158,7 +162,7 @@ contract UniswapV3NFTManager is ERC721 {
         IUniswapV3Pool pool = IUniswapV3Pool(tokenPosition.pool);
 
         (uint128 availableLiquidity, , , , ) = pool.positions(
-            positionKey(tokenPosition)
+            poolPositionKey(tokenPosition)
         );
         if (params.liquidity > availableLiquidity) revert NotEnoughLiquidity();
 
@@ -200,12 +204,13 @@ contract UniswapV3NFTManager is ERC721 {
 
         IUniswapV3Pool pool = IUniswapV3Pool(tokenPosition.pool);
         (uint128 liquidity, , , uint128 tokensOwed0, uint128 tokensOwed1) = pool
-            .positions(positionKey(tokenPosition));
+            .positions(poolPositionKey(tokenPosition));
 
         if (liquidity > 0 || tokensOwed0 > 0 || tokensOwed1 > 0)
             revert PositionNotCleared();
 
         delete positions[tokenId];
+        delete activePositions[positionKey(tokenPosition)];
         _burn(tokenId);
         totalSupply--;
     }
@@ -293,7 +298,10 @@ contract UniswapV3NFTManager is ERC721 {
         );
     }
 
-    function positionKey(TokenPosition memory position)
+    /*
+        Returns position ID within a pool
+    */
+    function poolPositionKey(TokenPosition memory position)
         internal
         view
         returns (bytes32 key)
@@ -301,6 +309,23 @@ contract UniswapV3NFTManager is ERC721 {
         key = keccak256(
             abi.encodePacked(
                 address(this),
+                position.lowerTick,
+                position.upperTick
+            )
+        );
+    }
+
+    /*
+        Returns position ID within the NFT manager
+    */
+    function positionKey(TokenPosition memory position)
+        internal
+        pure
+        returns (bytes32 key)
+    {
+        key = keccak256(
+            abi.encodePacked(
+                address(position.pool),
                 position.lowerTick,
                 position.upperTick
             )
