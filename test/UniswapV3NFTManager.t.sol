@@ -569,7 +569,7 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
     }
 
     function testTokenURI() public {
-        uint256 tokenId = nft.mint(
+        uint256 tokenId0 = nft.mint(
             UniswapV3NFTManager.MintParams({
                 recipient: address(this),
                 tokenA: address(weth),
@@ -583,8 +583,31 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
                 amount1Min: 0
             })
         );
+        uint256 tokenId1 = nft.mint(
+            UniswapV3NFTManager.MintParams({
+                recipient: address(this),
+                tokenA: address(usdc),
+                tokenB: address(dai),
+                fee: STABLE_FEE,
+                lowerTick: -520, // 0.95
+                upperTick: 490, // 1.05
+                amount0Desired: 100_000 ether,
+                amount1Desired: 100_000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
 
-        assertTokenURI(nft.tokenURI(tokenId), "tokenuri", "invalid token URI");
+        assertTokenURI(
+            nft.tokenURI(tokenId0),
+            "tokenuri0",
+            "invalid token URI"
+        );
+        assertTokenURI(
+            nft.tokenURI(tokenId1),
+            "tokenuri1",
+            "invalid token URI"
+        );
     }
 
     ////////////////////////////////////////////////////////////////////////////
