@@ -1,7 +1,6 @@
 [profile.default]
 src = 'src'
 out = 'out'
-ffi = true
 libs = ['lib']
 fs_permissions = [{access='read',path='.'}]
 
