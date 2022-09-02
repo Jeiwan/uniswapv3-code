@@ -79,12 +79,12 @@ library NFTRenderer {
         uint256 hue = uint256(key) % 360;
 
         background = string.concat(
-            "<rect width=100 height=160 fill='hsl(",
+            '<rect width="100" height="160" fill="hsl(',
             Strings.toString(hue),
-            ",40%,40%)'/>",
-            "<rect x=10 y=10 width=80 height=140 rx=5 ry=5 fill='hsl(",
+            ',40%,40%)"/>',
+            '<rect x="10" y="10" width="80" height="140" rx="5" ry="5" fill="hsl(',
             Strings.toString(hue),
-            ",100%,50%)' stroke='#000'/>"
+            ',100%,50%)" stroke="#000"/>'
         );
     }
 
@@ -94,14 +94,14 @@ library NFTRenderer {
         uint24 fee
     ) internal pure returns (string memory top) {
         top = string.concat(
-            "<rect x=10 y=29 width=80 height=14/>",
-            "<text x=13 y=40 class='tokens' fill='#fff'>",
+            '<rect x="10" y="29" width="80" height="14"/>',
+            '<text x="13" y="40" class="tokens" fill="#fff">',
             symbol0,
             "/",
             symbol1,
             "</text>"
-            "<rect x=10 y=44 width=80 height=10/>",
-            "<text x=13 y=40 dy=12 class='fee' fill='#fff'>",
+            '<rect x="10" y="44" width="80" height="10"/>',
+            '<text x="13" y="40" dy="12" class="fee" fill="#fff">',
             feeToText(fee),
             "</text>"
         );
@@ -113,12 +113,12 @@ library NFTRenderer {
         returns (string memory bottom)
     {
         bottom = string.concat(
-            "<rect x=10 y=114 width=80 height=8/>",
-            "<text x=13 y=120 class='tick' fill='#fff'>Lower tick: ",
+            '<rect x="10" y="114" width="80" height="8"/>',
+            '<text x="13" y="120" class="tick" fill="#fff">Lower tick: ',
             tickToText(lowerTick),
             "</text>",
-            "<rect x=10 y=124 width=80 height=8/>",
-            "<text x=13 y=120 dy=10 class='tick' fill='#fff'>Upper tick: ",
+            '<rect x="10" y="124" width="80" height="8"/>',
+            '<text x="13" y="120" dy="10" class="tick" fill="#fff">Upper tick: ',
             tickToText(upperTick),
             "</text>"
         );

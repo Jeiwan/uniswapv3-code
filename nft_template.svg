@@ -13,7 +13,7 @@
     }
   </style>
 
-  <rect width=100 height=160 fill="hsl(330,40%,40%)" />
+  <rect width="100" height="160" fill="hsl(330,40%,40%)" />
   <rect x="10" y="10" width="80" height="140" rx="5" ry="5" fill="hsl(330,90%,50%)" stroke="#000" />
 
   <rect x="10" y="29" width="80" height="14" />
@@ -22,7 +22,7 @@
   </text>
 
   <rect x="10" y="44" width="80" height="10" />
-  <text x="13" y="40" dy=12 class="fee" fill="#fff">
+  <text x="13" y="40" dy="12" class="fee" fill="#fff">
     0.05%
   </text>
 
