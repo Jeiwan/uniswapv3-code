@@ -56,7 +56,7 @@ contract UniswapV3NFTManager is ERC721 {
     }
 
     constructor(address factoryAddress)
-        ERC721("UnsiwapV3 NFT Positions", "UNIV3")
+        ERC721("UniswapV3 NFT Positions", "UNIV3")
     {
         factory = factoryAddress;
     }
