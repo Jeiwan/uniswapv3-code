@@ -424,11 +424,9 @@ abstract contract Assertions is Test {
         string memory expectedFixture,
         string memory errMessage
     ) internal {
-        string[] memory cmd = new string[](2);
-        cmd[0] = "cat";
-        cmd[1] = string.concat("./test/fixtures/", expectedFixture);
-
-        bytes memory expected = vm.ffi(cmd);
+        string memory expected = vm.readFile(
+            string.concat("./test/fixtures/", expectedFixture)
+        );
 
         assertEq(actual, string(expected), errMessage);
     }

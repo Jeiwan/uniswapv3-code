@@ -3,5 +3,6 @@ src = 'src'
 out = 'out'
 ffi = true
 libs = ['lib']
+fs_permissions = [{access='read',path='.'}]
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
