@@ -27,14 +27,6 @@ library NFTRenderer {
         string memory symbol0 = token0.symbol();
         string memory symbol1 = token1.symbol();
 
-        string memory description = renderDescription(
-            symbol0,
-            symbol1,
-            params.fee,
-            params.lowerTick,
-            params.upperTick
-        );
-
         string memory image = string.concat(
             "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 480'>",
             "<style>.tokens { font: bold 30px sans-serif; }",
@@ -44,6 +36,14 @@ library NFTRenderer {
             renderTop(symbol0, symbol1, params.fee),
             renderBottom(params.lowerTick, params.upperTick),
             "</svg>"
+        );
+
+        string memory description = renderDescription(
+            symbol0,
+            symbol1,
+            params.fee,
+            params.lowerTick,
+            params.upperTick
         );
 
         string memory json = string.concat(
