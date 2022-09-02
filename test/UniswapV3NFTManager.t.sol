@@ -14,24 +14,29 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
     uint24 constant STABLE_FEE = 500;
     uint256 constant INIT_PRICE = 5000;
     uint256 constant STABLE_PRICE = 1;
-    uint256 constant USER_WETH_BALANCE = 1_000 ether;
+    uint256 constant UNI_PRICE = 10;
+    uint256 constant USER_WETH_BALANCE = 10_000 ether;
     uint256 constant USER_USDC_BALANCE = 1_000_000 ether;
     uint256 constant USER_DAI_BALANCE = 1_000_000 ether;
+    uint256 constant USER_UNI_BALANCE = 10_000 ether;
 
     ERC20Mintable weth;
     ERC20Mintable usdc;
     ERC20Mintable dai;
+    ERC20Mintable uni;
     UniswapV3Factory factory;
     UniswapV3Pool wethUSDC;
     UniswapV3Pool usdcDAI;
+    UniswapV3Pool wethUNI;
     UniswapV3NFTManager nft;
 
     bytes extra;
 
     function setUp() public {
         usdc = new ERC20Mintable("USDC", "USDC", 18);
-        weth = new ERC20Mintable("Ether", "ETH", 18);
+        weth = new ERC20Mintable("Ether", "WETH", 18);
         dai = new ERC20Mintable("DAI", "DAI", 18);
+        uni = new ERC20Mintable("Uniswap Token", "UNI", 18);
 
         factory = new UniswapV3Factory();
         nft = new UniswapV3NFTManager(address(factory));
@@ -49,13 +54,22 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
             STABLE_FEE,
             STABLE_PRICE
         );
+        wethUNI = deployPool(
+            factory,
+            address(weth),
+            address(uni),
+            FEE,
+            UNI_PRICE
+        );
 
         weth.mint(address(this), USER_WETH_BALANCE);
         usdc.mint(address(this), USER_USDC_BALANCE);
         dai.mint(address(this), USER_DAI_BALANCE);
+        uni.mint(address(this), USER_UNI_BALANCE);
         weth.approve(address(nft), type(uint256).max);
         usdc.approve(address(nft), type(uint256).max);
         dai.approve(address(nft), type(uint256).max);
+        uni.approve(address(nft), type(uint256).max);
 
         extra = encodeExtra(address(weth), address(usdc), address(this));
     }
@@ -597,6 +611,20 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
                 amount1Min: 0
             })
         );
+        uint256 tokenId2 = nft.mint(
+            UniswapV3NFTManager.MintParams({
+                recipient: address(this),
+                tokenA: address(weth),
+                tokenB: address(uni),
+                fee: FEE,
+                lowerTick: tick60(7),
+                upperTick: tick60(13),
+                amount0Desired: 1_000 ether,
+                amount1Desired: 10_000 ether,
+                amount0Min: 0,
+                amount1Min: 0
+            })
+        );
 
         assertTokenURI(
             nft.tokenURI(tokenId0),
@@ -606,6 +634,11 @@ contract UniswapV3NFTManagerTest is Test, TestUtils {
         assertTokenURI(
             nft.tokenURI(tokenId1),
             "tokenuri1",
+            "invalid token URI"
+        );
+        assertTokenURI(
+            nft.tokenURI(tokenId2),
+            "tokenuri2",
             "invalid token URI"
         );
     }
