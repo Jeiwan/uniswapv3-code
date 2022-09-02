@@ -36,10 +36,10 @@ library NFTRenderer {
         );
 
         string memory image = string.concat(
-            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 160'>",
-            "<style>.tokens { font: bold 10px sans-serif; }",
-            ".fee { font: normal 9px sans-serif; }",
-            ".tick { font: normal 6px sans-serif; }</style>",
+            "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 480'>",
+            "<style>.tokens { font: bold 30px sans-serif; }",
+            ".fee { font: normal 26px sans-serif; }",
+            ".tick { font: normal 18px sans-serif; }</style>",
             renderBackground(params.owner, params.lowerTick, params.upperTick),
             renderTop(symbol0, symbol1, params.fee),
             renderBottom(params.lowerTick, params.upperTick),
@@ -79,10 +79,10 @@ library NFTRenderer {
         uint256 hue = uint256(key) % 360;
 
         background = string.concat(
-            '<rect width="100" height="160" fill="hsl(',
+            '<rect width="300" height="480" fill="hsl(',
             Strings.toString(hue),
             ',40%,40%)"/>',
-            '<rect x="10" y="10" width="80" height="140" rx="5" ry="5" fill="hsl(',
+            '<rect x="30" y="30" width="240" height="420" rx="15" ry="15" fill="hsl(',
             Strings.toString(hue),
             ',100%,50%)" stroke="#000"/>'
         );
@@ -94,14 +94,14 @@ library NFTRenderer {
         uint24 fee
     ) internal pure returns (string memory top) {
         top = string.concat(
-            '<rect x="10" y="29" width="80" height="14"/>',
-            '<text x="13" y="40" class="tokens" fill="#fff">',
+            '<rect x="30" y="87" width="240" height="42"/>',
+            '<text x="39" y="120" class="tokens" fill="#fff">',
             symbol0,
             "/",
             symbol1,
             "</text>"
-            '<rect x="10" y="44" width="80" height="10"/>',
-            '<text x="13" y="40" dy="12" class="fee" fill="#fff">',
+            '<rect x="30" y="132" width="240" height="30"/>',
+            '<text x="39" y="120" dy="36" class="fee" fill="#fff">',
             feeToText(fee),
             "</text>"
         );
@@ -113,12 +113,12 @@ library NFTRenderer {
         returns (string memory bottom)
     {
         bottom = string.concat(
-            '<rect x="10" y="114" width="80" height="8"/>',
-            '<text x="13" y="120" class="tick" fill="#fff">Lower tick: ',
+            '<rect x="30" y="342" width="240" height="24"/>',
+            '<text x="39" y="360" class="tick" fill="#fff">Lower tick: ',
             tickToText(lowerTick),
             "</text>",
-            '<rect x="10" y="124" width="80" height="8"/>',
-            '<text x="13" y="120" dy="10" class="tick" fill="#fff">Upper tick: ',
+            '<rect x="30" y="372" width="240" height="24"/>',
+            '<text x="39" y="360" dy="30" class="tick" fill="#fff">Upper tick: ',
             tickToText(upperTick),
             "</text>"
         );
