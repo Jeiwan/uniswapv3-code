@@ -28,7 +28,7 @@
 }
 
 .SwapForm input {
-  @apply border border-purple-400 rounded mb-2 px-4 py-2 bg-slate-50 text-xl rounded-tr-none rounded-br-none border-r-0;
+  @apply border border-purple-400 rounded mb-2 px-4 py-2 bg-slate-50 text-xl rounded-tr-none rounded-br-none border-r-0 w-full;
 }
 
 .SwapForm button {
