@@ -6,6 +6,10 @@ A Uniswap V3 clone built from scratch for educational purposes. Part of free and
 
 ## How to Run
 1. Ensure you have [Foundry](https://github.com/foundry-rs/foundry) installed.
+1. Install the dependencies:
+    ```shell
+    $ forge install
+    ```
 1. Run Anvil:
     ```shell
     $ anvil
