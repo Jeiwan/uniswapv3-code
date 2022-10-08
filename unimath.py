@@ -15,6 +15,10 @@ def price_to_sqrtp(p):
     return int(math.sqrt(p) * q96)
 
 
+def sqrtp_to_price(sqrtp):
+    return (sqrtp / q96) ** 2
+
+
 def tick_to_sqrtp(t):
     return int((1.0001 ** (t / 2)) * q96)
 
