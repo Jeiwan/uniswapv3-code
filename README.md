@@ -4,6 +4,11 @@ A Uniswap V3 clone built from scratch for educational purposes. Part of free and
 
 ![Front-end application screenshot](/screenshot.png)
 
+## Questions?
+
+Each milestone has its own section in [the GitHub Discussions](https://github.com/Jeiwan/uniswapv3-book/discussions).
+Don't hesitate to ask questions about anything that's not clear in the book!
+
 ## How to Run
 1. Ensure you have [Foundry](https://github.com/foundry-rs/foundry) installed.
 1. Install the dependencies:
