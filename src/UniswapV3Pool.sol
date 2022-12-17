@@ -397,7 +397,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
             zeroForOne
                 ? sqrtPriceLimitX96 > slot0_.sqrtPriceX96 ||
                     sqrtPriceLimitX96 < TickMath.MIN_SQRT_RATIO
-                : sqrtPriceLimitX96 < slot0_.sqrtPriceX96 ||
+                : sqrtPriceLimitX96 < slot0_.sqrtPriceX96 &&
                     sqrtPriceLimitX96 > TickMath.MAX_SQRT_RATIO
         ) revert InvalidPriceLimit();
 
