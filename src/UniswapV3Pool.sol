@@ -164,13 +164,11 @@ contract UniswapV3Pool is IUniswapV3Pool {
         int128 liquidityDelta;
     }
 
-    function _modifyPosition(ModifyPositionParams memory params)
+    function _modifyPosition(
+        ModifyPositionParams memory params
+    )
         internal
-        returns (
-            Position.Info storage position,
-            int256 amount0,
-            int256 amount1
-        )
+        returns (Position.Info storage position, int256 amount0, int256 amount1)
     {
         // gas optimizations
         Slot0 memory slot0_ = slot0;
@@ -420,11 +418,12 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
             step.sqrtPriceStartX96 = state.sqrtPriceX96;
 
-            (step.nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
-                state.tick,
-                int24(tickSpacing),
-                zeroForOne
-            );
+            (step.nextTick, step.initialized) = tickBitmap
+                .nextInitializedTickWithinOneWord(
+                    state.tick,
+                    int24(tickSpacing),
+                    zeroForOne
+                );
 
             step.sqrtPriceNextX96 = TickMath.getSqrtRatioAtTick(step.nextTick);
 
@@ -459,28 +458,30 @@ contract UniswapV3Pool is IUniswapV3Pool {
             }
 
             if (state.sqrtPriceX96 == step.sqrtPriceNextX96) {
-                int128 liquidityDelta = ticks.cross(
-                    step.nextTick,
-                    (
-                        zeroForOne
-                            ? state.feeGrowthGlobalX128
-                            : feeGrowthGlobal0X128
-                    ),
-                    (
-                        zeroForOne
-                            ? feeGrowthGlobal1X128
-                            : state.feeGrowthGlobalX128
-                    )
-                );
+                if (step.initialized) {
+                    int128 liquidityDelta = ticks.cross(
+                        step.nextTick,
+                        (
+                            zeroForOne
+                                ? state.feeGrowthGlobalX128
+                                : feeGrowthGlobal0X128
+                        ),
+                        (
+                            zeroForOne
+                                ? feeGrowthGlobal1X128
+                                : state.feeGrowthGlobalX128
+                        )
+                    );
 
-                if (zeroForOne) liquidityDelta = -liquidityDelta;
+                    if (zeroForOne) liquidityDelta = -liquidityDelta;
 
-                state.liquidity = LiquidityMath.addLiquidity(
-                    state.liquidity,
-                    liquidityDelta
-                );
+                    state.liquidity = LiquidityMath.addLiquidity(
+                        state.liquidity,
+                        liquidityDelta
+                    );
 
-                if (state.liquidity == 0) revert NotEnoughLiquidity();
+                    if (state.liquidity == 0) revert NotEnoughLiquidity();
+                }
 
                 state.tick = zeroForOne ? step.nextTick - 1 : step.nextTick;
             } else if (state.sqrtPriceX96 != step.sqrtPriceStartX96) {
@@ -596,11 +597,9 @@ contract UniswapV3Pool is IUniswapV3Pool {
         emit Flash(msg.sender, amount0, amount1);
     }
 
-    function observe(uint32[] calldata secondsAgos)
-        public
-        view
-        returns (int56[] memory tickCumulatives)
-    {
+    function observe(
+        uint32[] calldata secondsAgos
+    ) public view returns (int56[] memory tickCumulatives) {
         return
             observations.observe(
                 _blockTimestamp(),
