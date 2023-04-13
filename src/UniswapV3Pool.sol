@@ -140,7 +140,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
                 TickMath.getSqrtRatioAtTick(upperTick),
                 amount
             );
-        } else if (slot0_.tick < upperTick) {
+        } else if (slot0_.tick < upperTick && slot0_.tick > lowerTick) {
             amount0 = Math.calcAmount0Delta(
                 slot0_.sqrtPriceX96,
                 TickMath.getSqrtRatioAtTick(upperTick),
@@ -154,7 +154,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
             );
 
             liquidity = LiquidityMath.addLiquidity(liquidity, int128(amount)); // TODO: amount is negative when removing liquidity
-        } else {
+        } else if (slot0_.tick > upperTick) {
             amount1 = Math.calcAmount1Delta(
                 TickMath.getSqrtRatioAtTick(lowerTick),
                 TickMath.getSqrtRatioAtTick(upperTick),
