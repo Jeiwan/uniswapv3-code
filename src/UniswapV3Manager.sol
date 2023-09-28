@@ -57,6 +57,10 @@ contract UniswapV3Manager is IUniswapV3Manager {
     {
         IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
+        (uint256 amount0Desired, uint256 amount1Desired) = params.tokenA == pool.token0()
+            ? (params.amount0Desired, params.amount1Desired)
+            : (params.amount1Desired, params.amount0Desired);
+
         (uint160 sqrtPriceX96, , , , ) = pool.slot0();
         uint160 sqrtPriceLowerX96 = TickMath.getSqrtRatioAtTick(
             params.lowerTick
@@ -69,8 +73,8 @@ contract UniswapV3Manager is IUniswapV3Manager {
             sqrtPriceX96,
             sqrtPriceLowerX96,
             sqrtPriceUpperX96,
-            params.amount0Desired,
-            params.amount1Desired
+            amount0Desired,
+            amount1Desired
         );
 
         (amount0, amount1) = pool.mint(
