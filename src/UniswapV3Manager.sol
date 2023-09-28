@@ -55,6 +55,10 @@ contract UniswapV3Manager is IUniswapV3Manager {
         public
         returns (uint256 amount0, uint256 amount1)
     {
+        (uint256 amount0Desired, uint256 amount1Desired) = params.tokenA == pool.token0()
+            ? (params.amount0Desired, params.amount1Desired)
+            : (params.amount1Desired, params.amount0Desired);
+
         IUniswapV3Pool pool = getPool(params.tokenA, params.tokenB, params.fee);
 
         (uint160 sqrtPriceX96, , , , ) = pool.slot0();
@@ -69,8 +73,8 @@ contract UniswapV3Manager is IUniswapV3Manager {
             sqrtPriceX96,
             sqrtPriceLowerX96,
             sqrtPriceUpperX96,
-            params.amount0Desired,
-            params.amount1Desired
+            amount0Desired,
+            amount1Desired
         );
 
         (amount0, amount1) = pool.mint(
