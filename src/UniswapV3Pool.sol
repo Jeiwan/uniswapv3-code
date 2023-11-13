@@ -420,7 +420,7 @@ contract UniswapV3Pool is IUniswapV3Pool {
 
             step.sqrtPriceStartX96 = state.sqrtPriceX96;
 
-            (step.nextTick, ) = tickBitmap.nextInitializedTickWithinOneWord(
+            (step.nextTick, step.initialized) = tickBitmap.nextInitializedTickWithinOneWord(
                 state.tick,
                 int24(tickSpacing),
                 zeroForOne
@@ -459,28 +459,30 @@ contract UniswapV3Pool is IUniswapV3Pool {
             }
 
             if (state.sqrtPriceX96 == step.sqrtPriceNextX96) {
-                int128 liquidityDelta = ticks.cross(
-                    step.nextTick,
-                    (
-                        zeroForOne
-                            ? state.feeGrowthGlobalX128
-                            : feeGrowthGlobal0X128
-                    ),
-                    (
-                        zeroForOne
-                            ? feeGrowthGlobal1X128
-                            : state.feeGrowthGlobalX128
-                    )
-                );
+                if (step.initialized) {
+                    int128 liquidityDelta = ticks.cross(
+                        step.nextTick,
+                        (
+                            zeroForOne
+                                ? state.feeGrowthGlobalX128
+                                : feeGrowthGlobal0X128
+                        ),
+                        (
+                            zeroForOne
+                                ? feeGrowthGlobal1X128
+                                : state.feeGrowthGlobalX128
+                        )
+                    );
 
-                if (zeroForOne) liquidityDelta = -liquidityDelta;
+                    if (zeroForOne) liquidityDelta = -liquidityDelta;
 
-                state.liquidity = LiquidityMath.addLiquidity(
-                    state.liquidity,
-                    liquidityDelta
-                );
+                    state.liquidity = LiquidityMath.addLiquidity(
+                        state.liquidity,
+                        liquidityDelta
+                    );
 
-                if (state.liquidity == 0) revert NotEnoughLiquidity();
+                    if (state.liquidity == 0) revert NotEnoughLiquidity();
+                }
 
                 state.tick = zeroForOne ? step.nextTick - 1 : step.nextTick;
             } else if (state.sqrtPriceX96 != step.sqrtPriceStartX96) {
