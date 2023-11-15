@@ -17,7 +17,7 @@ Don't hesitate to ask questions about anything that's not clear in the book!
     ```
 1. Run Anvil:
     ```shell
-    $ anvil
+    $ make anvil
     ```
 1. Set environment variables and deploy contracts:
     ```shell
