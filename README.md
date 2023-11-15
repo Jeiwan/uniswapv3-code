@@ -14,6 +14,7 @@ Don't hesitate to ask questions about anything that's not clear in the book!
 1. Install the dependencies:
     ```shell
     $ forge install
+    $ cd ui && yarn
     ```
 1. Run Anvil:
     ```shell
