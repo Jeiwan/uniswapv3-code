@@ -185,7 +185,9 @@ contract UniswapV3Manager is IUniswapV3Manager {
             PoolAddress.computeAddress(factory, token0, token1, fee)
         );
     }
-
+    //You should understand that callback functions can invoke anybody and take all approved to manager SC assets.
+    //We do not verify caller here, but in production it must be. For example in UniswapV3Router we can see:
+    //CallbackValidation.verifyCallback(factory, tokenIn, tokenOut, fee);
     function uniswapV3MintCallback(
         uint256 amount0,
         uint256 amount1,
